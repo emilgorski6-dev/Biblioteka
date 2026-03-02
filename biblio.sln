@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biblioteka.Web", "Biblioteka.Web\Biblioteka.Web.csproj", "{9D6F4542-AB5F-EE54-EF41-8E93C60F20A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Biblioteka", "Biblioteka", "{4C0A6EC5-6F9D-2EC6-71B1-459F04C2A9F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biblioteka.Web", "Biblioteka\Biblioteka.Web\Biblioteka.Web.csproj", "{C68129CD-786E-191E-EBE6-97B92F229286}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D6F4542-AB5F-EE54-EF41-8E93C60F20A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D6F4542-AB5F-EE54-EF41-8E93C60F20A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D6F4542-AB5F-EE54-EF41-8E93C60F20A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D6F4542-AB5F-EE54-EF41-8E93C60F20A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C68129CD-786E-191E-EBE6-97B92F229286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C68129CD-786E-191E-EBE6-97B92F229286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C68129CD-786E-191E-EBE6-97B92F229286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C68129CD-786E-191E-EBE6-97B92F229286}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C68129CD-786E-191E-EBE6-97B92F229286} = {4C0A6EC5-6F9D-2EC6-71B1-459F04C2A9F7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FE99B33A-E2EE-471F-88E8-672E7AA7F59C}
+	EndGlobalSection
+EndGlobal

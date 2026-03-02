@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\Desktop\\Biblioteka\\biblio\\Biblioteka.Web\\Biblioteka.Web.csproj": {}
+    "C:\\Users\\emilg\\Biblioteka\\Biblioteka\\Biblioteka.Web\\Biblioteka.Web.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\Desktop\\Biblioteka\\biblio\\Biblioteka.Web\\Biblioteka.Web.csproj": {
+    "C:\\Users\\emilg\\Biblioteka\\Biblioteka\\Biblioteka.Web\\Biblioteka.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\Desktop\\Biblioteka\\biblio\\Biblioteka.Web\\Biblioteka.Web.csproj",
+        "projectUniqueName": "C:\\Users\\emilg\\Biblioteka\\Biblioteka\\Biblioteka.Web\\Biblioteka.Web.csproj",
         "projectName": "Biblioteka.Web",
-        "projectPath": "C:\\Users\\Admin\\Desktop\\Biblioteka\\biblio\\Biblioteka.Web\\Biblioteka.Web.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\Desktop\\Biblioteka\\biblio\\Biblioteka.Web\\obj\\",
+        "projectPath": "C:\\Users\\emilg\\Biblioteka\\Biblioteka\\Biblioteka.Web\\Biblioteka.Web.csproj",
+        "packagesPath": "C:\\Users\\emilg\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\emilg\\Biblioteka\\Biblioteka\\Biblioteka.Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\emilg\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

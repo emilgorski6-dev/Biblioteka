@@ -37,7 +37,7 @@ namespace PrzykladProgramu
 
             // Logika programu
             Console.WriteLine("--- TWOJA LISTA ZADAŃ ---");
-            
+
             // Pętla wyświetlająca zadania
             foreach (var z in listaZadan)
             {

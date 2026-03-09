@@ -1,8 +1,51 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Strona Główna";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Witamy w Bibliotece<br>Nova</h1>
+        <p>Odkryj tysiące książek, czasopism i multimediów. Nasz zintegrowany system umożliwia łatwe zarządzanie
+            wypożyczeniami i wyszukiwanie czytelników.</p>
+            <div class="hero-buttons">
+                <a asp-controller="Uzytkownicy" asp-action="Index" class="btn btn-primary">Wyszukaj klienta</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-secondary">Zaloguj się do panelu &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="books-section">
+        <div class="container">
+            <h2>Dostępne książki w systemie</h2>
+            <p class="section-desc">Sprawdź co aktualnie można wypożyczyć z naszych zbiorów. To wybrane pozycje gotowe do
+                rezerwacji.</p>
+
+                <div class="books-table">
+                    <div class="table-header">
+                        <div class="col-title">Tytuł i Autor</div>
+                        <div class="col-category">Kategoria</div>
+                        <div class="col-year">Rok wydania</div>
+                        <div class="col-status">Status</div>
+                    </div>
+
+                    @* Przykładowy wiersz - docelowo Kuba połączy to z bazą danych *@
+                    <div class="table-row">
+                        <div class="col-title">
+                            <div class="book-icon"><i class="ph ph-book"></i></div>
+                            <div class="book-info">
+                                <strong>Władca Pierścieni: Drużyna Pierścienia</strong>
+                                <span>J.R.R. Tolkien</span>
+                            </div>
+                        </div>
+                        <div class="col-category">Fantastyka</div>
+                        <div class="col-year">1954</div>
+                        <div class="col-status"><span class="badge success">Dostępna</span></div>
+                    </div>
+                    @* ... reszta wierszy ... *@
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-controller="Ksiazki" asp-action="Index" class="btn btn-light">Zobacz cały katalog księgozbioru</a>
+                </div>
+            </div>
+        </section>

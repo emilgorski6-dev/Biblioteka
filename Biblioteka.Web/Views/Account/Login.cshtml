@@ -1,41 +1,42 @@
+@model Biblioteka.Web.Models.LoginViewModel 
+
 @{
-    ViewData["Title"] = "Zaloguj się";
+    ViewData["Title"] = "Logowanie";
 }
 
-<section class="auth-section">
-    <div class="container">
-        <div class="auth-header">
-            <div class="auth-icon">
+<div class="login-body">
+    <div class="login-wrapper">
+        
+        <div class="login-header">
+            <div class="icon-box">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
             </div>
-            <h1 class="auth-title">Zaloguj się</h1>
-            <p class="auth-subtitle">Nie masz jeszcze konta? <a href="#" class="text-primary">Zarejestruj się bezpłatnie</a></p>
+            <h2>Zaloguj się</h2>
+            <p>Nie masz jeszcze konta? <a asp-controller="Account" asp-action="Register">Zarejestruj się bezpłatnie</a></p>
         </div>
 
-        <div class="card auth-card">
-            <form asp-controller="Account" asp-action="Login" method="POST">
+        <div class="login-card">
+            <form asp-action="Login" method="post">
                 
                 <div class="form-group">
-                    <label for="email" class="form-label">Adres e-mail</label>
-                    <div class="input-wrapper">
+                    <label>Adres e-mail</label>
+                    <div class="input-with-icon">
                         <i class="fa-regular fa-envelope icon"></i>
-                        <input type="email" id="email" name="Email" class="form-control" placeholder=" " required>
+                        <input type="email" placeholder="Twój e-mail" asp-for="Email" required />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <div class="label-row">
-                        <label for="password" class="form-label">Hasło</label>
-                        <a asp-controller="Account" asp-action="ForgotPassword" class="text-primary text-sm">Zapomniałeś hasła?</a>
-                    </div>
-                    <div class="input-wrapper">
+                    <label>Hasło <a href="#" class="forgot-password-link">Zapomniałeś hasła?</a></label>
+                    <div class="input-with-icon" style="margin-top: 8px;">
                         <i class="fa-solid fa-lock icon"></i>
-                        <input type="password" id="password" name="Password" class="form-control" placeholder=" " required>
+                        <input type="password" placeholder="Twoje hasło" asp-for="Password" required />
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-2">Zaloguj się</button>
+                <button type="submit" class="btn-login-submit">Zaloguj się</button>
             </form>
         </div>
+
     </div>
-</section>
+</div>

@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Dodaj użytkownika";
+}
+
+<div class="admin-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Panel Admina
+            </h3>
+            <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/Uzytkownicy/Index" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="17" y1="8" x2="23" y2="8"></line>
+                    <line x1="17" y1="12" x2="23" y2="12"></line>
+                    <line x1="17" y1="16" x2="23" y2="16"></line>
+                </svg>
+                Klienci / Wyszukiwanie
+            </a>
+            
+            <a href="/Uzytkownicy/Dodaj" class="sidebar-link active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Dodaj użytkownika
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-content">
+        
+        <div class="page-header">
+            <h1 class="page-title">Dodaj nowego użytkownika</h1>
+            <p class="page-description">Wypełnij formularz rejestracyjny, aby utworzyć nowe konto. Pola z gwiazdką są wymagane.</p>
+        </div>
+
+        <div class="form-card">
+            <form asp-action="Dodaj" method="post">
+                
+                <div class="form-section-title">Dane konta</div>
+                <div class="form-group-full">
+                    <label class="form-label">Login *</label>
+                    <input type="text" class="form-input" placeholder="np. jkowalski" required />
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="form-label">Adres e-mail *</label>
+                        <input type="email" class="form-input" placeholder="jan.kowalski@example.com" required />
+                    </div>
+                    <div>
+                        <label class="form-label">Numer telefonu</label>
+                        <input type="tel" class="form-input" placeholder="+48 123 456 789" />
+                    </div>
+                </div>
+
+                <div class="form-section-title">Dane osobowe</div>
+                <div class="form-row">
+                    <div>
+                        <label class="form-label">Imię *</label>
+                        <input type="text" class="form-input" required />
+                    </div>
+                    <div>
+                        <label class="form-label">Nazwisko *</label>
+                        <input type="text" class="form-input" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label class="form-label">Numer PESEL *</label>
+                        <input type="text" class="form-input" required />
+                    </div>
+                    <div>
+                        <label class="form-label">Data urodzenia</label>
+                        <input type="text" class="form-input" placeholder="dd.mm.rrrr" />
+                    </div>
+                </div>
+                <div class="form-group-full">
+                    <label class="form-label">Płeć</label>
+                    <select class="form-select">
+                        <option>Kobieta</option>
+                        <option>Mężczyzna</option>
+                        <option>Inna</option>
+                    </select>
+                </div>
+
+                <div class="form-section-title">Adres zamieszkania</div>
+                <div class="form-row-triple">
+                    <div>
+                        <label class="form-label">Adres</label>
+                        <input type="text" class="form-input" placeholder="np. ul. Kwiatowa 12" />
+                    </div>
+                    <div>
+                        <label class="form-label">Kod pocztowy</label>
+                        <input type="text" class="form-input" placeholder="00-000" />
+                    </div>
+                    <div>
+                        <label class="form-label">Numer lokalu <span class="label-optional">(opcjonalnie)</span></label>
+                        <input type="text" class="form-input" />
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="btn-cancel">Anuluj</button>
+                    
+                    <button type="submit" class="btn-submit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="8.5" cy="7" r="4"></circle>
+                            <line x1="20" y1="8" x2="20" y2="14"></line>
+                            <line x1="23" y1="11" x2="17" y2="11"></line>
+                        </svg>
+                        Utwórz konto
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+</div>

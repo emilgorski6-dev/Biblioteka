@@ -1,43 +1,61 @@
 ﻿<!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Biblioteka Nova</title>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <header>
+        <nav class="navbar-custom">
+            <a asp-controller="Home" asp-action="Index" class="brand-logo">
+                <i class="fa-solid fa-book-open" style="margin-right:8px; color:#8B4513;"></i> Biblioteka Nova
+            </a>
+            
+            <div class="nav-links">
+                @{
+                    // Sprawdzamy, w którym kontrolerze (sekcji) aktualnie się znajdujemy
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                }
 
-    <header class="navbar">
-        <div class="container nav-container">
-            <div class="logo">
-                <i class="fa-solid fa-book-open"></i> Biblioteka Nova
+                @if (currentController == "Uzytkownicy")
+                {
+                    // WIDOK DLA ZALOGOWANEGO (Tylko w Panelu Administratora)
+                    <a asp-controller="Home" asp-action="Index" style="color: #555;">Strona Główna</a>
+                    
+                    <a asp-controller="Uzytkownicy" asp-action="Dashboard" class="active-nav-link" style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-regular fa-user"></i> Konto
+                    </a>
+                    
+                    <a asp-controller="Account" asp-action="Logout" style="color: #666; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Wyloguj
+                    </a>
+                }
+                else
+                {
+                    // WIDOK DLA GOŚCIA (Strona Główna, Ekran Logowania itp.)
+                    <a asp-controller="Home" asp-action="Index" class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona Główna</a>
+                    
+                    <a asp-controller="Account" asp-action="Login" style="color: #555; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie
+                    </a>
+                    
+                    <a asp-controller="Account" asp-action="Register" style="color: #555; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-user-plus"></i> Rejestracja
+                    </a>
+                }
             </div>
-            <nav class="nav-links">
-                <a asp-controller="Home" asp-action="Index" class="nav-link">Strona Główna</a>
-                
-                <a asp-controller="Ksiazki" asp-action="Index" class="nav-link"><i class="fa-solid fa-book-open-reader"></i> Książki</a>
-                
-                <a asp-controller="Uzytkownicy" asp-action="Index" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Panel Admina</a>
-            </nav>
-            <div class="auth-links">
-                <a asp-controller="Account" asp-action="Login" class="btn btn-warning"><i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie</a>
-                
-                <a asp-controller="Account" asp-action="Register" class="auth-link"><i class="fa-solid fa-user-plus"></i> Rejestracja</a>
-            </div>
-        </div>
+        </nav>
     </header>
 
-    <main>
+    <main role="main">
         @RenderBody()
     </main>
 
-    <footer class="footer text-center">
-        <p>&copy; @DateTime.Now.Year - Biblioteka Nova</p>
-    </footer>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

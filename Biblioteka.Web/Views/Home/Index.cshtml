@@ -2,53 +2,16 @@
     ViewData["Title"] = "Strona Główna";
 }
 
-<section class="hero">
-    <div class="container hero-content">
-        <h1 class="hero-title">Witamy w Bibliotece<br>Nova</h1>
-        <p class="hero-subtitle">Odkryj tysiące książek, czasopism i multimediów. Nasz zintegrowany system umożliwia łatwe zarządzanie wypożyczeniami i wyszukiwanie czytelników.</p>
-        <div class="hero-actions">
-            <a href="#" class="btn btn-primary">Wyszukaj klienta</a>
-            <a asp-controller="Account" asp-action="Login" class="btn btn-text">Zaloguj się do panelu &rarr;</a>
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Witamy w Bibliotece<br>Nova</h1>
+        <p>
+            Odkryj tysiące książek, czasopism i multimediów. Nasz zintegrowany system<br>
+            umożliwia łatwe zarządzanie wypożyczeniami i wyszukiwanie czytelników.
+        </p>
+        <div class="actions">
+            <a href="/Uzytkownicy/Index" class="btn-orange">Wyszukaj klienta</a>
+            <a href="/Account/Login" class="link-panel">Zaloguj się do panelu →</a>
         </div>
     </div>
-</section>
-
-<section class="content-section container">
-    <div class="section-header text-center">
-        <h2 class="section-title">Dostępne książki w systemie</h2>
-        <p class="section-description">Sprawdź co aktualnie można wypożyczyć z naszych zbiorów. To wybrane pozycje gotowe do rezerwacji.</p>
-    </div>
-
-    <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Tytuł i Autor</th>
-                    <th>Kategoria</th>
-                    <th>Rok wydania</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="info-cell">
-                        <div class="item-icon">
-                            <i class="fa-solid fa-book"></i>
-                        </div>
-                        <div class="item-details">
-                            <span class="item-title">Władca Pierścieni: Drużyna Pierścienia</span>
-                            <span class="item-subtitle">J.R.R. Tolkien</span>
-                        </div>
-                    </td>
-                    <td>Fantastyka</td>
-                    <td>1954</td>
-                    <td><span class="badge badge-success">Dostępna</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="text-center mt-4">
-        <a asp-controller="Ksiazki" asp-action="Index" class="btn btn-secondary">Zobacz cały katalog księgozbioru</a>
-    </div>
-</section>
+</div>

@@ -4,33 +4,32 @@ namespace Biblioteka.Web.Controllers
 {
     public class AccountController : Controller
     {
-        // Wyświetla formularz logowania (Views/Account/Login.cshtml)
-        [HttpGet]
+        // GET: /Account/Login
         public IActionResult Login()
         {
             return View();
         }
 
-        // Odbiera dane z formularza logowania po kliknięciu "Zaloguj się"
+        // POST: /Account/Login (Logika po kliknięciu "Zaloguj się")
         [HttpPost]
         public IActionResult Login(string email, string password)
         {
-            // Tutaj w przyszłości sprawdzisz hasło. Na razie po prostu przekierowujemy na stronę główną.
-            return RedirectToAction("Index", "Home");
+            // Tutaj w przyszłości dodasz weryfikację z bazą danych
+            // Jeśli poprawne, przekieruj do Dashboardu:
+            return RedirectToAction("Dashboard", "Uzytkownicy");
         }
 
-        // Wyświetla formularz rejestracji (Views/Account/Register.cshtml)
-        [HttpGet]
+        // GET: /Account/Register
         public IActionResult Register()
         {
-            return View();
+            return View(); // Ten plik masz w folderze Ksiiazki/Zarejestruj lub Account
         }
 
-        // Wyświetla formularz przypomnienia hasła (Views/Account/ForgotPassword.cshtml)
-        [HttpGet]
-        public IActionResult ForgotPassword()
+        // GET: /Account/Logout
+        public IActionResult Logout()
         {
-            return View();
+            // Logika czyszczenia sesji
+            return RedirectToAction("Index", "Home");
         }
     }
 }

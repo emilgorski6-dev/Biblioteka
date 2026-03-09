@@ -4,8 +4,45 @@ namespace Biblioteka.Web.Controllers
 {
     public class UzytkownicyController : Controller
     {
-        // Wyświetla stronę panelu admina (Views/Uzytkownicy/Index.cshtml)
+        // Widok główny Panelu (Ten z ikoną tarczy)
+        // GET: /Uzytkownicy/Dashboard
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+        // Lista aktywnych klientów
+        // GET: /Uzytkownicy/Index
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        // Formularz dodawania nowego użytkownika
+        // GET: /Uzytkownicy/Dodaj
+        public IActionResult Dodaj()
+        {
+            return View();
+        }
+
+        // Akcja odbierająca dane z formularza dodawania
+        [HttpPost]
+        public IActionResult Dodaj(object model) // W miejsce 'object' wejdzie Twój Model
+        {
+            // Logika zapisu do bazy...
+            return RedirectToAction("Index");
+        }
+
+        // Lista zablokowanych użytkowników
+        // GET: /Uzytkownicy/Zapomniani
+        public IActionResult Zapomniani()
+        {
+            return View();
+        }
+
+        // Szczegóły konkretnego klienta
+        // GET: /Uzytkownicy/Szczegoly/5
+        public IActionResult Szczegoly(int id)
         {
             return View();
         }

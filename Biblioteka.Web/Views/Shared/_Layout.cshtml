@@ -3,35 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - Biblioteka Nova</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="~/css/style.css"> @* Poprawiona ścieżka do CSS *@
+    <title>Biblioteka Nova</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <header class="navbar">
-        <div class="logo">
-            <i class="ph ph-book-open"></i>
-            <span>Biblioteka Nova</span>
-        </div>
-        <nav class="nav-links">
-            <a asp-controller="Home" asp-action="Index" class="active">Strona Główna</a>
-            <a asp-controller="Ksiazki" asp-action="Index"><i class="ph ph-books"></i> Książki</a>
-        </nav>
-        <div class="nav-actions">
-            <a asp-controller="Account" asp-action="Login"><i class="ph ph-sign-in"></i> Logowanie</a>
-            <a asp-controller="Uzytkownicy" asp-action="Dodaj"><i class="ph ph-user-plus"></i> Rejestracja</a>
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-book-open"></i> Biblioteka Nova
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link active">Strona Główna</a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-book-open-reader"></i> Książki</a>
+                <a href="#" class="nav-link"><i class="fa-solid fa-shield-halved"></i> Panel Admina</a>
+            </nav>
+            <div class="auth-links">
+                <a href="#" class="auth-link"><i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie</a>
+                <a href="#" class="auth-link"><i class="fa-solid fa-user-plus"></i> Rejestracja</a>
+            </div>
         </div>
     </header>
 
-    @RenderBody() @* Tu wskoczy zawartość konkretnych stron *@
+    <main>
+        <section class="hero">
+            <div class="container hero-content">
+                <h1 class="hero-title">Witamy w Bibliotece<br>Nova</h1>
+                <p class="hero-subtitle">Odkryj tysiące książek, czasopism i multimediów. Nasz zintegrowany system umożliwia łatwe zarządzanie wypożyczeniami i wyszukiwanie czytelników.</p>
+                <div class="hero-actions">
+                    <a href="#" class="btn btn-primary">Wyszukaj klienta</a>
+                    <a href="#" class="btn btn-text">Zaloguj się do panelu &rarr;</a>
+                </div>
+            </div>
+        </section>
 
-    <footer class="text-center mt-4">
+        <section class="content-section container">
+            <div class="section-header text-center">
+                <h2 class="section-title">Dostępne książki w systemie</h2>
+                <p class="section-description">Sprawdź co aktualnie można wypożyczyć z naszych zbiorów. To wybrane pozycje gotowe do rezerwacji.</p>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tytuł i Autor</th>
+                            <th>Kategoria</th>
+                            <th>Rok wydania</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="info-cell">
+                                <div class="item-icon">
+                                    <i class="fa-solid fa-book"></i>
+                                </div>
+                                <div class="item-details">
+                                    <span class="item-title">Władca Pierścieni: Drużyna Pierścienia</span>
+                                    <span class="item-subtitle">J.R.R. Tolkien</span>
+                                </div>
+                            </td>
+                            <td>Fantastyka</td>
+                            <td>1954</td>
+                            <td><span class="badge badge-success">Dostępna</span></td>
+                        </tr>
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary">Zobacz cały katalog księgozbioru</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer text-center">
         <p>&copy; 2026 - Biblioteka Nova</p>
     </footer>
 
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

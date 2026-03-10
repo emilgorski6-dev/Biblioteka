@@ -27,9 +27,15 @@ namespace Biblioteka.Web.Controllers
 
         // Akcja odbierająca dane z formularza dodawania
         [HttpPost]
-        public IActionResult Dodaj(object model) // W miejsce 'object' wejdzie Twój Model
+        public IActionResult Dodaj(DodajUzytkownikaViewModel model) // W miejsce 'object' wejdzie Twój Model
         {
-            // Logika zapisu do bazy...
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // tutaj później zapis do bazy
+
             return RedirectToAction("Index");
         }
 

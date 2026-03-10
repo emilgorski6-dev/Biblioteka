@@ -1,3 +1,4 @@
+@model Biblioteka.Web.Models.DodajUzytkownikaViewModel
 @{
     ViewData["Title"] = "Dodaj użytkownika";
 }
@@ -51,62 +52,72 @@
                 <div class="form-section-title">Dane konta</div>
                 <div class="form-group-full">
                     <label class="form-label">Login *</label>
-                    <input type="text" class="form-input" placeholder="np. jkowalski" required />
+                    <input asp-for="Login" class="form-input" placeholder="np. jkowalski" />
+                    <span asp-validation-for="Login"></span>
                 </div>
                 <div class="form-row">
                     <div>
                         <label class="form-label">Adres e-mail *</label>
-                        <input type="email" class="form-input" placeholder="jan.kowalski@example.com" required />
+                        <input asp-for="Email" class="form-input" placeholder="jan.kowalski@example.com" required />
+                        <span asp-validation-for="Email"></span>
                     </div>
                     <div>
                         <label class="form-label">Numer telefonu</label>
-                        <input type="tel" class="form-input" placeholder="+48 123 456 789" />
+                        <input asp-for="Telefon" class="form-input" placeholder="123456789" />
+                        <span asp-validation-for="Telefon"></span>
                     </div>
                 </div>
 
                 <div class="form-section-title">Dane osobowe</div>
                 <div class="form-row">
                     <div>
-                        <label class="form-label">Imię *</label>
-                        <input type="text" class="form-input" required />
+                        <input asp-for="Imie" class="form-input" />
+                        <span asp-validation-for="Imie"></span>
                     </div>
                     <div>
                         <label class="form-label">Nazwisko *</label>
-                        <input type="text" class="form-input" required />
+                        <input asp-for="Nazwisko" class="form-input" required />
+                        <span asp-validation-for="Nazwisko"></span>
                     </div>
                 </div>
                 <div class="form-row">
                     <div>
                         <label class="form-label">Numer PESEL *</label>
-                        <input type="text" class="form-input" required />
+                        <input asp-for="Pesel" class="form-input" required />
+                        <span asp-validation-for="Pesel"></span>
                     </div>
                     <div>
                         <label class="form-label">Data urodzenia</label>
-                        <input type="text" class="form-input" placeholder="dd.mm.rrrr" />
+                        <input asp-for="DataUrodzenia" class="form-input" placeholder="dd.mm.rrrr" />
+                        <span asp-validation-for="DataUrodzenia"></span>
                     </div>
                 </div>
                 <div class="form-group-full">
                     <label class="form-label">Płeć</label>
-                    <select class="form-select">
-                        <option>Kobieta</option>
-                        <option>Mężczyzna</option>
-                        <option>Inna</option>
+                    <select asp-for="Plec" class="form-select">
+                        <option value="">-- wybierz --</option>
+                        <option value="Kobieta">Kobieta</option>
+                        <option value="Mężczyzna">Mężczyzna</option>
                     </select>
+                    <span asp-validation-for="Plec"></span>
                 </div>
 
                 <div class="form-section-title">Adres zamieszkania</div>
                 <div class="form-row-triple">
                     <div>
                         <label class="form-label">Adres</label>
-                        <input type="text" class="form-input" placeholder="np. ul. Kwiatowa 12" />
+                        <input asp-for="Adres" class="form-input" placeholder="np. ul. Kwiatowa 12" />
+                        <span asp-validation-for="Adres"></span>
                     </div>
                     <div>
                         <label class="form-label">Kod pocztowy</label>
-                        <input type="text" class="form-input" placeholder="00-000" />
+                        <input asp-for="KodPocztowy" class="form-input" placeholder="00-000" />
+                        <span asp-validation-for="KodPocztowy"></span>
                     </div>
                     <div>
                         <label class="form-label">Numer lokalu <span class="label-optional">(opcjonalnie)</span></label>
-                        <input type="text" class="form-input" />
+                        <input asp-for="NumerLokalu" class="form-input" />
+                        <span asp-validation-for="NumerLokalu"></span>
                     </div>
                 </div>
 

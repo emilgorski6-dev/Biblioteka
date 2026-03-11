@@ -37,6 +37,7 @@ namespace Biblioteka.Web.Models
         public string Miejscowosc { get; set; }
 
         [Required]
+        [RegularExpression(@"^\d{2}-\d{3}$")]
         public string KodPocztowy { get; set; }
 
         public string Ulica { get; set; }

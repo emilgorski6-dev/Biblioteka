@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Biblioteka.Web.Models;
+using Biblioteka.Web.Helpers;
 
 
 namespace Biblioteka.Web.Controllers
@@ -31,6 +32,25 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model) // W miejsce 'object' wejdzie Twój Model
         {
+            if (!PeselValidator.IsValid(model.Pesel, model.DataUrodzenia, model.Plec))
+            {
+                ModelState.AddModelError("Pesel", "Nieprawidłowy numer PESEL");
+            }
+            if (!EmailValidator.IsValid(model.Email))
+            {
+                ModelState.AddModelError("Email", "Nieprawidłowy adres email.");
+            }
+
+            if (!PhoneValidator.IsValid(model.Telefon))
+            {
+                ModelState.AddModelError("Telefon", "Nieprawidłowy numer telefonu.");
+            }
+
+            if (!BirthDateValidator.IsValid(model.DataUrodzenia))
+            {
+                ModelState.AddModelError("DataUrodzenia", "Nieprawidłowa data urodzenia.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);

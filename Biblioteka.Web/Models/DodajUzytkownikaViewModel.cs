@@ -24,6 +24,7 @@ namespace Biblioteka.Web.Models
 
         [Required]
         [StringLength(11)]
+        [RegularExpression(@"^\d{11}$")]
         public string Pesel { get; set; }
 
         [Required]
@@ -33,10 +34,15 @@ namespace Biblioteka.Web.Models
         public string Plec { get; set; }
 
         [Required]
-        public string Adres { get; set; }
+        public string Miejscowosc { get; set; }
 
         [Required]
         public string KodPocztowy { get; set; }
+
+        public string Ulica { get; set; }
+
+        [Required]
+        public string NumerPosesji { get; set; }
 
         public string NumerLokalu { get; set; }
     }

@@ -48,6 +48,7 @@
 
         <div class="form-card">
             <form asp-action="Dodaj" method="post">
+            <div asp-validation-summary="ModelOnly"></div>
                 
                 <div class="form-section-title">Dane konta</div>
                 <div class="form-group-full">
@@ -58,12 +59,12 @@
                 <div class="form-row">
                     <div>
                         <label class="form-label">Adres e-mail *</label>
-                        <input asp-for="Email" class="form-input" placeholder="jan.kowalski@example.com" required />
+                        <input asp-for="Email" class="form-input" placeholder="jan.kowalski@example.com" />
                         <span asp-validation-for="Email"></span>
                     </div>
                     <div>
                         <label class="form-label">Numer telefonu</label>
-                        <input asp-for="Telefon" class="form-input" placeholder="123456789" />
+                        <input asp-for="Telefon" class="form-input" maxlength="11" inputmode="numeric" placeholder="123456789" />
                         <span asp-validation-for="Telefon"></span>
                     </div>
                 </div>
@@ -71,19 +72,20 @@
                 <div class="form-section-title">Dane osobowe</div>
                 <div class="form-row">
                     <div>
+                        <label class="form-label">Imię *</label>
                         <input asp-for="Imie" class="form-input" />
                         <span asp-validation-for="Imie"></span>
                     </div>
                     <div>
                         <label class="form-label">Nazwisko *</label>
-                        <input asp-for="Nazwisko" class="form-input" required />
+                        <input asp-for="Nazwisko" class="form-input" />
                         <span asp-validation-for="Nazwisko"></span>
                     </div>
                 </div>
                 <div class="form-row">
                     <div>
                         <label class="form-label">Numer PESEL *</label>
-                        <input asp-for="Pesel" class="form-input" required />
+                        <input asp-for="Pesel" class="form-input" inputmode="numeric" maxlength="11" />
                         <span asp-validation-for="Pesel"></span>
                     </div>
                     <div>
@@ -103,23 +105,37 @@
                 </div>
 
                 <div class="form-section-title">Adres zamieszkania</div>
-                <div class="form-row-triple">
-                    <div>
-                        <label class="form-label">Adres</label>
-                        <input asp-for="Adres" class="form-input" placeholder="np. ul. Kwiatowa 12" />
-                        <span asp-validation-for="Adres"></span>
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Miejscowość *</label>
+                            <input asp-for="Miejscowosc" class="form-input" />
+                            <span asp-validation-for="Miejscowosc"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Kod pocztowy *</label>
+                            <input asp-for="KodPocztowy" class="form-input" />
+                            <span asp-validation-for="KodPocztowy"></span>
+                        </div>
                     </div>
-                    <div>
-                        <label class="form-label">Kod pocztowy</label>
-                        <input asp-for="KodPocztowy" class="form-input" placeholder="00-000" />
-                        <span asp-validation-for="KodPocztowy"></span>
+
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Ulica</label>
+                            <input asp-for="Ulica" class="form-input" />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Numer posesji *</label>
+                            <input asp-for="NumerPosesji" class="form-input" />
+                            <span asp-validation-for="NumerPosesji"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Numer lokalu</label>
+                            <input asp-for="NumerLokalu" class="form-input" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="form-label">Numer lokalu <span class="label-optional">(opcjonalnie)</span></label>
-                        <input asp-for="NumerLokalu" class="form-input" />
-                        <span asp-validation-for="NumerLokalu"></span>
-                    </div>
-                </div>
 
                 <div class="form-actions">
                     <button type="reset" class="btn-cancel">Anuluj</button>
@@ -140,3 +156,7 @@
 
     </main>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

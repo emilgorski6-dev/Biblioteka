@@ -32,7 +32,7 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model) // W miejsce 'object' wejdzie Twój Model
         {
-            if (!PeselValidator.IsValid(model.Pesel, model.DataUrodzenia, model.Plec))
+            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
             {
                 ModelState.AddModelError("Pesel", "Nieprawidłowy numer PESEL");
             }

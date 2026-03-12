@@ -24,8 +24,6 @@ appsettings.Development.json
 # Ignorujemy lokalne pliki baz danych, aby każdy miał własną testową kopię
 *.mdf
 *.ldf
-*.db
-*.sqlite
 
 ## --- PUBLIKACJA I NARZĘDZIA ---
 publish/

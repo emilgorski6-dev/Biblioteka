@@ -74,7 +74,6 @@
                         <th>Imię</th>
                         <th>Nazwisko</th>
                         <th>Adres e-mail</th>
-                        <th>Status</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -86,19 +85,7 @@
                         <td>@user.Imie</td>
                         <td>@user.Nazwisko</td>
                         <td>@user.Email</td>
-                        <td>
-                            <span class="status-badge status-active">
-                                @user.Status
-                            </span>
-                        </td>
-                        <td class="td-action">
-                            <a asp-controller="Uzytkownicy"
-                            asp-action="Szczegoly"
-                            asp-route-login="@user.Login"
-                            class="link-profile">
-                            Zobacz profil
-                            </a>
-                        </td>
+                        <td class="td-action"><a asp-controller="Uzytkownicy" asp-action="Szczegoly" asp-route-login="@user.Login" class="link-profile">Zobacz profil</a></td>
                     </tr>
                 }
                 </tbody>        

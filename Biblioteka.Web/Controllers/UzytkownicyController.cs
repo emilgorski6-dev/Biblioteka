@@ -1,123 +1,113 @@
 using Microsoft.AspNetCore.Mvc;
 using Biblioteka.Web.Models;
 using Biblioteka.Web.Helpers;
-
-// TODO:
-// 1. sprawdzić czy login istnieje
-// 2. sprawdzić czy PESEL istnieje
-// 3. zapisać użytkownika do bazy
+using Biblioteka.Web.Data;
+using Biblioteka.Web.Data.Entities;
 
 namespace Biblioteka.Web.Controllers
 {
     public class UzytkownicyController : Controller
     {
+        private readonly BibliotekaDbContext _context;
+
+        public UzytkownicyController(BibliotekaDbContext context)
+        {
+            _context = context;
+        }
+
         // Widok główny Panelu (Ten z ikoną tarczy)
-        // GET: /Uzytkownicy/Dashboard
         public IActionResult Dashboard()
         {
             return View();
         }
 
         // Lista aktywnych klientów
-        // GET: /Uzytkownicy/Index
         public IActionResult Index()
         {
-            var users = new List<UzytkownikListItemViewModel>
-            {
-                new UzytkownikListItemViewModel
+            var users = _context.Uzytkownicy
+                .Select(u => new UzytkownikListItemViewModel
                 {
-                    Login = "jkowalski",
-                    Imie = "Jan",
-                    Nazwisko = "Kowalski",
-                    Email = "jan.kowalski@example.com",
-                    Status = "Aktywny"
-                },
-                new UzytkownikListItemViewModel
-                {
-                    Login = "pwisniewski",
-                    Imie = "Piotr",
-                    Nazwisko = "Wiśniewski",
-                    Email = "p.wisniewski@example.com",
-                    Status = "Aktywny"
-                },
-                new UzytkownikListItemViewModel
-                {
-                    Login = "akowalczyk",
-                    Imie = "Anna",
-                    Nazwisko = "Kowalczyk",
-                    Email = "anna.kowalczyk@example.com",
-                    Status = "Aktywny"
-                },
-                new UzytkownikListItemViewModel
-                {
-                    Login = "mnowak",
-                    Imie = "Marek",
-                    Nazwisko = "Nowak",
-                    Email = "marek.nowak@example.com",
-                    Status = "Zablokowany"
-                },
-                new UzytkownikListItemViewModel
-                {
-                    Login = "jzielinski",
-                    Imie = "Jakub",
-                    Nazwisko = "Zieliński",
-                    Email = "jakub.zielinski@example.com",
-                    Status = "Nieaktywny"
-                }
-            };
+                    Login = u.Login,
+                    Imie = u.Imie,
+                    Nazwisko = u.Nazwisko,
+                    Email = u.Email
+                })
+                .ToList();
 
             return View(users);
         }
 
         // Formularz dodawania nowego użytkownika
-        // GET: /Uzytkownicy/Dodaj
         public IActionResult Dodaj()
         {
             return View();
         }
 
         // Akcja odbierająca dane z formularza dodawania
-        [HttpPost]
-        public IActionResult Dodaj(DodajUzytkownikaViewModel model) // W miejsce 'object' wejdzie Twój Model
+    [HttpPost]
+    public IActionResult Dodaj(DodajUzytkownikaViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        // sprawdzenie unikalności
+        if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
         {
-            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
-            {
-                ModelState.AddModelError("Pesel", "Nieprawidłowy numer PESEL");
-            }
-            if (!EmailValidator.IsValid(model.Email))
-            {
-                ModelState.AddModelError("Email", "Nieprawidłowy adres email.");
-            }
-
-            if (!PhoneValidator.IsValid(model.Telefon))
-            {
-                ModelState.AddModelError("Telefon", "Nieprawidłowy numer telefonu.");
-            }
-
-            if (!BirthDateValidator.IsValid(model.DataUrodzenia))
-            {
-                ModelState.AddModelError("DataUrodzenia", "Nieprawidłowa data urodzenia.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            // tutaj później zapis do bazy
-
-            return RedirectToAction("Index");
+            ModelState.AddModelError("Login", "Ten login już istnieje.");
+            return View(model);
         }
 
+        if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
+        {
+            ModelState.AddModelError("Email", "Ten email już istnieje.");
+            return View(model);
+        }
+
+        if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
+        {
+            ModelState.AddModelError("Pesel", "Ten PESEL już istnieje.");
+            return View(model);
+        }
+
+        var user = new Uzytkownik
+        {
+            // Dane z formularza
+            Login = model.Login,
+            Imie = model.Imie,
+            Nazwisko = model.Nazwisko,
+            Pesel = model.Pesel,
+            DataUrodzenia = model.DataUrodzenia,
+            Plec = model.Plec,
+            Email = model.Email,
+            Telefon = model.Telefon,
+            Miejscowosc = model.Miejscowosc,
+            KodPocztowy = model.KodPocztowy,
+            Ulica = model.Ulica,
+            NumerPosesji = model.NumerPosesji,
+            NumerLokalu = model.NumerLokalu,
+
+            HasloHash = null,                
+            CzyZablokowany = false,         
+            BlokadaDo = null,               
+            LiczbaBlednychLogowan = 0,      
+            CzyZapomniany = false,         
+            DataZapomnienia = null,         
+            ZapomnianyPrzezId = null         
+        };
+
+        _context.Uzytkownicy.Add(user);
+        _context.SaveChanges();
+
+        return RedirectToAction("Index");
+    }
+
         // Lista zablokowanych użytkowników
-        // GET: /Uzytkownicy/Zapomniani
         public IActionResult Zapomniani()
         {
             return View();
         }
 
         // Szczegóły konkretnego klienta
-        // GET: /Uzytkownicy/Szczegoly/5
         public IActionResult Szczegoly(string login)
         {
             var user = new

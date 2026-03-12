@@ -90,7 +90,7 @@
                     </div>
                     <div>
                         <label class="form-label">Data urodzenia</label>
-                        <input asp-for="DataUrodzenia" class="form-input" placeholder="dd.mm.rrrr" />
+                        <input asp-for="DataUrodzenia" type="date" class="form-input" placeholder="dd.mm.rrrr" />
                         <span asp-validation-for="DataUrodzenia"></span>
                     </div>
                 </div>
@@ -98,8 +98,8 @@
                     <label class="form-label">Płeć</label>
                     <select asp-for="Plec" class="form-select">
                         <option value="">-- wybierz --</option>
-                        <option value="Kobieta">Kobieta</option>
-                        <option value="Mężczyzna">Mężczyzna</option>
+                        <option value="kobieta">Kobieta</option>
+                        <option value="mężczyzna">Mężczyzna</option>
                     </select>
                     <span asp-validation-for="Plec"></span>
                 </div>

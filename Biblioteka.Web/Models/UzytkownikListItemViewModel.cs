@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Biblioteka.Web.Models
 {
     public class UzytkownikListItemViewModel
@@ -9,7 +11,5 @@ namespace Biblioteka.Web.Models
         public string Nazwisko { get; set; }
 
         public string Email { get; set; }
-
-        public string Status { get; set; }
     }
 }

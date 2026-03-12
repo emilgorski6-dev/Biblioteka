@@ -1,3 +1,5 @@
+@model List<Biblioteka.Web.Models.UzytkownikListItemViewModel>
+
 @{
     ViewData["Title"] = "Klienci Biblioteki";
 }
@@ -77,73 +79,29 @@
                     </tr>
                 </thead>
                 <tbody>
+                @foreach (var user in Model)
+                {
                     <tr>
-                        <td class="td-login">jkowalski</td>
-                        <td>Jan</td>
-                        <td>Kowalski</td>
+                        <td class="td-login">@user.Login</td>
+                        <td>@user.Imie</td>
+                        <td>@user.Nazwisko</td>
+                        <td>@user.Email</td>
                         <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            jan.kowalski@example.com
+                            <span class="status-badge status-active">
+                                @user.Status
+                            </span>
                         </td>
-                        <td><span class="status-badge status-active">Aktywny</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
-                    </tr>
-                    <tr>
-                        <td class="td-login">pwisniewski</td>
-                        <td>Piotr</td>
-                        <td>Wiśniewski</td>
-                        <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            p.wisniewski@example.com
+                        <td class="td-action">
+                            <a asp-controller="Uzytkownicy"
+                            asp-action="Szczegoly"
+                            asp-route-login="@user.Login"
+                            class="link-profile">
+                            Zobacz profil
+                            </a>
                         </td>
-                        <td><span class="status-badge status-active">Aktywny</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
                     </tr>
-                    <tr>
-                        <td class="td-login">mwojcik</td>
-                        <td>Maria</td>
-                        <td>Wójcik</td>
-                        <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            m.wojcik@example.com
-                        </td>
-                        <td><span class="status-badge status-active">Aktywny</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
-                    </tr>
-                    <tr>
-                        <td class="td-login">kkaminski</td>
-                        <td>Krzysztof</td>
-                        <td>Kamiński</td>
-                        <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            k.kaminski@example.com
-                        </td>
-                        <td><span class="status-badge status-warning">Zalega</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
-                    </tr>
-                    <tr>
-                        <td class="td-login">mlewandowska</td>
-                        <td>Magdalena</td>
-                        <td>Lewandowski</td>
-                        <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            magda.lew@example.com
-                        </td>
-                        <td><span class="status-badge status-active">Aktywny</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
-                    </tr>
-                    <tr>
-                        <td class="td-login">tzielinski</td>
-                        <td>Tomasz</td>
-                        <td>Zieliński</td>
-                        <td>
-                            <svg class="email-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            t.zielinski@example.com
-                        </td>
-                        <td><span class="status-badge status-active">Aktywny</span></td>
-                        <td class="td-action"><a href="#" class="link-profile">Zobacz profil</a></td>
-                    </tr>
-                </tbody>
+                }
+                </tbody>        
             </table>
         </div>
 

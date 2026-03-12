@@ -4,7 +4,9 @@ namespace Biblioteka.Web.Models
 {
     public class DodajUzytkownikaViewModel
     {
-        [Required]
+        [Required]                  
+        [StringLength(50)]       //Nie ma tego w dokumentacji ale jest logicznym ograniczeniem
+        [RegularExpression(@"^\S+$")]
         public string Login { get; set; }
         
         [Required]

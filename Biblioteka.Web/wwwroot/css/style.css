@@ -709,3 +709,57 @@ a {
 .link-danger:hover {
     text-decoration: underline;
 }
+
+/* --- System Powiadomień (Toast Notifications) --- */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+.toast {
+    background-color: #fef2f2; /* Jasnoczerwone tło */
+    border: 1px solid #fecaca; /* Jasnoczerwona ramka */
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    animation: slideInRight 0.3s ease-out forwards;
+}
+
+.toast-icon {
+    color: #ef4444; /* Czerwony kolor ikony */
+    font-size: 1.2rem;
+    margin-top: 2px;
+}
+
+.toast-content {
+    color: #b91c1c; /* Ciemnoczerwony kolor tekstu */
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Ukrycie standardowych kropek z listy błędów ASP.NET */
+.toast-content ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+.toast-content li {
+    margin-bottom: 4px;
+}
+.toast-content li:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

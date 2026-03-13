@@ -1,52 +1,46 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Biblioteka.Web.Models
 {
     public class DodajUzytkownikaViewModel
     {
-        [Required]                  
-        [StringLength(50)]       //Nie ma tego w dokumentacji ale jest logicznym ograniczeniem
-        [RegularExpression(@"^\S+$")]
+        [Required(ErrorMessage = "Pole 'Login' jest wymagane.")]
         public string Login { get; set; }
-        
-        [Required]
-        [EmailAddress]
-        [MaxLength(255)]
+
+        [Required(ErrorMessage = "Pole 'Adres e-mail' jest wymagane.")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy format adresu e-mail.")]
         public string Email { get; set; }
-        
-        [Required]
-        [RegularExpression(@"^\d{9}$")]
+
+        [Required(ErrorMessage = "Pole 'Numer telefonu' jest wymagane.")]
         public string Telefon { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Pole 'Imię' jest wymagane.")]
         public string Imie { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Pole 'Nazwisko' jest wymagane.")]
         public string Nazwisko { get; set; }
 
-        [Required]
-        [StringLength(11)]
-        [RegularExpression(@"^\d{11}$")]
+        [Required(ErrorMessage = "Pole 'Numer PESEL' jest wymagane.")]
         public string Pesel { get; set; }
 
-        [Required]
-        public DateTime DataUrodzenia { get; set; }
+        [Required(ErrorMessage = "Pole 'Data urodzenia' jest wymagane.")]
+        public DateTime? DataUrodzenia { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Pole 'Płeć' jest wymagane.")]
         public string Plec { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Pole 'Miejscowość' jest wymagane.")]
         public string Miejscowosc { get; set; }
 
-        [Required]
-        [RegularExpression(@"^\d{2}-\d{3}$")]
+        [Required(ErrorMessage = "Pole 'Kod pocztowy' jest wymagane.")]
         public string KodPocztowy { get; set; }
 
-        public string Ulica { get; set; }
+        public string? Ulica { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Pole 'Nr posesji' jest wymagane.")]
         public string NumerPosesji { get; set; }
 
-        public string NumerLokalu { get; set; }
+        public string? NumerLokalu { get; set; }
     }
 }

@@ -37,16 +37,18 @@ namespace Biblioteka.Web.Controllers
             return View(users);
         }
 
-        // Formularz dodawania nowego użytkownika
+        // Formularz dodawania nowego użytkownika (Wyświetlenie pustej strony)
+        [HttpGet]
         public IActionResult Dodaj()
         {
             return View();
         }
 
-        // Akcja odbierająca dane z formularza dodawania
+        // Akcja odbierająca dane z formularza po kliknięciu "Utwórz konto"
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
+            // Jeśli atrybuty [Required] z modelu nie zostały spełnione, wróć do widoku
             if (!ModelState.IsValid) return View(model);
 
             // 1. Walidacja formatu Telefonu (9 cyfr)
@@ -58,7 +60,8 @@ namespace Biblioteka.Web.Controllers
                 ModelState.AddModelError("Email", "Nieprawidłowy format email (max 255 znaków, jeden znak @).");
 
             // 3. Walidacja PESEL (Logika matematyczna + Data + Płeć)
-            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
+            // POPRAWKA: Użyto model.DataUrodzenia.Value
+            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia.Value, model.Plec))
                 ModelState.AddModelError("Pesel", "PESEL jest niepoprawny lub niezgodny z datą urodzenia/płcią.");
 
             // --- KORELACJA Z BAZĄ DANYCH (UNIKALNOŚĆ) ---
@@ -75,15 +78,18 @@ namespace Biblioteka.Web.Controllers
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
                 ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie.");
 
+            // Jeśli po naszych własnych walidacjach pojawiły się błędy, wyświetl formularz ponownie (Toast to wyłapie)
             if (!ModelState.IsValid) return View(model);
 
+            // Jeśli wszystko jest OK, tworzymy użytkownika
             var user = new Uzytkownik
             {
                 Login = model.Login,
                 Imie = model.Imie,
                 Nazwisko = model.Nazwisko,
                 Pesel = model.Pesel,
-                DataUrodzenia = model.DataUrodzenia,
+                // POPRAWKA: Użyto model.DataUrodzenia.Value
+                DataUrodzenia = model.DataUrodzenia.Value,
                 Plec = model.Plec,
                 Email = model.Email,
                 Telefon = model.Telefon,
@@ -100,6 +106,7 @@ namespace Biblioteka.Web.Controllers
             _context.Uzytkownicy.Add(user);
             _context.SaveChanges();
 
+            // Po sukcesie wracamy do listy klientów
             return RedirectToAction("Index");
         }
 

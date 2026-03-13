@@ -8,7 +8,7 @@ namespace Biblioteka.Web.Data.Entities
     {
         public int Id { get; set; }
 
-        public string Nazwa { get; set; }
+        public required string Nazwa { get; set; }
 
         public string? Opis { get; set; }
 

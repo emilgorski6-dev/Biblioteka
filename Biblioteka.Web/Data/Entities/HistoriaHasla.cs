@@ -12,13 +12,13 @@ namespace Biblioteka.Web.Data.Entities
         public int UzytkownikId { get; set; }
 
         [Column("haslo_hash")]
-        public string HasloHash { get; set; }
+        public required string HasloHash { get; set; }
 
         [Column("data_nadania")]
         public DateTime DataNadania { get; set; }
 
         // Właściwość nawigacyjna
         [ForeignKey("UzytkownikId")]
-        public virtual Uzytkownik Uzytkownik { get; set; }
+        public required virtual Uzytkownik Uzytkownik { get; set; }
     }
 }

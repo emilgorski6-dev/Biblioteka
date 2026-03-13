@@ -4,12 +4,9 @@ namespace Biblioteka.Web.Models
 {
     public class UzytkownikListItemViewModel
     {
-        public string Login { get; set; }
-
-        public string Imie { get; set; }
-
-        public string Nazwisko { get; set; }
-
-        public string Email { get; set; }
+        public required string Login { get; set; }
+        public required string Imie { get; set; }
+        public required string Nazwisko { get; set; }
+        public required string Email { get; set; }
     }
 }

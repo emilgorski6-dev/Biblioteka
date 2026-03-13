@@ -1,7 +1,7 @@
 @model List<Biblioteka.Web.Models.UzytkownikListItemViewModel>
 
 @{
-    ViewData["Title"] = "Zablokowani Użytkownicy";
+    ViewData["Title"] = "Zapomniani Użytkownicy";
 }
 
 <div class="admin-wrapper">
@@ -31,14 +31,14 @@
                     <line x1="15" y1="9" x2="9" y2="15"></line>
                     <line x1="9" y1="9" x2="15" y2="15"></line>
                 </svg>
-                Zablokowani użytkownicy
+                Zapomniani użytkownicy
             </a>
         </nav>
     </aside>
 
     <main class="admin-content">
         <div class="page-header">
-            <h1 class="page-title">Zablokowani Użytkownicy</h1>
+            <h1 class="page-title">Zapomniani Użytkownicy</h1>
             <p class="page-description">Lista kont wymagających uwagi administratora ze względu na blokady systemowe.</p>
         </div>
 
@@ -48,7 +48,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-                Zablokowani użytkownicy
+                Zapomniani użytkownicy
             </a>
         </div>
 
@@ -64,7 +64,7 @@
                         </svg>
                         <input type="text" name="searchLogin" class="filter-input" placeholder="Szukaj..." value="@ViewBag.CurrentLogin">
                     </div>
-                    <span class="results-count">Zablokowanych: @Model.Count</span>
+                    <span class="results-count">Zapomnianych: @Model.Count</span>
                 </div>
 
                 <div class="filter-group" style="flex: 1.5;">
@@ -113,7 +113,7 @@
                         <th>Imię i Nazwisko</th>
                         <th>PESEL</th>
                         <th>Status</th>
-                        <th class="text-right">Akcja</th>
+                        <!--<th class="text-right">Akcja</th> !-->
                     </tr>
                 </thead>
                 <tbody>
@@ -124,7 +124,7 @@
                             <td>@user.Imie @user.Nazwisko</td>
                             <td class="td-grey">@user.Pesel</td>
                             <td>
-                                <span class="badge-status blocked">Zablokowany</span>
+                                <span class="badge-status blocked">Zapomniany</span>
                             </td>
                             <td class="text-right">
                                 <a asp-action="Szczegoly" asp-route-login="@user.Login" class="link-danger">Zobacz profil</a>
@@ -134,7 +134,7 @@
                     @if (!Model.Any())
                     {
                         <tr>
-                            <td colspan="5" class="table-empty">Brak zablokowanych użytkowników spełniających kryteria.</td>
+                            <td colspan="5" class="table-empty">Brak zapomnianych użytkowników spełniających kryteria.</td>
                         </tr>
                     }
                 </tbody>

@@ -61,7 +61,7 @@ namespace Biblioteka.Web.Controllers
 
             // 3. Walidacja PESEL (Logika matematyczna + Data + Płeć)
             // POPRAWKA: Użyto model.DataUrodzenia.Value
-            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia.Value, model.Plec))
+            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
                 ModelState.AddModelError("Pesel", "PESEL jest niepoprawny lub niezgodny z datą urodzenia/płcią.");
 
             // --- KORELACJA Z BAZĄ DANYCH (UNIKALNOŚĆ) ---
@@ -88,8 +88,7 @@ namespace Biblioteka.Web.Controllers
                 Imie = model.Imie,
                 Nazwisko = model.Nazwisko,
                 Pesel = model.Pesel,
-                // POPRAWKA: Użyto model.DataUrodzenia.Value
-                DataUrodzenia = model.DataUrodzenia.Value,
+                DataUrodzenia = model.DataUrodzenia,
                 Plec = model.Plec,
                 Email = model.Email,
                 Telefon = model.Telefon,

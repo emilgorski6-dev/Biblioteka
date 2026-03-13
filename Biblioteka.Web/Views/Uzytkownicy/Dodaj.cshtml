@@ -1,4 +1,5 @@
 @model Biblioteka.Web.Models.DodajUzytkownikaViewModel
+
 @{
     ViewData["Title"] = "Dodaj użytkownika";
 }
@@ -7,7 +8,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3 class="sidebar-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
                 Panel Admina
@@ -17,22 +19,19 @@
 
         <nav class="sidebar-nav">
             <a href="/Uzytkownicy/Index" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="17" y1="8" x2="23" y2="8"></line>
-                    <line x1="17" y1="12" x2="23" y2="12"></line>
-                    <line x1="17" y1="16" x2="23" y2="16"></line>
                 </svg>
                 Klienci / Wyszukiwanie
             </a>
-            
+
             <a href="/Uzytkownicy/Dodaj" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="8.5" cy="7" r="4"></circle>
-                    <line x1="20" y1="8" x2="20" y2="14"></line>
-                    <line x1="23" y1="11" x2="17" y2="11"></line>
                 </svg>
                 Dodaj użytkownika
             </a>
@@ -40,108 +39,110 @@
     </aside>
 
     <main class="admin-content">
-        
         <div class="page-header">
             <h1 class="page-title">Dodaj nowego użytkownika</h1>
-            <p class="page-description">Wypełnij formularz rejestracyjny, aby utworzyć nowe konto. Pola z gwiazdką są wymagane.</p>
+            <p class="page-description">Wypełnij formularz rejestracyjny. Pola oznaczone gwiazdką (*) są wymagalne.</p>
         </div>
 
         <div class="form-card">
             <form asp-action="Dodaj" method="post">
-            <div asp-validation-summary="ModelOnly"></div>
-                
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                 <div class="form-section-title">Dane konta</div>
-                <div class="form-group-full">
-                    <label class="form-label">Login *</label>
+                <div class="form-group-full mb-3">
+                    <label class="form-label">Identyfikator (Login) *</label>
                     <input asp-for="Login" class="form-input" placeholder="np. jkowalski" />
-                    <span asp-validation-for="Login"></span>
+                    <span asp-validation-for="Login" class="text-danger small"></span>
                 </div>
-                <div class="form-row">
+
+                <div class="form-row mb-3">
                     <div>
                         <label class="form-label">Adres e-mail *</label>
-                        <input asp-for="Email" class="form-input" placeholder="jan.kowalski@example.com" />
-                        <span asp-validation-for="Email"></span>
+                        <input asp-for="Email" type="email" class="form-input" placeholder="uzytkownik@domena.pl" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
                     <div>
-                        <label class="form-label">Numer telefonu</label>
-                        <input asp-for="Telefon" class="form-input" maxlength="11" inputmode="numeric" placeholder="123456789" />
-                        <span asp-validation-for="Telefon"></span>
+                        <label class="form-label">Numer telefonu *</label>
+                        @* NAPRAWIONE: Zmieniono z Phone na Telefon *@
+                        <input asp-for="Telefon" class="form-input" maxlength="9" placeholder="9 cyfr" />
+                        <span asp-validation-for="Telefon" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="form-section-title">Dane osobowe</div>
-                <div class="form-row">
+                <div class="form-row mb-3">
                     <div>
                         <label class="form-label">Imię *</label>
                         <input asp-for="Imie" class="form-input" />
-                        <span asp-validation-for="Imie"></span>
+                        <span asp-validation-for="Imie" class="text-danger small"></span>
                     </div>
                     <div>
                         <label class="form-label">Nazwisko *</label>
                         <input asp-for="Nazwisko" class="form-input" />
-                        <span asp-validation-for="Nazwisko"></span>
+                        <span asp-validation-for="Nazwisko" class="text-danger small"></span>
                     </div>
                 </div>
-                <div class="form-row">
+
+                <div class="form-row mb-3">
                     <div>
                         <label class="form-label">Numer PESEL *</label>
-                        <input asp-for="Pesel" class="form-input" inputmode="numeric" maxlength="11" />
-                        <span asp-validation-for="Pesel"></span>
+                        <input asp-for="Pesel" class="form-input" maxlength="11" />
+                        <span asp-validation-for="Pesel" class="text-danger small"></span>
                     </div>
                     <div>
-                        <label class="form-label">Data urodzenia</label>
-                        <input asp-for="DataUrodzenia" type="date" class="form-input" placeholder="dd.mm.rrrr" />
-                        <span asp-validation-for="DataUrodzenia"></span>
+                        <label class="form-label">Data urodzenia *</label>
+                        <input asp-for="DataUrodzenia" type="date" class="form-input" />
+                        <span asp-validation-for="DataUrodzenia" class="text-danger small"></span>
                     </div>
                 </div>
-                <div class="form-group-full">
-                    <label class="form-label">Płeć</label>
+
+                <div class="form-group-full mb-3">
+                    <label class="form-label">Płeć *</label>
                     <select asp-for="Plec" class="form-select">
                         <option value="">-- wybierz --</option>
                         <option value="kobieta">Kobieta</option>
                         <option value="mężczyzna">Mężczyzna</option>
                     </select>
-                    <span asp-validation-for="Plec"></span>
+                    <span asp-validation-for="Plec" class="text-danger small"></span>
                 </div>
 
                 <div class="form-section-title">Adres zamieszkania</div>
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label">Miejscowość *</label>
-                            <input asp-for="Miejscowosc" class="form-input" />
-                            <span asp-validation-for="Miejscowosc"></span>
-                        </div>
-
-                        <div>
-                            <label class="form-label">Kod pocztowy *</label>
-                            <input asp-for="KodPocztowy" class="form-input" />
-                            <span asp-validation-for="KodPocztowy"></span>
-                        </div>
+                <div class="form-row mb-3">
+                    <div>
+                        <label class="form-label">Miejscowość *</label>
+                        <input asp-for="Miejscowosc" class="form-input" />
+                        <span asp-validation-for="Miejscowosc" class="text-danger small"></span>
                     </div>
-
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label">Ulica</label>
-                            <input asp-for="Ulica" class="form-input" />
-                        </div>
-
-                        <div>
-                            <label class="form-label">Numer posesji *</label>
-                            <input asp-for="NumerPosesji" class="form-input" />
-                            <span asp-validation-for="NumerPosesji"></span>
-                        </div>
-
-                        <div>
-                            <label class="form-label">Numer lokalu</label>
-                            <input asp-for="NumerLokalu" class="form-input" />
-                        </div>
+                    <div>
+                        <label class="form-label">Kod pocztowy *</label>
+                        <input asp-for="KodPocztowy" class="form-input" placeholder="00-000" />
+                        <span asp-validation-for="KodPocztowy" class="text-danger small"></span>
                     </div>
+                </div>
 
-                <div class="form-actions">
-                    <button type="reset" class="btn-cancel">Anuluj</button>
-                    
+                <div class="form-row mb-3">
+                    <div style="flex: 2;">
+                        <label class="form-label">Ulica (opcjonalnie)</label>
+                        <input asp-for="Ulica" class="form-input" />
+                    </div>
+                    <div>
+                        <label class="form-label">Nr posesji *</label>
+                        <input asp-for="NumerPosesji" class="form-input" />
+                        <span asp-validation-for="NumerPosesji" class="text-danger small"></span>
+                    </div>
+                    <div>
+                        <label class="form-label">Nr lokalu</label>
+                        <input asp-for="NumerLokalu" class="form-input" />
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <a href="/Uzytkownicy/Index" class="btn-cancel"
+                       style="text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">Anuluj</a>
+
                     <button type="submit" class="btn-submit">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                             <circle cx="8.5" cy="7" r="4"></circle>
                             <line x1="20" y1="8" x2="20" y2="14"></line>
@@ -150,10 +151,8 @@
                         Utwórz konto
                     </button>
                 </div>
-
             </form>
         </div>
-
     </main>
 </div>
 

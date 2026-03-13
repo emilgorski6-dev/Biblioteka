@@ -44,62 +44,64 @@ namespace Biblioteka.Web.Controllers
         }
 
         // Akcja odbierająca dane z formularza dodawania
-    [HttpPost]
-    public IActionResult Dodaj(DodajUzytkownikaViewModel model)
-    {
-        if (!ModelState.IsValid)
-            return View(model);
-
-        // sprawdzenie unikalności
-        if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
+        [HttpPost]
+        public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
-            ModelState.AddModelError("Login", "Ten login już istnieje.");
-            return View(model);
+            if (!ModelState.IsValid) return View(model);
+
+            // 1. Walidacja formatu Telefonu (9 cyfr)
+            if (!PhoneValidator.IsValid(model.Telefon))
+                ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
+
+            // 2. Walidacja Email (Format + @ + długość)
+            if (!EmailValidator.IsValid(model.Email))
+                ModelState.AddModelError("Email", "Nieprawidłowy format email (max 255 znaków, jeden znak @).");
+
+            // 3. Walidacja PESEL (Logika matematyczna + Data + Płeć)
+            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
+                ModelState.AddModelError("Pesel", "PESEL jest niepoprawny lub niezgodny z datą urodzenia/płcią.");
+
+            // --- KORELACJA Z BAZĄ DANYCH (UNIKALNOŚĆ) ---
+
+            // 4. Unikalność Login
+            if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
+                ModelState.AddModelError("Login", "Podany login jest już zajęty.");
+
+            // 5. Unikalność Email
+            if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
+                ModelState.AddModelError("Email", "Ten adres email jest już zarejestrowany.");
+
+            // 6. Unikalność PESEL
+            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
+                ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie.");
+
+            if (!ModelState.IsValid) return View(model);
+
+            var user = new Uzytkownik
+            {
+                Login = model.Login,
+                Imie = model.Imie,
+                Nazwisko = model.Nazwisko,
+                Pesel = model.Pesel,
+                DataUrodzenia = model.DataUrodzenia,
+                Plec = model.Plec,
+                Email = model.Email,
+                Telefon = model.Telefon,
+                Miejscowosc = model.Miejscowosc,
+                KodPocztowy = model.KodPocztowy,
+                Ulica = model.Ulica,
+                NumerPosesji = model.NumerPosesji,
+                NumerLokalu = model.NumerLokalu,
+                CzyZablokowany = false,
+                LiczbaBlednychLogowan = 0,
+                CzyZapomniany = false
+            };
+
+            _context.Uzytkownicy.Add(user);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
-
-        if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
-        {
-            ModelState.AddModelError("Email", "Ten email już istnieje.");
-            return View(model);
-        }
-
-        if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
-        {
-            ModelState.AddModelError("Pesel", "Ten PESEL już istnieje.");
-            return View(model);
-        }
-
-        var user = new Uzytkownik
-        {
-            // Dane z formularza
-            Login = model.Login,
-            Imie = model.Imie,
-            Nazwisko = model.Nazwisko,
-            Pesel = model.Pesel,
-            DataUrodzenia = model.DataUrodzenia,
-            Plec = model.Plec,
-            Email = model.Email,
-            Telefon = model.Telefon,
-            Miejscowosc = model.Miejscowosc,
-            KodPocztowy = model.KodPocztowy,
-            Ulica = model.Ulica,
-            NumerPosesji = model.NumerPosesji,
-            NumerLokalu = model.NumerLokalu,
-
-            HasloHash = null,                
-            CzyZablokowany = false,         
-            BlokadaDo = null,               
-            LiczbaBlednychLogowan = 0,      
-            CzyZapomniany = false,         
-            DataZapomnienia = null,         
-            ZapomnianyPrzezId = null         
-        };
-
-        _context.Uzytkownicy.Add(user);
-        _context.SaveChanges();
-
-        return RedirectToAction("Index");
-    }
 
         // Lista zablokowanych użytkowników
         public IActionResult Zapomniani()

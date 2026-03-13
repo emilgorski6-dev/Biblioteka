@@ -5,28 +5,37 @@ namespace Biblioteka.Web.Helpers
 {
     public static class PeselValidator
     {
-        public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec)
+        // Nowa metoda z dokładnymi komunikatami
+        public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec)
         {
-            if (string.IsNullOrWhiteSpace(pesel))
-                return false;
-
-            if (pesel.Length != 11)
-                return false;
-
-            if (!pesel.All(char.IsDigit))
-                return false;
-
-            if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
-                return false;
-
-            if (!SprawdzPlec(pesel, plec))
-                return false;
+            if (string.IsNullOrWhiteSpace(pesel) || pesel.Length != 11 || !pesel.All(char.IsDigit))
+                return (false, "Niepoprawny format numeru PESEL.");
 
             if (!SprawdzCyfreKontrolna(pesel))
-                return false;
+                return (false, "Niepoprawna cyfra kontrolna w numerze PESEL.");
 
-            return true;
+            if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
+                return (false, "Numer PESEL nie jest zgodny z wybraną datą urodzenia.");
+
+            int cyfraPlecowa = pesel[9] - '0';
+            bool peselMezczyzna = cyfraPlecowa % 2 == 1;
+
+            if (plec == "Mężczyzna" && !peselMezczyzna)
+                return (false, "Wybrano płeć męską, ale numer PESEL wskazuje na płeć żeńską.");
+
+            if (plec == "Kobieta" && peselMezczyzna)
+                return (false, "Wybrano płeć żeńską, ale numer PESEL wskazuje na płeć męską.");
+
+            return (true, string.Empty);
         }
+
+        // Stara metoda dla wstecznej kompatybilności
+        public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec)
+        {
+            return WalidujSzczegolowo(pesel, dataUrodzenia, plec).IsValid;
+        }
+
+        // --- TYLKO JEDNA KOPIA TYCH METOD PONIŻEJ ---
 
         private static bool SprawdzDateUrodzenia(string pesel, DateTime dataUrodzenia)
         {
@@ -58,7 +67,6 @@ namespace Biblioteka.Web.Helpers
             }
 
             int pelnyRok = wiek + rok;
-
             DateTime dataZPeselu;
 
             try
@@ -73,25 +81,9 @@ namespace Biblioteka.Web.Helpers
             return dataZPeselu.Date == dataUrodzenia.Date;
         }
 
-        private static bool SprawdzPlec(string pesel, string plec)
-        {
-            int cyfraPlecowa = pesel[9] - '0';
-
-            bool peselMezczyzna = cyfraPlecowa % 2 == 1;
-
-            if (plec == "Mężczyzna" && !peselMezczyzna)
-                return false;
-
-            if (plec == "Kobieta" && peselMezczyzna)
-                return false;
-
-            return true;
-        }
-
         private static bool SprawdzCyfreKontrolna(string pesel)
         {
             int[] wagi = { 1, 3, 7, 9, 1, 3, 7, 9, 1, 3 };
-
             int suma = 0;
 
             for (int i = 0; i < 10; i++)
@@ -100,7 +92,6 @@ namespace Biblioteka.Web.Helpers
             }
 
             int cyfraKontrolna = (10 - (suma % 10)) % 10;
-
             return cyfraKontrolna == (pesel[10] - '0');
         }
     }

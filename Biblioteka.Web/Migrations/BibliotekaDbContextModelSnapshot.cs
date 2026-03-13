@@ -141,7 +141,6 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumerLokalu")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumerPosesji")
@@ -162,7 +161,6 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Ulica")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("ZapomnianyPrzezId")

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biblioteka.Web.Migrations
 {
     [DbContext(typeof(BibliotekaDbContext))]
-    [Migration("20260313104520_SeedInitialData")]
-    partial class SeedInitialData
+    [Migration("20260313123240_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,7 +144,6 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumerLokalu")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NumerPosesji")
@@ -165,7 +164,6 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Ulica")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("ZapomnianyPrzezId")

@@ -141,7 +141,10 @@ namespace Biblioteka.Web.Controllers
         {
             return View();
         }
-
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
         // --- ZU-01: Dodawanie użytkownika (POST) ---
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)

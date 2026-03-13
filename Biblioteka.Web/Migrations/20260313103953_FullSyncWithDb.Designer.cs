@@ -11,14 +11,58 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biblioteka.Web.Migrations
 {
     [DbContext(typeof(BibliotekaDbContext))]
-    [Migration("20260312215124_MakePasswordNullable")]
-    partial class MakePasswordNullable
+    [Migration("20260313103953_FullSyncWithDb")]
+    partial class FullSyncWithDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
+
+            modelBuilder.Entity("Biblioteka.Web.Data.Entities.HistoriaHasla", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataNadania")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("data_nadania");
+
+                    b.Property<string>("HasloHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("haslo_hash");
+
+                    b.Property<int>("UzytkownikId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("uzytkownik_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UzytkownikId");
+
+                    b.ToTable("Historia_Hasel");
+                });
+
+            modelBuilder.Entity("Biblioteka.Web.Data.Entities.Uprawnienie", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nazwa")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Opis")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Uprawnienia");
+                });
 
             modelBuilder.Entity("Biblioteka.Web.Data.Entities.Uzytkownik", b =>
                 {
@@ -31,7 +75,8 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnName("blokada_do");
 
                     b.Property<bool>("CzyZablokowany")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("czy_zablokowany");
 
                     b.Property<bool>("CzyZapomniany")
                         .HasColumnType("INTEGER")
@@ -50,7 +95,6 @@ namespace Biblioteka.Web.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HasloHash")
-                        .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("haslo_hash");
 
@@ -111,6 +155,52 @@ namespace Biblioteka.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Uzytkownicy");
+                });
+
+            modelBuilder.Entity("Uzytkownik_Uprawnienia", b =>
+                {
+                    b.Property<int>("uprawnienie_id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("uzytkownik_id")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("uprawnienie_id", "uzytkownik_id");
+
+                    b.HasIndex("uzytkownik_id");
+
+                    b.ToTable("Uzytkownik_Uprawnienia");
+                });
+
+            modelBuilder.Entity("Biblioteka.Web.Data.Entities.HistoriaHasla", b =>
+                {
+                    b.HasOne("Biblioteka.Web.Data.Entities.Uzytkownik", "Uzytkownik")
+                        .WithMany("HistoriaHasel")
+                        .HasForeignKey("UzytkownikId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Uzytkownik");
+                });
+
+            modelBuilder.Entity("Uzytkownik_Uprawnienia", b =>
+                {
+                    b.HasOne("Biblioteka.Web.Data.Entities.Uprawnienie", null)
+                        .WithMany()
+                        .HasForeignKey("uprawnienie_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Biblioteka.Web.Data.Entities.Uzytkownik", null)
+                        .WithMany()
+                        .HasForeignKey("uzytkownik_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Biblioteka.Web.Data.Entities.Uzytkownik", b =>
+                {
+                    b.Navigation("HistoriaHasel");
                 });
 #pragma warning restore 612, 618
         }

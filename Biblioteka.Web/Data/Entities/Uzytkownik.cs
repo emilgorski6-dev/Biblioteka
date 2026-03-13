@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Biblioteka.Web.Data.Entities
 {
-    
-public class Uzytkownik
+
+    public class Uzytkownik
     {
         public int Id { get; set; }
 
@@ -60,6 +60,10 @@ public class Uzytkownik
 
         [Column("zapomniany_przez_id")]
         public int? ZapomnianyPrzezId { get; set; }
+        public virtual ICollection<Uprawnienie> Uprawnienia { get; set; } = new List<Uprawnienie>();
+
+        // Historia haseł użytkownika
+        public virtual ICollection<HistoriaHasla> HistoriaHasel { get; set; } = new List<HistoriaHasla>();
     }
 
 }

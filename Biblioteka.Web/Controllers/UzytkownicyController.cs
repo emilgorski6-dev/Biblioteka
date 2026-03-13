@@ -48,6 +48,10 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
+            if (model.DataUrodzenia > DateTime.Now)
+            {
+                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
+            }
             // Jeśli atrybuty [Required] z modelu nie zostały spełnione, wróć do widoku
             if (!ModelState.IsValid) return View(model);
 
@@ -105,6 +109,7 @@ namespace Biblioteka.Web.Controllers
             _context.Uzytkownicy.Add(user);
             _context.SaveChanges();
 
+            TempData["SuccessMessage"] = $"Utworzono konto użytkownika ({user.Imie} {user.Nazwisko}).";
             // Po sukcesie wracamy do listy klientów
             return RedirectToAction("Index");
         }

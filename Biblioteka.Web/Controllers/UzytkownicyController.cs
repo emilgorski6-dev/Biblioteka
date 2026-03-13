@@ -4,6 +4,8 @@ using Biblioteka.Web.Helpers;
 using Biblioteka.Web.Data;
 using Biblioteka.Web.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 
 namespace Biblioteka.Web.Controllers
 {
@@ -16,21 +18,13 @@ namespace Biblioteka.Web.Controllers
             _context = context;
         }
 
-        // Widok główny Panelu (Dashboard)
-        public IActionResult Dashboard()
-        {
-            return View();
-        }
-
-        // Lista aktywnych klientów z funkcją filtrowania
+        // --- ZU-02 i ZU-03: Lista aktywnych klientów z funkcją wyszukiwania ---
         public IActionResult Index(string searchLogin, string searchName, string searchPesel)
         {
-            // 1. Pobieramy bazowe zapytanie (tylko aktywni)
             var query = _context.Uzytkownicy
                 .Where(u => u.CzyZapomniany == false)
                 .AsQueryable();
 
-            // 2. Filtrowanie dynamiczne
             if (!string.IsNullOrEmpty(searchLogin))
                 query = query.Where(u => u.Login.Contains(searchLogin));
 
@@ -40,7 +34,6 @@ namespace Biblioteka.Web.Controllers
             if (!string.IsNullOrEmpty(searchPesel))
                 query = query.Where(u => u.Pesel.Contains(searchPesel));
 
-            // 3. Mapowanie na ViewModel (Pesel jest wymagany przez model)
             var users = query
                 .Select(u => new UzytkownikListItemViewModel
                 {
@@ -48,44 +41,35 @@ namespace Biblioteka.Web.Controllers
                     Imie = u.Imie,
                     Nazwisko = u.Nazwisko,
                     Email = u.Email,
-                    Pesel = u.Pesel 
+                    Pesel = u.Pesel
                 })
                 .ToList();
 
-            // 4. Przekazanie filtrów do widoku
             ViewBag.CurrentLogin = searchLogin;
             ViewBag.CurrentName = searchName;
             ViewBag.CurrentPesel = searchPesel;
 
             return View(users);
         }
-        
-        // Pobranie formularza edycji po LOGINIE z paska URL (np. ?login=admin)
+
+        // --- ZU-06: Edycja danych (GET) ---
         [HttpGet]
         public IActionResult Edytuj(string login)
         {
             if (string.IsNullOrEmpty(login)) return BadRequest();
 
-<<<<<<< HEAD
-        // Formularz dodawania nowego użytkownika (GET)
-=======
-            // Szukamy użytkownika po loginie
             var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
-            
-            if (user == null)
-            {
-                return NotFound(); // <-- TO ZWRACA BŁĄD 404!
-            }
+            if (user == null) return NotFound();
 
             var model = new EdytujUzytkownikaViewModel
             {
-                Id = user.Id, 
+                Id = user.Id,
                 Login = user.Login,
                 Imie = user.Imie,
                 Nazwisko = user.Nazwisko,
                 Pesel = user.Pesel,
                 DataUrodzenia = user.DataUrodzenia,
-                Plec = user.Plec, 
+                Plec = user.Plec,
                 Email = user.Email,
                 Telefon = user.Telefon,
                 Miejscowosc = user.Miejscowosc,
@@ -98,7 +82,7 @@ namespace Biblioteka.Web.Controllers
             return View(model);
         }
 
-        // Odbiór danych z formularza
+        // --- ZU-06: Edycja danych (POST) ---
         [HttpPost]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
@@ -111,17 +95,12 @@ namespace Biblioteka.Web.Controllers
             if (!EmailValidator.IsValid(model.Email))
                 ModelState.AddModelError("Email", "Nieprawidłowy format email.");
 
-            // --- TUTAJ JEST NOWA WALIDACJA PESEL ---
+            // Walidacja PESEL z formatowaniem płci
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
             var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
+            if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
 
-            if (!wynikWalidacji.IsValid)
-            {
-                ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
-            }
-            // ---------------------------------------
-
-            // Walidacja unikalności - wykluczamy aktualnie edytowanego użytkownika (po ID z ukrytego pola)
+            // Unikalność (z wyłączeniem siebie samego)
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
 
@@ -129,14 +108,14 @@ namespace Biblioteka.Web.Controllers
                 ModelState.AddModelError("Email", "Ten adres email jest już powiązany z innym kontem.");
 
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
-                ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie dla innego konta.");
+                ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie.");
 
             if (!ModelState.IsValid) return View(model);
 
-            // Pobieramy użytkownika do aktualizacji na podstawie ukrytego ID
             var userToUpdate = _context.Uzytkownicy.Find(model.Id);
             if (userToUpdate == null) return NotFound();
 
+            // Przepisanie danych
             userToUpdate.Login = model.Login;
             userToUpdate.Imie = model.Imie;
             userToUpdate.Nazwisko = model.Nazwisko;
@@ -152,30 +131,26 @@ namespace Biblioteka.Web.Controllers
             userToUpdate.NumerLokalu = model.NumerLokalu;
 
             _context.SaveChanges();
-
             TempData["SuccessMessage"] = $"Zaktualizowano dane użytkownika ({userToUpdate.Imie} {userToUpdate.Nazwisko}).";
             return RedirectToAction("Index");
         }
-        // Formularz dodawania nowego użytkownika (Wyświetlenie pustej strony)
->>>>>>> 1ab254190579931169561bb905fcc2eeab86f474
+
+        // --- ZU-01: Dodawanie użytkownika (GET) ---
         [HttpGet]
         public IActionResult Dodaj()
         {
             return View();
         }
 
-        // Akcja odbierająca dane z formularza (POST)
+        // --- ZU-01: Dodawanie użytkownika (POST) ---
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
             if (model.DataUrodzenia > DateTime.Now)
-            {
                 ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
-            }
 
             if (!ModelState.IsValid) return View(model);
 
-            // Walidacje pomocnicze (Helpers)
             if (!PhoneValidator.IsValid(model.Telefon))
                 ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
 
@@ -185,7 +160,6 @@ namespace Biblioteka.Web.Controllers
             if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
                 ModelState.AddModelError("Pesel", "PESEL jest niepoprawny lub niezgodny z danymi.");
 
-            // Unikalność w bazie danych
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty.");
 
@@ -197,7 +171,6 @@ namespace Biblioteka.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            // Tworzenie encji
             var user = new Uzytkownik
             {
                 Login = model.Login,
@@ -225,15 +198,13 @@ namespace Biblioteka.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // Lista zablokowanych użytkowników (Zapomniani)
+        // --- ZU-04: Lista zapomnianych użytkowników ---
         public IActionResult Zapomniani(string searchLogin, string searchName, string searchPesel)
         {
-            // 1. Pobieramy tylko tych, którzy są oznaczeni jako zablokowani
             var query = _context.Uzytkownicy
                 .Where(u => u.CzyZapomniany == true)
                 .AsQueryable();
 
-            // 2. Filtrowanie dynamiczne
             if (!string.IsNullOrEmpty(searchLogin))
                 query = query.Where(u => u.Login.Contains(searchLogin));
 
@@ -243,7 +214,6 @@ namespace Biblioteka.Web.Controllers
             if (!string.IsNullOrEmpty(searchPesel))
                 query = query.Where(u => u.Pesel.Contains(searchPesel));
 
-            // 3. Mapowanie na ViewModel
             var users = query
                 .Select(u => new UzytkownikListItemViewModel
                 {
@@ -255,7 +225,6 @@ namespace Biblioteka.Web.Controllers
                 })
                 .ToList();
 
-            // 4. Przekazanie filtrów do widoku
             ViewBag.CurrentLogin = searchLogin;
             ViewBag.CurrentName = searchName;
             ViewBag.CurrentPesel = searchPesel;
@@ -263,12 +232,10 @@ namespace Biblioteka.Web.Controllers
             return View(users);
         }
 
-        // Szczegóły konkretnego klienta
+        // --- ZU-05: Szczegóły użytkownika ---
         public IActionResult Szczegoly(string login)
         {
-            var user = _context.Uzytkownicy
-                .FirstOrDefault(u => u.Login == login);
-
+            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
             if (user == null) return NotFound();
 
             return View(user);

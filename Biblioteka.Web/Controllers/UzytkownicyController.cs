@@ -52,7 +52,7 @@ namespace Biblioteka.Web.Controllers
             return View(users);
         }
 
-        
+
         // --- ZU-01: Dodawanie użytkownika (GET) ---
         [HttpGet]
         public IActionResult Dodaj()
@@ -68,8 +68,8 @@ namespace Biblioteka.Web.Controllers
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
             // 1. Walidacja Pól Wymaganych (Punkt 5 z Use Case)
-            if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) || 
-                string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) || 
+            if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) ||
+                string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) ||
                 string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == default)
             {
                 ModelState.AddModelError(string.Empty, "Nie uzupełniono wszystkich pól wymaganych");
@@ -83,24 +83,24 @@ namespace Biblioteka.Web.Controllers
 
             // 3. Walidacja E-mail (Dokładne teksty z Use Case)
             if (!string.IsNullOrEmpty(model.Email))
-                {
-                    if (model.Email.Count(c => c == '@') != 1)
-                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                    else if (model.Email.Length > 255)
-                        ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków.");
-                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
-                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
-                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
-                }
+            {
+                if (model.Email.Count(c => c == '@') != 1)
+                    ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
+                else if (model.Email.Length > 255)
+                    ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków.");
+                else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                    ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
+                else if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
+                    ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+            }
 
             // 4. Walidacja PESEL (Używamy Twojej nowej metody WalidujSzczegolowo)
             if (!string.IsNullOrEmpty(model.Pesel))
             {
                 // Ważne: Twoja metoda w helperze sprawdza "Mężczyzna"/"Kobieta" z dużej litery, 
                 // a w select masz małe litery. Dodajemy .ToLower() w helperze lub tutaj poprawiamy:
-                var (isValid, errorMessage) = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, model.Plec);
-                
+                var (isValid, errorMessage) = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia!.Value, model.Plec);
+
                 if (!isValid)
                 {
                     ModelState.AddModelError("Pesel", errorMessage);
@@ -126,7 +126,7 @@ namespace Biblioteka.Web.Controllers
                 Imie = model.Imie,
                 Nazwisko = model.Nazwisko,
                 Pesel = model.Pesel,
-                DataUrodzenia = model.DataUrodzenia,
+                DataUrodzenia = model.DataUrodzenia!.Value,
                 Plec = model.Plec,
                 Email = model.Email,
                 Telefon = model.Telefon,
@@ -187,7 +187,7 @@ namespace Biblioteka.Web.Controllers
             return View(user);
         }
 
-    // --- ZU-06: Edycja danych (GET) ---
+        // --- ZU-06: Edycja danych (GET) ---
         [HttpGet]
         public IActionResult Edytuj(string login)
         {
@@ -228,14 +228,14 @@ namespace Biblioteka.Web.Controllers
                 ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
 
             if (!string.IsNullOrEmpty(model.Email))
-                {
-                    if (model.Email.Count(c => c == '@') != 1)
-                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
-                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
-                }
+            {
+                if (model.Email.Count(c => c == '@') != 1)
+                    ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
+                else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                    ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
+                else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
+                    ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+            }
             // Walidacja PESEL z formatowaniem płci
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
             var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
@@ -324,7 +324,7 @@ namespace Biblioteka.Web.Controllers
             return RedirectToAction("Zapomniani");
         }
 
-        
-    
+
+
     }
 }

@@ -1,22 +1,43 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Biblioteka.Web.Models
 {
     public class DodajUzytkownikaViewModel
     {
-        [Required] public required string Login { get; set; }
-        [Required] public required string Imie { get; set; }
-        [Required] public required string Nazwisko { get; set; }
-        [Required] public required string Email { get; set; }
-        [Required] public required string Telefon { get; set; }
-        [Required] public required string Pesel { get; set; }
-        [Required] public DateTime DataUrodzenia { get; set; }
-        [Required] public required string Plec { get; set; }
-        [Required] public required string Miejscowosc { get; set; }
-        [Required] public required string KodPocztowy { get; set; }
-        [Required] public required string NumerPosesji { get; set; }
+        [Required(ErrorMessage = "Login jest wymagany")]
+        public required string Login { get; set; }
 
-        // Pola opcjonalne zostawiamy jako string? (nullable) - brak ostrzeżeń [cite: 48, 50]
+        [Required(ErrorMessage = "Imię jest wymagane")]
+        public required string Imie { get; set; }
+
+        [Required(ErrorMessage = "Nazwisko jest wymagane")]
+        public required string Nazwisko { get; set; }
+
+        [Required(ErrorMessage = "Adres e-mail jest wymagany")]
+        public required string Email { get; set; }
+
+        [Required(ErrorMessage = "Numer telefonu jest wymagany")]
+        public required string Telefon { get; set; }
+
+        [Required(ErrorMessage = "Numer PESEL jest wymagany")]
+        public required string Pesel { get; set; }
+
+        [Required(ErrorMessage = "Data urodzenia jest wymagana")]
+        public DateTime? DataUrodzenia { get; set; }
+
+        [Required(ErrorMessage = "Płeć jest wymagana")]
+        public required string Plec { get; set; }
+
+        [Required(ErrorMessage = "Miejscowość jest wymagana")]
+        public required string Miejscowosc { get; set; }
+
+        [Required(ErrorMessage = "Kod pocztowy jest wymagany")]
+        public required string KodPocztowy { get; set; }
+
+        [Required(ErrorMessage = "Numer posesji jest wymagany")]
+        public required string NumerPosesji { get; set; }
+
         public string? Ulica { get; set; }
         public string? NumerLokalu { get; set; }
     }

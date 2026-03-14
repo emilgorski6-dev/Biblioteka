@@ -94,21 +94,12 @@ namespace Biblioteka.Web.Controllers
 
             if (!string.IsNullOrEmpty(model.Email))
                 {
-                  
-                    if (model.Email.Length > 255)
-                    {
-                        ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków");
-                    }
-                    
-                    else if (model.Email.Count(c => c == '@') != 1)
-                    {
+                    if (model.Email.Count(c => c == '@') != 1)
                         ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                    }
-                  
-                    else if (!model.Email.Contains(".") || model.Email.LastOrDefault() == '.')
-                    {
+                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
                         ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                    }
+                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
+                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
                 }
             // Walidacja PESEL z formatowaniem płci
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
@@ -164,31 +155,59 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
-            if (model.DataUrodzenia > DateTime.Now)
-                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
+            // 1. Walidacja Pól Wymaganych (Punkt 5 z Use Case)
+            if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) || 
+                string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) || 
+                string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == default)
+            {
+                ModelState.AddModelError(string.Empty, "Nie uzupełniono wszystkich pól wymaganych");
+            }
 
-            if (!ModelState.IsValid) return View(model);
-
-            if (!PhoneValidator.IsValid(model.Telefon))
+            // 2. Walidacja Telefonu
+            if (!string.IsNullOrEmpty(model.Telefon) && model.Telefon.Length != 9)
+            {
                 ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
+            }
 
-            if (!EmailValidator.IsValid(model.Email))
-                ModelState.AddModelError("Email", "Nieprawidłowy format email.");
+            // 3. Walidacja E-mail (Dokładne teksty z Use Case)
+            if (!string.IsNullOrEmpty(model.Email))
+                {
+                    if (model.Email.Count(c => c == '@') != 1)
+                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
+                    else if (model.Email.Length > 255)
+                        ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków.");
+                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
+                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
+                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+                }
 
-            if (!PeselValidator.CzyPeselJestPoprawny(model.Pesel, model.DataUrodzenia, model.Plec))
-                ModelState.AddModelError("Pesel", "PESEL jest niepoprawny lub niezgodny z danymi.");
+            // 4. Walidacja PESEL (Używamy Twojej nowej metody WalidujSzczegolowo)
+            if (!string.IsNullOrEmpty(model.Pesel))
+            {
+                // Ważne: Twoja metoda w helperze sprawdza "Mężczyzna"/"Kobieta" z dużej litery, 
+                // a w select masz małe litery. Dodajemy .ToLower() w helperze lub tutaj poprawiamy:
+                var (isValid, errorMessage) = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, model.Plec);
+                
+                if (!isValid)
+                {
+                    ModelState.AddModelError("Pesel", errorMessage);
+                }
+            }
 
+            // 5. Walidacja Unikalności (Baza danych) - Teksty z Use Case
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty.");
 
             if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
-                ModelState.AddModelError("Email", "Ten adres email jest już zarejestrowany.");
+                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
 
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
-                ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie.");
+                ModelState.AddModelError("Pesel", "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.");
 
             if (!ModelState.IsValid) return View(model);
 
+            // Zapis do bazy...
             var user = new Uzytkownik
             {
                 Login = model.Login,
@@ -203,10 +222,7 @@ namespace Biblioteka.Web.Controllers
                 KodPocztowy = model.KodPocztowy,
                 Ulica = model.Ulica,
                 NumerPosesji = model.NumerPosesji,
-                NumerLokalu = model.NumerLokalu,
-                CzyZablokowany = false,
-                LiczbaBlednychLogowan = 0,
-                CzyZapomniany = false
+                NumerLokalu = model.NumerLokalu
             };
 
             _context.Uzytkownicy.Add(user);

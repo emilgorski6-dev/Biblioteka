@@ -92,9 +92,24 @@ namespace Biblioteka.Web.Controllers
             if (!PhoneValidator.IsValid(model.Telefon))
                 ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
 
-            if (!EmailValidator.IsValid(model.Email))
-                ModelState.AddModelError("Email", "Nieprawidłowy format email.");
-
+            if (!string.IsNullOrEmpty(model.Email))
+                {
+                  
+                    if (model.Email.Length > 255)
+                    {
+                        ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków");
+                    }
+                    
+                    else if (model.Email.Count(c => c == '@') != 1)
+                    {
+                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
+                    }
+                  
+                    else if (!model.Email.Contains(".") || model.Email.LastOrDefault() == '.')
+                    {
+                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
+                    }
+                }
             // Walidacja PESEL z formatowaniem płci
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
             var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
@@ -105,10 +120,10 @@ namespace Biblioteka.Web.Controllers
                 ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
 
             if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                ModelState.AddModelError("Email", "Ten adres email jest już powiązany z innym kontem.");
+                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
 
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
-                ModelState.AddModelError("Pesel", "Ten numer PESEL znajduje się już w bazie.");
+                ModelState.AddModelError("Pesel", "Podany nowy numer PESEL jest już przypisany do innego użytkownika w systemie.");
 
             if (!ModelState.IsValid) return View(model);
 

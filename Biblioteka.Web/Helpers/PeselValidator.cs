@@ -6,28 +6,32 @@ namespace Biblioteka.Web.Helpers
     public static class PeselValidator
     {
         // Nowa metoda z dokładnymi komunikatami
-        public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec)
-        {
-            if (string.IsNullOrWhiteSpace(pesel) || pesel.Length != 11 || !pesel.All(char.IsDigit))
-                return (false, "Niepoprawny format numeru PESEL.");
+    public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec)
+            {
+                if (string.IsNullOrWhiteSpace(pesel) || pesel.Length != 11 || !pesel.All(char.IsDigit))
+                    return (false, "Niepoprawny format numeru PESEL.");
 
-            if (!SprawdzCyfreKontrolna(pesel))
-                return (false, "Niepoprawna cyfra kontrolna w numerze PESEL.");
+                // 1. Sprawdzamy najpierw datę (Priorytet ze specyfikacji 5b)
+                if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
+                    return (false, "Pierwsze sześć cyfr numeru PESEL nie zgadza się z podaną datą urodzenia");
 
-            if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
-                return (false, "Numer PESEL nie jest zgodny z wybraną datą urodzenia.");
+                // 2. Potem sprawdzamy płeć (Priorytet 5c i 5d)
+                int cyfraPlecowa = pesel[9] - '0';
+                bool peselMezczyzna = cyfraPlecowa % 2 == 1;
 
-            int cyfraPlecowa = pesel[9] - '0';
-            bool peselMezczyzna = cyfraPlecowa % 2 == 1;
+                if (plec == "Mężczyzna" && !peselMezczyzna)
+                    return (false, "Przedostatnia cyfra numeru PESEL wskazuje na płeć żeńską, a w formularzu wybrano płeć męską.");
 
-            if (plec == "Mężczyzna" && !peselMezczyzna)
-                return (false, "Wybrano płeć męską, ale numer PESEL wskazuje na płeć żeńską.");
+                if (plec == "Kobieta" && peselMezczyzna)
+                    return (false, "Przedostatnia cyfra numeru PESEL wskazuje na płeć męską, a w formularzu wybrano płeć żeńską.");
 
-            if (plec == "Kobieta" && peselMezczyzna)
-                return (false, "Wybrano płeć żeńską, ale numer PESEL wskazuje na płeć męską.");
+                // 3. Na samym końcu cyfra kontrolna (Priorytet 5e)
+                // Wykonuje się dopiero, gdy mamy pewność, że data i płeć pasują do osoby!
+                if (!SprawdzCyfreKontrolna(pesel))
+                    return (false, "Nieprawidłowy numer PESEL – niepoprawna cyfra kontrolna.");
 
-            return (true, string.Empty);
-        }
+                return (true, string.Empty);
+            }
 
         // Stara metoda dla wstecznej kompatybilności
         public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec)

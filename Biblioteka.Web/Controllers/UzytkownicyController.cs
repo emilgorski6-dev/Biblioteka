@@ -52,95 +52,7 @@ namespace Biblioteka.Web.Controllers
             return View(users);
         }
 
-        // --- ZU-06: Edycja danych (GET) ---
-        [HttpGet]
-        public IActionResult Edytuj(string login)
-        {
-            if (string.IsNullOrEmpty(login)) return BadRequest();
-
-            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
-            if (user == null) return NotFound();
-
-            var model = new EdytujUzytkownikaViewModel
-            {
-                Id = user.Id,
-                Login = user.Login,
-                Imie = user.Imie,
-                Nazwisko = user.Nazwisko,
-                Pesel = user.Pesel,
-                DataUrodzenia = user.DataUrodzenia,
-                Plec = user.Plec,
-                Email = user.Email,
-                Telefon = user.Telefon,
-                Miejscowosc = user.Miejscowosc,
-                KodPocztowy = user.KodPocztowy,
-                Ulica = user.Ulica,
-                NumerPosesji = user.NumerPosesji,
-                NumerLokalu = user.NumerLokalu
-            };
-
-            return View(model);
-        }
-
-        // --- ZU-06: Edycja danych (POST) ---
-        [HttpPost]
-        public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
-        {
-            if (model.DataUrodzenia > DateTime.Now)
-                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
-
-            if (!PhoneValidator.IsValid(model.Telefon))
-                ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
-
-            if (!string.IsNullOrEmpty(model.Email))
-                {
-                    if (model.Email.Count(c => c == '@') != 1)
-                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
-                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
-                }
-            // Walidacja PESEL z formatowaniem płci
-            string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
-            var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
-            if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
-
-            // Unikalność (z wyłączeniem siebie samego)
-            if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))
-                ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
-
-            if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
-
-            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
-                ModelState.AddModelError("Pesel", "Podany nowy numer PESEL jest już przypisany do innego użytkownika w systemie.");
-
-            if (!ModelState.IsValid) return View(model);
-
-            var userToUpdate = _context.Uzytkownicy.Find(model.Id);
-            if (userToUpdate == null) return NotFound();
-
-            // Przepisanie danych
-            userToUpdate.Login = model.Login;
-            userToUpdate.Imie = model.Imie;
-            userToUpdate.Nazwisko = model.Nazwisko;
-            userToUpdate.Pesel = model.Pesel;
-            userToUpdate.DataUrodzenia = model.DataUrodzenia;
-            userToUpdate.Plec = model.Plec;
-            userToUpdate.Email = model.Email;
-            userToUpdate.Telefon = model.Telefon;
-            userToUpdate.Miejscowosc = model.Miejscowosc;
-            userToUpdate.KodPocztowy = model.KodPocztowy;
-            userToUpdate.Ulica = model.Ulica;
-            userToUpdate.NumerPosesji = model.NumerPosesji;
-            userToUpdate.NumerLokalu = model.NumerLokalu;
-
-            _context.SaveChanges();
-            TempData["SuccessMessage"] = $"Zaktualizowano dane użytkownika ({userToUpdate.Imie} {userToUpdate.Nazwisko}).";
-            return RedirectToAction("Index");
-        }
-
+        
         // --- ZU-01: Dodawanie użytkownika (GET) ---
         [HttpGet]
         public IActionResult Dodaj()
@@ -274,5 +186,145 @@ namespace Biblioteka.Web.Controllers
 
             return View(user);
         }
+
+    // --- ZU-06: Edycja danych (GET) ---
+        [HttpGet]
+        public IActionResult Edytuj(string login)
+        {
+            if (string.IsNullOrEmpty(login)) return BadRequest();
+
+            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
+            if (user == null) return NotFound();
+
+            var model = new EdytujUzytkownikaViewModel
+            {
+                Id = user.Id,
+                Login = user.Login,
+                Imie = user.Imie,
+                Nazwisko = user.Nazwisko,
+                Pesel = user.Pesel,
+                DataUrodzenia = user.DataUrodzenia,
+                Plec = user.Plec,
+                Email = user.Email,
+                Telefon = user.Telefon,
+                Miejscowosc = user.Miejscowosc,
+                KodPocztowy = user.KodPocztowy,
+                Ulica = user.Ulica,
+                NumerPosesji = user.NumerPosesji,
+                NumerLokalu = user.NumerLokalu
+            };
+
+            return View(model);
+        }
+
+        // --- ZU-06: Edycja danych (POST) ---
+        [HttpPost]
+        public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
+        {
+            if (model.DataUrodzenia > DateTime.Now)
+                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
+
+            if (!PhoneValidator.IsValid(model.Telefon))
+                ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
+
+            if (!string.IsNullOrEmpty(model.Email))
+                {
+                    if (model.Email.Count(c => c == '@') != 1)
+                        ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
+                    else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                        ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
+                    else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
+                        ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+                }
+            // Walidacja PESEL z formatowaniem płci
+            string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
+            var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
+            if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
+
+            // Unikalność (z wyłączeniem siebie samego)
+            if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))
+                ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
+
+            if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
+                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+
+            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
+                ModelState.AddModelError("Pesel", "Podany nowy numer PESEL jest już przypisany do innego użytkownika w systemie.");
+
+            if (!ModelState.IsValid) return View(model);
+
+            var userToUpdate = _context.Uzytkownicy.Find(model.Id);
+            if (userToUpdate == null) return NotFound();
+
+            // Przepisanie danych
+            userToUpdate.Login = model.Login;
+            userToUpdate.Imie = model.Imie;
+            userToUpdate.Nazwisko = model.Nazwisko;
+            userToUpdate.Pesel = model.Pesel;
+            userToUpdate.DataUrodzenia = model.DataUrodzenia;
+            userToUpdate.Plec = model.Plec;
+            userToUpdate.Email = model.Email;
+            userToUpdate.Telefon = model.Telefon;
+            userToUpdate.Miejscowosc = model.Miejscowosc;
+            userToUpdate.KodPocztowy = model.KodPocztowy;
+            userToUpdate.Ulica = model.Ulica;
+            userToUpdate.NumerPosesji = model.NumerPosesji;
+            userToUpdate.NumerLokalu = model.NumerLokalu;
+
+            _context.SaveChanges();
+            TempData["SuccessMessage"] = $"Zaktualizowano dane użytkownika ({userToUpdate.Imie} {userToUpdate.Nazwisko}).";
+            return RedirectToAction("Index");
+        }
+
+        // --- ZU-07: Zapomnienie użytkownika(POST) ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Zapomnij(int id)
+        {
+            // 1. Pobieramy użytkownika razem z jego uprawnieniami
+            var user = _context.Uzytkownicy
+                            .Include(u => u.Uprawnienia)
+                            .FirstOrDefault(u => u.Id == id);
+
+            if (user == null) return NotFound();
+
+            // 2. USUNIĘCIE UPRAWNIEŃ (Punkt 6 Use Case)
+            // Dzięki .Clear() EF sam usunie rekordy z tabeli łączącej Uzytkownik_Uprawnienia
+            user.Uprawnienia.Clear();
+
+            // 3. GENEROWANIE DANYCH ANONIMOWYCH
+            var anon = PeselValidator.GenerujDaneAnonimowe();
+
+            // 4. NADPISYWANIE DANYCH (Anonimizacja RODO)
+            user.Imie = "Anonim";
+            user.Nazwisko = "Użytkownik";
+            user.Pesel = anon.Pesel;
+            user.DataUrodzenia = anon.DataUrodzenia;
+            user.Plec = anon.Plec;
+
+            // Czyszczenie kontaktu i adresu (zgodnie z Twoimi polami w klasie Uzytkownik)
+            user.Email = $"zapomniany_{user.Id}@biblioteka.nova";
+            user.Telefon = "000000000";
+            user.Miejscowosc = "Anonimowa";
+            user.KodPocztowy = "00-000";
+            user.Ulica = null;
+            user.NumerPosesji = "0";
+            user.NumerLokalu = null;
+            user.HasloHash = "---"; // Nadpisujemy hash hasła
+
+            // 5. FLAGI SYSTEMOWE
+            user.CzyZapomniany = true;
+            user.DataZapomnienia = DateTime.Now;
+
+            // NIE robimy CzyZablokowany = true (zgodnie z prośbą)
+
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Użytkownik został pomyślnie zapomniany, a jego uprawnienia usunięte.";
+            return RedirectToAction("Zapomniani");
+        }
+
+        
+    
     }
 }

@@ -97,5 +97,38 @@ namespace Biblioteka.Web.Helpers
             int cyfraKontrolna = (10 - (suma % 10)) % 10;
             return cyfraKontrolna == (pesel[10] - '0');
         }
+        
+        
+        // Generuje losowy, ale poprawny technicznie PESEL, Datę i Płeć (do RODO)
+        public static (string Pesel, DateTime DataUrodzenia, string Plec) GenerujDaneAnonimowe()
+            {
+                Random rnd = new Random();
+                // 1. Losujemy datę (zakres 1950-2005)
+                DateTime start = new DateTime(1950, 1, 1);
+                int range = (new DateTime(2005, 1, 1) - start).Days;
+                DateTime data = start.AddDays(rnd.Next(range));
+
+                // 2. Budujemy PESEL (RRMMDD)
+                string rr = data.ToString("yy");
+                int m = data.Month;
+                if (data.Year >= 2000) m += 20; 
+                string mm = m.ToString("00");
+                string dd = data.Day.ToString("00");
+                
+                // 3. Losujemy 4 cyfry (10. cyfra określa płeć)
+                string reszta = rnd.Next(0, 10000).ToString("D4");
+                string p = $"{rr}{mm}{dd}{reszta}";
+
+                // 4. Suma kontrolna (Twoja logika wag)
+                int[] wagi = { 1, 3, 7, 9, 1, 3, 7, 9, 1, 3 };
+                int suma = 0;
+                for (int i = 0; i < 10; i++) suma += (p[i] - '0') * wagi[i];
+                int cyfraKontrolna = (10 - (suma % 10)) % 10;
+                
+                string finalnyPesel = p + cyfraKontrolna;
+                string plec = (int.Parse(finalnyPesel[9].ToString()) % 2 == 0) ? "kobieta" : "mężczyzna";
+
+                return (finalnyPesel, data, plec);
+            }
     }
 }

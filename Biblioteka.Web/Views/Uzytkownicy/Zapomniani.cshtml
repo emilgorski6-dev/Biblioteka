@@ -9,7 +9,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3 class="sidebar-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
                 Panel Admina
@@ -19,14 +20,16 @@
 
         <nav class="sidebar-nav">
             <a href="/Uzytkownicy/Index" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                 </svg>
                 Klienci / Wyszukiwanie
             </a>
             <a href="/Uzytkownicy/Dodaj" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="8.5" cy="7" r="4"></circle>
                     <line x1="20" y1="8" x2="20" y2="14"></line>
@@ -39,92 +42,99 @@
 
     @* --- GŁÓWNA TREŚĆ --- *@
     <main class="admin-content">
-        
+
         <div class="page-header">
             <h1 class="page-title">Klienci Biblioteki</h1>
-            <p class="page-description">Przeszukuj listę użytkowników. W zakładce zapomnianych możesz zarządzać kontami wymagającymi interwencji administratora.</p>
-        </div>
+            <p class="page-description">Przeszukuj listę użytkowników. W zakładce zapomnianych możesz zarządzać kontami
+                wymagającymi interwencji administratora.</p>
+            </div>
 
-        @* --- ZAKŁADKI --- *@
-        <div class="clients-tabs">
-            <a href="/Uzytkownicy/Index" class="clients-tab">
-                Lista aktywnych klientów
-            </a>
-            <a href="/Uzytkownicy/Zapomniani" class="clients-tab active-danger">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                Zapomniani użytkownicy
-            </a>
-        </div>
+            @* --- ZAKŁADKI --- *@
+            <div class="clients-tabs">
+                <a href="/Uzytkownicy/Index" class="clients-tab">
+                    Lista aktywnych klientów
+                </a>
+                <a href="/Uzytkownicy/Zapomniani" class="clients-tab active-danger">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Zapomniani użytkownicy
+                </a>
+            </div>
 
-        @* --- TABELA Z WYNIKAMI --- *@
-        <div class="table-container-danger">
-            <table class="table-danger-custom">
-                <thead>
-                    <tr>
-                        <th>Identyfikator</th>
-                        <th>Imię i Nazwisko po zapomnieniu</th>
-                        <th>Data zapomnienia</th>
-                        <th>identifkator uzytkownika, ktory dokonał zapomnienia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td>
-                            <div class="cell-flex badge-gray">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                LIB-88451-B
-                            </div>
-                        </td>
-                        
-                        <td class="text-dark-bold">
-                            <div class="cell-flex-gap10">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fee2e2" stroke="#ef4444" stroke-width="2">
-                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                </svg>
-                                @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***") @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
-                            </div>
-                        </td>
-                        
-                        <td class="text-grey-sm">
-                            <div class="cell-flex">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                12.03.2026
-                            </div>
-                        </td>
-                        
-                        <td>
-                            <span class="badge-red">
-                                ADM-001
-                            </span>
-                        </td>
-                    </tr>
-                }
-                
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="4" class="table-empty-state">Nie znaleziono zapomnianych użytkowników.</td>
-                    </tr>
-                }
-                </tbody>        
-            </table>
-        </div>
+            @* --- TABELA Z WYNIKAMI --- *@
+            <div class="table-container-danger">
+                <table class="table-danger-custom">
+                    <thead>
+                        <tr>
+                            <th>Identyfikator</th>
+                            <th>Imię i Nazwisko po zapomnieniu</th>
+                            <th>Data zapomnienia</th>
+                            <th>Identyfikator uzytkownika, ktory dokonał zapomnienia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="cell-flex badge-gray">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2">
+                                            <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        LIB-88451-B
+                                    </div>
+                                </td>
 
-    </main>
-</div>
+                                <td class="text-dark-bold">
+                                    <div class="cell-flex-gap10">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fee2e2" stroke="#ef4444"
+                                             stroke-width="2">
+                                            <path
+                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                            </path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
+                                        @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***")
+                                        @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
+                                    </div>
+                                </td>
+
+                                <td class="text-grey-sm">
+                                    <div class="cell-flex">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        12.03.2026
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge-red">
+                                        ADM-001
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="table-empty-state">Nie znaleziono zapomnianych użytkowników.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>

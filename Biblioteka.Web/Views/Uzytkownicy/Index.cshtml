@@ -113,7 +113,7 @@
                         <th>Imię</th>
                         <th>Nazwisko</th>
                         <th>Adres e-mail</th>
-                        <th>Status</th>
+                        <th>PESEL</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -134,7 +134,7 @@
                              </div>
                         </td>
                         <td>
-                            <span class="badge-status active">Aktywny</span>
+                            @user.Pesel
                         </td>
                         <td class="td-action">
                             <a asp-controller="Uzytkownicy" asp-action="Szczegoly" asp-route-login="@user.Login" class="link-profile">Zobacz profil</a>

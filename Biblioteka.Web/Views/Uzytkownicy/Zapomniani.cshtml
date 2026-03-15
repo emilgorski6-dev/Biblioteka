@@ -68,7 +68,7 @@
                         <th>Identyfikator</th>
                         <th>Imię i Nazwisko po zapomnieniu</th>
                         <th>Data zapomnienia</th>
-                        <th>identifkator uzytkownika, ktory dokonał zapomnienia</th>
+                        <th>Identyfikator administratora</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@
                                     <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
-                                LIB-88451-B
+                                @user.Login
                             </div>
                         </td>
                         
@@ -92,7 +92,7 @@
                                     <line x1="12" y1="9" x2="12" y2="13"></line>
                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                 </svg>
-                                @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***") @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
+                                @user.Imie @user.Nazwisko
                             </div>
                         </td>
                         
@@ -104,13 +104,13 @@
                                     <line x1="8" y1="2" x2="8" y2="6"></line>
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
-                                12.03.2026
+                                @user.DataZapomnienia?.ToString("dd.MM.yyyy HH:mm")     
                             </div>
                         </td>
                         
                         <td>
                             <span class="badge-red">
-                                ADM-001
+                                admin
                             </span>
                         </td>
                     </tr>

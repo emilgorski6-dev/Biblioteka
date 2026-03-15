@@ -74,6 +74,8 @@ namespace Biblioteka.Web.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Nie uzupełniono wszystkich pól wymaganych");
             }
+            if (model.DataUrodzenia > DateTime.Now)
+                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
 
             // 2. Walidacja Telefonu
             if (!string.IsNullOrEmpty(model.Telefon) && model.Telefon.Length != 9)
@@ -164,7 +166,8 @@ namespace Biblioteka.Web.Controllers
                     Imie = u.Imie,
                     Nazwisko = u.Nazwisko,
                     Email = u.Email,
-                    Pesel = u.Pesel
+                    Pesel = u.Pesel,
+                    DataZapomnienia = u.DataZapomnienia
                 })
                 .ToList();
 
@@ -293,28 +296,19 @@ namespace Biblioteka.Web.Controllers
             var anon = PeselValidator.GenerujDaneAnonimowe();
 
             // 4. NADPISYWANIE DANYCH (Anonimizacja RODO)
-            user.Imie = "Anonim";
-            user.Nazwisko = "Użytkownik";
+            user.Imie = Guid.NewGuid().ToString("N").Substring(0, 8);
+            user.Nazwisko = Guid.NewGuid().ToString("N").Substring(0, 10);
             user.Pesel = anon.Pesel;
             user.DataUrodzenia = anon.DataUrodzenia;
             user.Plec = anon.Plec;
-
-            // Czyszczenie kontaktu i adresu (zgodnie z Twoimi polami w klasie Uzytkownik)
-            user.Email = $"zapomniany_{user.Id}@biblioteka.nova";
-            user.Telefon = "000000000";
-            user.Miejscowosc = "Anonimowa";
-            user.KodPocztowy = "00-000";
-            user.Ulica = null;
-            user.NumerPosesji = "0";
-            user.NumerLokalu = null;
-            user.HasloHash = "---"; // Nadpisujemy hash hasła
+            user.ZapomnianyPrzezId = 1;
+            
 
             // 5. FLAGI SYSTEMOWE
             user.CzyZapomniany = true;
             user.DataZapomnienia = DateTime.Now;
 
-            // NIE robimy CzyZablokowany = true (zgodnie z prośbą)
-
+            
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Użytkownik został pomyślnie zapomniany, a jego uprawnienia usunięte.";

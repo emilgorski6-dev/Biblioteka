@@ -9,7 +9,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3 class="sidebar-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
                 Panel Admina
@@ -19,14 +20,16 @@
 
         <nav class="sidebar-nav">
             <a href="/Uzytkownicy/Index" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
                 </svg>
                 Klienci / Wyszukiwanie
             </a>
             <a href="/Uzytkownicy/Dodaj" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="8.5" cy="7" r="4"></circle>
                     <line x1="20" y1="8" x2="20" y2="14"></line>
@@ -39,117 +42,130 @@
 
     @* --- GŁÓWNA TREŚĆ --- *@
     <main class="admin-content">
-        
+
         <div class="page-header">
             <h1 class="page-title">Klienci Biblioteki</h1>
-            <p class="page-description">Przeszukuj listę użytkowników. W zakładce zablokowanych możesz zarządzać kontami wymagającymi interwencji administratora.</p>
-        </div>
+            <p class="page-description">Przeszukuj listę użytkowników. W zakładce zablokowanych możesz zarządzać kontami
+                wymagającymi interwencji administratora.</p>
+            </div>
 
-        @* --- ZAKŁADKI --- *@
-        <div class="tabs-container">
-            <a href="/Uzytkownicy/Index" class="tab active">Lista aktywnych klientów</a>
-            <a href="/Uzytkownicy/Zapomniani" class="tab">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                Zablokowani użytkownicy
-            </a>
-        </div>
+            @* --- ZAKŁADKI --- *@
+            <div class="tabs-container">
+                <a href="/Uzytkownicy/Index" class="tab active">Lista aktywnych klientów</a>
+                <a href="/Uzytkownicy/Zapomniani" class="tab">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         style="margin-right: 5px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Zapomniani użytkownicy
+                </a>
+            </div>
 
-        @* --- SEKACJA FILTRÓW (SZUKANIE) --- *@
-        <div class="filters-card">
-            <form method="get" asp-action="Index" class="filters-row">
-                
-                <div class="filter-group">
-                    <label class="filter-label">Login</label>
-                    <div class="filter-input-wrapper">
-                        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" name="searchLogin" class="filter-input" placeholder="np. jkowalski" value="@ViewBag.CurrentLogin">
+            @* --- SEKACJA FILTRÓW (SZUKANIE) --- *@
+            <div class="filters-card">
+                <form method="get" asp-action="Index" class="filters-row">
+
+                    <div class="filter-group">
+                        <label class="filter-label">Login</label>
+                        <div class="filter-input-wrapper">
+                            <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" name="searchLogin" class="filter-input" placeholder="np. jkowalski"
+                                   value="@ViewBag.CurrentLogin">
+                        </div>
+                        <span class="results-count">Znaleziono: @(Model?.Count ?? 0) wyników</span>
                     </div>
-                    <span class="results-count">Znaleziono: @(Model?.Count ?? 0) wyników</span>
-                </div>
 
-                <div class="filter-group" style="flex: 1.5;">
-                    <label class="filter-label">Imię / Nazwisko</label>
-                    <div class="filter-input-wrapper">
-                        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <input type="text" name="searchName" class="filter-input" placeholder="Wpisz dane..." value="@ViewBag.CurrentName">
+                    <div class="filter-group" style="flex: 1.5;">
+                        <label class="filter-label">Imię / Nazwisko</label>
+                        <div class="filter-input-wrapper">
+                            <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" name="searchName" class="filter-input" placeholder="Wpisz dane..."
+                                   value="@ViewBag.CurrentName">
+                        </div>
                     </div>
-                </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">PESEL</label>
-                    <div class="filter-input-wrapper">
-                        <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                        </svg>
-                        <input type="text" name="searchPesel" class="filter-input" placeholder="np. 900..." value="@ViewBag.CurrentPesel">
+                    <div class="filter-group">
+                        <label class="filter-label">PESEL</label>
+                        <div class="filter-input-wrapper">
+                            <svg class="filter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                            </svg>
+                            <input type="text" name="searchPesel" class="filter-input" placeholder="np. 900..."
+                                   value="@ViewBag.CurrentPesel">
+                        </div>
                     </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" style="display:none;"></button> @* Obsługa Enter *@
+                        <a href="/Uzytkownicy/Index" class="btn-clear" style="text-decoration: none;">Wyczyść</a>
+                    </div>
+                </form>
+            </div>
+
+            @* --- TABELA Z WYNIKAMI --- *@
+            <div class="table-card">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Login</th>
+                            <th>Imię</th>
+                            <th>Nazwisko</th>
+                            <th>Adres e-mail</th>
+                            <th>PESEL</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="td-login"><strong>@user.Login</strong></td>
+                                <td>@user.Imie</td>
+                                <td>@user.Nazwisko</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px; color: #6b7280;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="2">
+                                            <path
+                                                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                            </path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        @user.Email
+                                    </div>
+                                </td>
+                                <td>
+                                    @user.Pesel
+                                </td>
+                                <td class="td-action">
+                                    <a asp-controller="Uzytkownicy" asp-action="Szczegoly" asp-route-login="@user.Login"
+                                       class="link-profile">Zobacz profil</a>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Nie znaleziono
+                                    użytkowników o podanych kryteriach.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="filter-actions">
-                    <button type="submit" style="display:none;"></button> @* Obsługa Enter *@
-                    <a href="/Uzytkownicy/Index" class="btn-clear" style="text-decoration: none;">Wyczyść</a>
-                </div>
-            </form>
+            </main>
         </div>
-
-        @* --- TABELA Z WYNIKAMI --- *@
-        <div class="table-card">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Login</th>
-                        <th>Imię</th>
-                        <th>Nazwisko</th>
-                        <th>Adres e-mail</th>
-                        <th>PESEL</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td class="td-login"><strong>@user.Login</strong></td>
-                        <td>@user.Imie</td>
-                        <td>@user.Nazwisko</td>
-                        <td>
-                             <div style="display: flex; align-items: center; gap: 8px; color: #6b7280;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                                @user.Email
-                             </div>
-                        </td>
-                        <td>
-                            @user.Pesel
-                        </td>
-                        <td class="td-action">
-                            <a asp-controller="Uzytkownicy" asp-action="Szczegoly" asp-route-login="@user.Login" class="link-profile">Zobacz profil</a>
-                        </td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Nie znaleziono użytkowników o podanych kryteriach.</td>
-                    </tr>
-                }
-                </tbody>        
-            </table>
-        </div>
-
-    </main>
-</div>

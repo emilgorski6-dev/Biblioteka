@@ -88,7 +88,7 @@ namespace Biblioteka.Web.Controllers
                     ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
                 else if (model.Email.Length > 255)
                     ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków.");
-                else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                else if (!EmailValidator.IsValid(model.Email))
                     ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
                 else if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
                     ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
@@ -110,9 +110,6 @@ namespace Biblioteka.Web.Controllers
             // 5. Walidacja Unikalności (Baza danych) - Teksty z Use Case
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty.");
-
-            if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
-                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
 
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
                 ModelState.AddModelError("Pesel", "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.");
@@ -231,7 +228,7 @@ namespace Biblioteka.Web.Controllers
             {
                 if (model.Email.Count(c => c == '@') != 1)
                     ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Email, @"^[^@]+@[^@]+\.[^@]+$"))
+                else if (!EmailValidator.IsValid(model.Email))
                     ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
                 else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
                     ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");

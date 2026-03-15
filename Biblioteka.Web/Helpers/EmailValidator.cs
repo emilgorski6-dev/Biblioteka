@@ -15,6 +15,8 @@ namespace Biblioteka.Web.Helpers
             // Kryterium: Dokładnie jeden znak @
             if (email.Count(c => c == '@') != 1) return false;
 
+            if (email.Contains(" ")) return false;
+
             // Kryterium: Składnia nazwa@domena.tld
             var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             return regex.IsMatch(email);

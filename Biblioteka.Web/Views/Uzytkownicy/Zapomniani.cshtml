@@ -92,7 +92,7 @@
                                     <line x1="12" y1="9" x2="12" y2="13"></line>
                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                 </svg>
-                                @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***") @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
+                                @user.Imie @user.Nazwisko
                             </div>
                         </td>
                         
@@ -110,7 +110,7 @@
                         
                         <td>
                             <span class="badge-red">
-                                ADM-001
+                                admin
                             </span>
                         </td>
                     </tr>

@@ -68,7 +68,7 @@
                         <th>Identyfikator</th>
                         <th>Imię i Nazwisko po zapomnieniu</th>
                         <th>Data zapomnienia</th>
-                        <th>Identyfikator administratora</th>
+                        <th>Identyfikator użytkownika, który dokonał zapomnienia</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,7 +92,7 @@
                                     <line x1="12" y1="9" x2="12" y2="13"></line>
                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                 </svg>
-                                @user.Imie @user.Nazwisko
+                                @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***") @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
                             </div>
                         </td>
                         
@@ -110,7 +110,7 @@
                         
                         <td>
                             <span class="badge-red">
-                                admin
+                                ADM-001
                             </span>
                         </td>
                     </tr>

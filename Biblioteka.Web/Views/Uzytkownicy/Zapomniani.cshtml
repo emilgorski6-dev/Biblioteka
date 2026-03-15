@@ -46,11 +46,11 @@
         </div>
 
         @* --- ZAKŁADKI --- *@
-        <div style="display: flex; gap: 2rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 2rem;">
-            <a href="/Uzytkownicy/Index" style="padding-bottom: 0.75rem; text-decoration: none; color: #64748b; font-weight: 600;">
+        <div class="clients-tabs">
+            <a href="/Uzytkownicy/Index" class="clients-tab">
                 Lista aktywnych klientów
             </a>
-            <a href="/Uzytkownicy/Zapomniani" style="padding-bottom: 0.75rem; text-decoration: none; color: #ef4444; font-weight: 600; border-bottom: 2px solid #ef4444; display: flex; align-items: center; gap: 8px;">
+            <a href="/Uzytkownicy/Zapomniani" class="clients-tab active-danger">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -61,32 +61,22 @@
         </div>
 
         @* --- TABELA Z WYNIKAMI --- *@
-        <div style="background: #ffffff; border: 1px solid #1e293b; border-radius: 8px; overflow: hidden;">
-            <table class="custom-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <div class="table-container-danger">
+            <table class="table-danger-custom">
                 <thead>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <th style="padding: 1rem 1.5rem; font-weight: 600; font-size: 0.9rem; color: #991b1b; background: #fffaf9;">Czytelnik</th>
-                        <th style="padding: 1rem 1.5rem; font-weight: 600; font-size: 0.9rem; color: #991b1b; background: #fffaf9;">Identyfikator (Karta)</th>
-                        <th style="padding: 1rem 1.5rem; font-weight: 600; font-size: 0.9rem; color: #991b1b; background: #fffaf9;">Zapomniany przez</th>
-                        <th style="padding: 1rem 1.5rem; font-weight: 600; font-size: 0.9rem; color: #991b1b; background: #fffaf9;">ID Administratora</th>
+                    <tr>
+                        <th>Identyfikator</th>
+                        <th>Imię i Nazwisko po zapomnieniu</th>
+                        <th>Data zapomnienia</th>
+                        <th>identifkator uzytkownika, ktory dokonał zapomnienia</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach (var user in Model)
                 {
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 1.25rem 1.5rem; font-weight: 600; color: #1e293b;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fee2e2" stroke="#ef4444" stroke-width="2">
-                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                </svg>
-                                @user.Imie @user.Nazwisko
-                            </div>
-                        </td>
-                        <td style="padding: 1.25rem 1.5rem; color: #64748b;">
-                            <div style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e8f0; width: max-content; font-size: 0.9rem;">
+                    <tr>
+                        <td>
+                            <div class="cell-flex badge-gray">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
@@ -94,28 +84,42 @@
                                 LIB-88451-B
                             </div>
                         </td>
-                        <td style="padding: 1.25rem 1.5rem; color: #64748b; font-size: 0.9rem;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
+                        
+                        <td class="text-dark-bold">
+                            <div class="cell-flex-gap10">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fee2e2" stroke="#ef4444" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                 </svg>
-                                Michał Szef
+                                @(user.Imie.Length > 0 ? user.Imie.Substring(0,1) + "***" : "***") @(user.Nazwisko.Length > 0 ? user.Nazwisko.Substring(0,1) + "***" : "***")
                             </div>
                         </td>
-                        <td style="padding: 1.25rem 1.5rem;">
-                            <span style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+                        
+                        <td class="text-grey-sm">
+                            <div class="cell-flex">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                12.03.2026
+                            </div>
+                        </td>
+                        
+                        <td>
+                            <span class="badge-red">
                                 ADM-001
                             </span>
                         </td>
                     </tr>
                 }
                 
-                @* Przypadek gdy nie ma żadnych zapomnieni użytkowników *@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 40px; color: #9ca3af;">Nie znaleziono zapomnieni użytkowników.</td>
+                        <td colspan="4" class="table-empty-state">Nie znaleziono zapomnianych użytkowników.</td>
                     </tr>
                 }
                 </tbody>        

@@ -1183,3 +1183,114 @@ a {
     font-weight: 500;
     color: #333;
 }
+
+/* --- ZAKŁADKI KLIENCI --- */
+.clients-tabs {
+    display: flex;
+    gap: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+}
+
+.clients-tab {
+    padding-bottom: 0.75rem;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: -1px; /* Pozwala czerwonej linii nałożyć się na szarą */
+}
+
+.clients-tab.active-danger {
+    color: #ef4444;
+    border-bottom: 2px solid #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- TABELA ZAPOMNIANI --- */
+.table-container-danger {
+    background: #ffffff;
+    border: 1px solid #334155; /* Ciemna, elegancka ramka z Twojego zdjęcia */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-danger-custom {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.table-danger-custom thead tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-danger-custom th {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #991b1b;
+    background: #fffaf9;
+}
+
+.table-danger-custom tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-danger-custom tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table-danger-custom td {
+    padding: 1.25rem 1.5rem;
+}
+
+/* --- ELEMENTY WEWNĄTRZ TABELI --- */
+.cell-flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cell-flex-gap10 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.text-dark-bold {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.text-grey-sm {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.badge-gray {
+    background: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    width: max-content;
+    font-size: 0.9rem;
+}
+
+.badge-red {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.table-empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+}

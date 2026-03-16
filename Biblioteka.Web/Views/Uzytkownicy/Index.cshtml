@@ -5,7 +5,6 @@
 }
 
 <div class="admin-wrapper">
-    @* --- BOCZNY PASEK NAWIGACJI --- *@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3 class="sidebar-title">
@@ -40,7 +39,6 @@
         </nav>
     </aside>
 
-    @* --- GŁÓWNA TREŚĆ --- *@
     <main class="admin-content">
 
         <div class="page-header">
@@ -49,7 +47,6 @@
                 wymagającymi interwencji administratora.</p>
             </div>
 
-            @* --- ZAKŁADKI --- *@
             <div class="tabs-container">
                 <a href="/Uzytkownicy/Index" class="tab active">Lista aktywnych klientów</a>
                 <a href="/Uzytkownicy/Zapomniani" class="tab">
@@ -63,7 +60,6 @@
                 </a>
             </div>
 
-            @* --- SEKACJA FILTRÓW (SZUKANIE) --- *@
             <div class="filters-card">
                 <form method="get" asp-action="Index" class="filters-row">
 
@@ -115,7 +111,6 @@
                 </form>
             </div>
 
-            @* --- TABELA Z WYNIKAMI --- *@
             <div class="table-card">
                 <table class="custom-table">
                     <thead>

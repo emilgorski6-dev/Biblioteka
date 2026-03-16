@@ -12,7 +12,6 @@ namespace Biblioteka.Web.Data.Entities
 
         public string? Opis { get; set; }
 
-        // Relacja wiele-do-wielu z Uzytkownikami
         public virtual ICollection<Uzytkownik> Uzytkownicy { get; set; } = new List<Uzytkownik>();
     }
 }

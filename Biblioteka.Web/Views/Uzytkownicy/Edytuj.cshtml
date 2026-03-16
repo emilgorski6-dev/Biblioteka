@@ -4,7 +4,6 @@
     ViewData["Title"] = "Edytuj użytkownika";
 }
 
-@* --- Nasz Toast w prawym górnym rogu z błędami --- *@
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="toast-container">
@@ -24,7 +23,6 @@
 }
 
 <div class="profile-wrapper">
-    @* --- Link powrotu --- *@
     <div class="back-link-container">
         <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="back-link">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -42,7 +40,6 @@
 
     <div class="form-card">
         <form asp-action="Edytuj" method="post" novalidate>
-            @* UKRYTE POLE Z ID (Bardzo ważne do nadpisania bazy!) *@
             <input type="hidden" asp-for="Id" />
             
             <div class="form-section-title">Dane konta</div>
@@ -122,13 +119,11 @@
             </div>
 
             <div class="form-actions mt-4">
-                @* Przycisk Anuluj (Wraca do szczegółów danego usera) *@
                 <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="btn-cancel"
                    style="border: none; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; font: inherit; text-decoration: none;">
                     Anuluj edycję
                 </a>
 
-                @* Przycisk Zapisz *@
                 <button type="submit" class="btn-submit">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">

@@ -53,7 +53,6 @@ namespace Biblioteka.Web.Controllers
         }
 
 
-        // --- ZU-01: Dodawanie użytkownika (GET) ---
         [HttpGet]
         public IActionResult Dodaj()
         {
@@ -63,11 +62,9 @@ namespace Biblioteka.Web.Controllers
         {
             return View();
         }
-        // --- ZU-01: Dodawanie użytkownika (POST) ---
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {
-            // 1. Walidacja Pól Wymaganych (Punkt 5 z Use Case)
             if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) ||
                 string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) ||
                 string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == default)
@@ -77,13 +74,11 @@ namespace Biblioteka.Web.Controllers
             if (model.DataUrodzenia > DateTime.Now)
                 ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
 
-            // 2. Walidacja Telefonu
             if (!string.IsNullOrEmpty(model.Telefon) && model.Telefon.Length != 9)
             {
                 ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
             }
 
-            // 3. Walidacja E-mail (Dokładne teksty z Use Case)
             if (!string.IsNullOrEmpty(model.Email))
             {
                 if (model.Email.Count(c => c == '@') != 1)
@@ -96,11 +91,8 @@ namespace Biblioteka.Web.Controllers
                     ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
             }
 
-            // 4. Walidacja PESEL (Używamy Twojej nowej metody WalidujSzczegolowo)
             if (!string.IsNullOrEmpty(model.Pesel))
             {
-                // Ważne: Twoja metoda w helperze sprawdza "Mężczyzna"/"Kobieta" z dużej litery, 
-                // a w select masz małe litery. Dodajemy .ToLower() w helperze lub tutaj poprawiamy:
                 var (isValid, errorMessage) = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia!.Value, model.Plec);
 
                 if (!isValid)
@@ -109,7 +101,6 @@ namespace Biblioteka.Web.Controllers
                 }
             }
 
-            // 5. Walidacja Unikalności (Baza danych) - Teksty z Use Case
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty.");
 
@@ -118,7 +109,6 @@ namespace Biblioteka.Web.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            // Zapis do bazy...
             var user = new Uzytkownik
             {
                 Login = model.Login,
@@ -143,7 +133,6 @@ namespace Biblioteka.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // --- ZU-04: Lista zapomnianych użytkowników ---
         public IActionResult Zapomniani(string searchLogin, string searchName, string searchPesel)
         {
             var query = _context.Uzytkownicy
@@ -178,7 +167,6 @@ namespace Biblioteka.Web.Controllers
             return View(users);
         }
 
-        // --- ZU-05: Szczegóły użytkownika ---
         public IActionResult Szczegoly(string login)
         {
             var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
@@ -186,8 +174,6 @@ namespace Biblioteka.Web.Controllers
 
             return View(user);
         }
-
-        // --- ZU-06: Edycja danych (GET) ---
         [HttpGet]
         public IActionResult Edytuj(string login)
         {
@@ -217,7 +203,6 @@ namespace Biblioteka.Web.Controllers
             return View(model);
         }
 
-        // --- ZU-06: Edycja danych (POST) ---
         [HttpPost]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
@@ -236,12 +221,10 @@ namespace Biblioteka.Web.Controllers
                 else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
                     ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
             }
-            // Walidacja PESEL z formatowaniem płci
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
             var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
             if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
 
-            // Unikalność (z wyłączeniem siebie samego)
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
 
@@ -256,7 +239,6 @@ namespace Biblioteka.Web.Controllers
             var userToUpdate = _context.Uzytkownicy.Find(model.Id);
             if (userToUpdate == null) return NotFound();
 
-            // Przepisanie danych
             userToUpdate.Login = model.Login;
             userToUpdate.Imie = model.Imie;
             userToUpdate.Nazwisko = model.Nazwisko;
@@ -276,26 +258,20 @@ namespace Biblioteka.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        // --- ZU-07: Zapomnienie użytkownika(POST) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Zapomnij(int id)
         {
-            // 1. Pobieramy użytkownika razem z jego uprawnieniami
             var user = _context.Uzytkownicy
                             .Include(u => u.Uprawnienia)
                             .FirstOrDefault(u => u.Id == id);
 
             if (user == null) return NotFound();
 
-            // 2. USUNIĘCIE UPRAWNIEŃ (Punkt 6 Use Case)
-            // Dzięki .Clear() EF sam usunie rekordy z tabeli łączącej Uzytkownik_Uprawnienia
             user.Uprawnienia.Clear();
 
-            // 3. GENEROWANIE DANYCH ANONIMOWYCH
             var anon = PeselValidator.GenerujDaneAnonimowe();
 
-            // 4. NADPISYWANIE DANYCH (Anonimizacja RODO)
             user.Imie = Guid.NewGuid().ToString("N").Substring(0, 8);
             user.Nazwisko = Guid.NewGuid().ToString("N").Substring(0, 10);
             user.Pesel = anon.Pesel;
@@ -303,8 +279,6 @@ namespace Biblioteka.Web.Controllers
             user.Plec = anon.Plec;
             user.ZapomnianyPrzezId = 1;
             
-
-            // 5. FLAGI SYSTEMOWE
             user.CzyZapomniany = true;
             user.DataZapomnienia = DateTime.Now;
 

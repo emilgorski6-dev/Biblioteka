@@ -20,7 +20,6 @@ namespace Biblioteka.Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Konfiguracja tabeli łączącej Uzytkownik_Uprawnienia (wiele-do-wielu)
             modelBuilder.Entity<Uzytkownik>()
                 .HasMany(u => u.Uprawnienia)
                 .WithMany(p => p.Uzytkownicy)
@@ -29,14 +28,11 @@ namespace Biblioteka.Web.Data
                     j => j.HasOne<Uprawnienie>().WithMany().HasForeignKey("uprawnienie_id"),
                     j => j.HasOne<Uzytkownik>().WithMany().HasForeignKey("uzytkownik_id"));
 
-            // 2. SEED DATA - Podstawowe uprawnienia
             modelBuilder.Entity<Uprawnienie>().HasData(
                 new Uprawnienie { Id = 1, Nazwa = "Administrator", Opis = "Pełny dostęp do systemu" },
                 new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz", Opis = "Zarządzanie książkami i wypożyczeniami" },
                 new Uprawnienie { Id = 3, Nazwa = "Klient", Opis = "Podstawowy dostęp dla czytelników" }
             );
-
-            // 3. SEED DATA - Pierwszy użytkownik (Administrator)
             modelBuilder.Entity<Uzytkownik>().HasData(
                 new Uzytkownik
                 {
@@ -54,7 +50,7 @@ namespace Biblioteka.Web.Data
                     Ulica = "Piotrkowska",
                     NumerPosesji = "1",
                     NumerLokalu = "",
-                    HasloHash = "admin123", // Pamiętaj o zhashowaniu hasła w przyszłości!
+                    HasloHash = "admin123",
                     CzyZablokowany = false,
                     LiczbaBlednychLogowan = 0,
                     CzyZapomniany = false

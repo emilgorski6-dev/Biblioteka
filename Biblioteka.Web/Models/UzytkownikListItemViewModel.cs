@@ -9,7 +9,6 @@ namespace Biblioteka.Web.Models
         public required string Nazwisko { get; set; }
         public required string Email { get; set; }
         public DateTime? DataZapomnienia { get; set; }
-        // To jest brakujące ogniwo:
         public required string Pesel { get; set; }
     }
 }

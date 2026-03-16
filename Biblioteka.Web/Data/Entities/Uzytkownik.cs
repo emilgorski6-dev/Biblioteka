@@ -8,7 +8,6 @@ namespace Biblioteka.Web.Data.Entities
     {
         public int Id { get; set; }
 
-        // Modyfikator 'required' usuwa ostrzeżenia CS8618 i wymusza podanie danych
         public required string Login { get; set; }
 
         [Column("haslo_hash")]
@@ -29,13 +28,11 @@ namespace Biblioteka.Web.Data.Entities
 
         public required string Telefon { get; set; }
 
-        // Adres
         public required string Miejscowosc { get; set; }
 
         [Column("kod_pocztowy")]
         public required string KodPocztowy { get; set; }
 
-        // 'string?' oznacza pole opcjonalne - brak ostrzeżeń
         public string? Ulica { get; set; }
 
         [Column("numer_posesji")]
@@ -43,7 +40,6 @@ namespace Biblioteka.Web.Data.Entities
 
         public string? NumerLokalu { get; set; }
 
-        // Bezpieczeństwo
         [Column("czy_zablokowany")]
         public bool CzyZablokowany { get; set; } = false;
 

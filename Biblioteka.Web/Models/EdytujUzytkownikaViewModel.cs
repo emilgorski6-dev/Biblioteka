@@ -39,7 +39,6 @@ namespace Biblioteka.Web.Models
         [Required(ErrorMessage = "Kod pocztowy jest wymagany")]
         public required string KodPocztowy { get; set; }
 
-        // string? oznacza, że pole może być puste (null), więc kompilator się nie czepia
         public string? Ulica { get; set; }
 
         [Required(ErrorMessage = "Numer posesji jest wymagany")]

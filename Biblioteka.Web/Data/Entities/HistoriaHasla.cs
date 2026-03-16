@@ -17,7 +17,6 @@ namespace Biblioteka.Web.Data.Entities
         [Column("data_nadania")]
         public DateTime DataNadania { get; set; }
 
-        // Właściwość nawigacyjna
         [ForeignKey("UzytkownikId")]
         public required virtual Uzytkownik Uzytkownik { get; set; }
     }

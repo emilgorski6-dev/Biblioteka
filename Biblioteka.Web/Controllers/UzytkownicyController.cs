@@ -67,42 +67,48 @@ namespace Biblioteka.Web.Controllers
         {
             if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) ||
                 string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) ||
-                string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == default)
+                string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == null)
             {
                 ModelState.AddModelError(string.Empty, "Nie uzupełniono wszystkich pól wymaganych");
             }
-            if (model.DataUrodzenia > DateTime.Now)
-                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
-
-            if (!string.IsNullOrEmpty(model.Telefon) && model.Telefon.Length != 9)
+            
+            if(model.DataUrodzenia.HasValue)
             {
-                ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
+                var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);
+                if (!birthDateResult.IsValid)
+                    ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
+            }
+
+            if (!string.IsNullOrEmpty(model.Telefon))
+            {
+                var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
+                if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
             }
 
             if (!string.IsNullOrEmpty(model.Email))
             {
-                if (model.Email.Count(c => c == '@') != 1)
-                    ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                else if (model.Email.Length > 255)
-                    ModelState.AddModelError("Email", "Niepoprawna długość adresu email. Adres email powinien zawierać maksymalnie 255 znaków.");
-                else if (!EmailValidator.IsValid(model.Email))
-                    ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                else if (_context.Uzytkownicy.Any(u => u.Email == model.Email))
-                    ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+                var emailResult = EmailValidator.WalidujEmail(model.Email, _context);
+                if (!emailResult.IsValid)
+                {
+                    ModelState.AddModelError("Email", emailResult.ErrorMessage);
+                }
             }
 
             if (!string.IsNullOrEmpty(model.Pesel))
             {
-                var peselResult = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia!.Value, model.Plec, _context);
-
+                var peselResult = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context);
                 if (!peselResult.IsValid)
                 {
                     ModelState.AddModelError("Pesel", peselResult.ErrorMessage);
                 }
             }
 
-            if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
-                ModelState.AddModelError("Login", "Podany login jest już zajęty.");
+            if(!string.IsNullOrEmpty(model.Login))
+            {
+                var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
+                if (!loginResult.IsValid)
+                    ModelState.AddModelError("Login", loginResult.Message);
+            }
 
             if (!ModelState.IsValid) return View(model);
 
@@ -203,33 +209,39 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
-            if (model.DataUrodzenia > DateTime.Now)
-                ModelState.AddModelError("DataUrodzenia", "Data urodzenia nie może być z przyszłości.");
+            if(!string.IsNullOrEmpty(model.Login))
+            {
+                var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
+                if (!loginResult.IsValid)
+                    ModelState.AddModelError("Login", loginResult.Message);
+            }
 
-            if (!PhoneValidator.IsValid(model.Telefon))
-                ModelState.AddModelError("Telefon", "Numer telefonu musi zawierać dokładnie 9 cyfr.");
+            if(model.DataUrodzenia.HasValue)
+            {
+                var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);
+                if (!birthDateResult.IsValid)
+                    ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
+            }
+
+            if (!string.IsNullOrEmpty(model.Telefon))
+            {
+                var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
+                if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
+            }
 
             if (!string.IsNullOrEmpty(model.Email))
             {
-                if (model.Email.Count(c => c == '@') != 1)
-                    ModelState.AddModelError("Email", "Nieprawidłowa liczba znaków @. Email musi zawierać dokładnie jeden znak @.");
-                else if (!EmailValidator.IsValid(model.Email))
-                    ModelState.AddModelError("Email", "Błąd składni adresu email. Email powinien mieć format: nazwa_użytkownika@nazwa_domeny_serwera_poczty");
-                else if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                    ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
+                var emailResult = EmailValidator.WalidujEmail(model.Email, _context, model.Id);
+                if (!emailResult.IsValid)
+                        ModelState.AddModelError("Email", emailResult.ErrorMessage);
             }
-            string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
-            var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana, _context);
-            if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
 
-            if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))
-                ModelState.AddModelError("Login", "Podany login jest już zajęty przez innego użytkownika.");
-
-            if (_context.Uzytkownicy.Any(u => u.Email == model.Email && u.Id != model.Id))
-                ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
-
-            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
-                ModelState.AddModelError("Pesel", "Podany nowy numer PESEL jest już przypisany do innego użytkownika w systemie.");
+            if (!string.IsNullOrEmpty(model.Pesel))
+            {   
+                var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context, model.Id);
+                if (!peselRes.IsValid) 
+                    ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
+            }
 
             if (!ModelState.IsValid) return View(model);
 
@@ -240,7 +252,7 @@ namespace Biblioteka.Web.Controllers
             userToUpdate.Imie = model.Imie;
             userToUpdate.Nazwisko = model.Nazwisko;
             userToUpdate.Pesel = model.Pesel;
-            userToUpdate.DataUrodzenia = model.DataUrodzenia;
+            userToUpdate.DataUrodzenia = model.DataUrodzenia!.Value;
             userToUpdate.Plec = model.Plec;
             userToUpdate.Email = model.Email;
             userToUpdate.Telefon = model.Telefon;

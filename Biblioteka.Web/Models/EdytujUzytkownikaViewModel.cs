@@ -20,7 +20,7 @@ namespace Biblioteka.Web.Models
         public required string Pesel { get; set; }
 
         [Required(ErrorMessage = "Data urodzenia jest wymagana")]
-        public DateTime DataUrodzenia { get; set; }
+        public DateTime? DataUrodzenia { get; set; }
 
         [Required(ErrorMessage = "Płeć jest wymagana")]
         public required string Plec { get; set; }

@@ -4,18 +4,14 @@ namespace Biblioteka.Web.Helpers
 {
     public static class PhoneValidator
     {
-        public static bool IsValid(string phone)
+        public const string MsgInvalidFormat = "Numer telefonu musi zawierać dokładnie 9 cyfr.";
+        
+        public static (bool IsValid, string Message) WalidujNrTelefonu(string phone)
         {
-            if (string.IsNullOrWhiteSpace(phone))
-                return false;
+            if (phone.Length != 9 || !phone.All(char.IsDigit))
+                return (false, MsgInvalidFormat);
 
-            if (phone.Length != 9)
-                return false;
-
-            if (!phone.All(char.IsDigit))
-                return false;
-
-            return true;
+            return (true, string.Empty);
         }
     }
 }

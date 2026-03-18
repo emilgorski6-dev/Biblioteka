@@ -4,15 +4,14 @@ namespace Biblioteka.Web.Helpers
 {
     public static class BirthDateValidator
     {
-        public static bool IsValid(DateTime date)
+        public const string MsgFutureDate = "Data urodzenia nie może być z przyszłości.";
+
+        public static (bool IsValid, string Message) WalidujDateUrodzenia(DateTime date)
         {
             if (date > DateTime.Now)
-                return false;
+                return (false, MsgFutureDate);
 
-            if (date < DateTime.Now.AddYears(-120))
-                return false;
-
-            return true;
+            return (true, string.Empty);
         }
     }
 }

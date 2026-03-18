@@ -12,8 +12,11 @@ namespace Biblioteka.Web.Helpers
         public const string MsgGenderFemaleMismatch = "Przedostatnia cyfra numeru PESEL wskazuje na płeć męską, a w formularzu wybrano płeć żeńską.";
         public const string MsgInvalidChecksum = "Nieprawidłowy numer PESEL – niepoprawna cyfra kontrolna.";
         public const string MsgAlreadyExists = "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.";
-        public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec, BibliotekaDbContext context)
+
+
+        public static (bool IsValid, string ErrorMessage) WalidujPesel(string pesel, DateTime? dataUrodzenia, string plec,BibliotekaDbContext context, int? userId = null)
         {
+
             if (string.IsNullOrWhiteSpace(pesel) || pesel.Length != 11 || !pesel.All(char.IsDigit))
                 return (false, MsgInvalidFormat);
 
@@ -33,24 +36,27 @@ namespace Biblioteka.Web.Helpers
             if (!SprawdzCyfreKontrolna(pesel))
                 return (false, MsgInvalidChecksum);
             
-            if (context.Uzytkownicy.Any(u => u.Pesel == pesel))
+            if (context.Uzytkownicy.Any(user => user.Pesel == pesel && user.Id != userId))
                 return (false, MsgAlreadyExists);
 
             return (true, string.Empty);
         }
-        public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec, BibliotekaDbContext context)
+        public static bool CzyPeselJestPoprawny(string pesel, DateTime? dataUrodzenia, string plec, BibliotekaDbContext context)
         {
-            return WalidujSzczegolowo(pesel, dataUrodzenia, plec, context).IsValid;
+            return WalidujPesel(pesel, dataUrodzenia, plec, context).IsValid;
         }
 
 
-        private static bool SprawdzDateUrodzenia(string pesel, DateTime dataUrodzenia)
+        private static bool SprawdzDateUrodzenia(string pesel, DateTime? dataUrodzenia)
         {
             int rok = int.Parse(pesel.Substring(0, 2));
             int miesiac = int.Parse(pesel.Substring(2, 2));
             int dzien = int.Parse(pesel.Substring(4, 2));
 
             int wiek = 1900;
+
+            if (!dataUrodzenia.HasValue) 
+                return false;
 
             if (miesiac >= 81 && miesiac <= 92)
             {
@@ -85,7 +91,7 @@ namespace Biblioteka.Web.Helpers
                 return false;
             }
 
-            return dataZPeselu.Date == dataUrodzenia.Date;
+            return dataZPeselu.Date == dataUrodzenia.Value.Date;
         }
 
         private static bool SprawdzCyfreKontrolna(string pesel)

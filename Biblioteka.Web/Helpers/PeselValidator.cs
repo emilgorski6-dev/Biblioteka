@@ -1,36 +1,46 @@
 using System;
 using System.Linq;
+using Biblioteka.Web.Data;
 
 namespace Biblioteka.Web.Helpers
 {
     public static class PeselValidator
     {
-        public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec)
+        public const string MsgInvalidFormat = "Niepoprawny format numeru PESEL.";
+        public const string MsgDateMismatch = "Pierwsze sześć cyfr numeru PESEL nie zgadza się z podaną datą urodzenia";
+        public const string MsgGenderMaleMismatch = "Przedostatnia cyfra numeru PESEL wskazuje na płeć żeńską, a w formularzu wybrano płeć męską.";
+        public const string MsgGenderFemaleMismatch = "Przedostatnia cyfra numeru PESEL wskazuje na płeć męską, a w formularzu wybrano płeć żeńską.";
+        public const string MsgInvalidChecksum = "Nieprawidłowy numer PESEL – niepoprawna cyfra kontrolna.";
+        public const string MsgAlreadyExists = "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.";
+        public static (bool IsValid, string ErrorMessage) WalidujSzczegolowo(string pesel, DateTime dataUrodzenia, string plec, BibliotekaDbContext context)
         {
             if (string.IsNullOrWhiteSpace(pesel) || pesel.Length != 11 || !pesel.All(char.IsDigit))
-                return (false, "Niepoprawny format numeru PESEL.");
+                return (false, MsgInvalidFormat);
 
             if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
-                return (false, "Pierwsze sześć cyfr numeru PESEL nie zgadza się z podaną datą urodzenia");
+                return (false, MsgDateMismatch);
 
             int cyfraPlecowa = pesel[9] - '0';
             bool peselMezczyzna = cyfraPlecowa % 2 == 1;
             string p = plec?.ToLower() ?? "";
 
             if (p == "mężczyzna" && !peselMezczyzna)
-                return (false, "Przedostatnia cyfra numeru PESEL wskazuje na płeć żeńską, a w formularzu wybrano płeć męską.");
+                return (false, MsgGenderMaleMismatch);
 
             if (p == "kobieta" && peselMezczyzna)
-                return (false, "Przedostatnia cyfra numeru PESEL wskazuje na płeć męską, a w formularzu wybrano płeć żeńską.");
+                return (false, MsgGenderFemaleMismatch);
 
             if (!SprawdzCyfreKontrolna(pesel))
-                return (false, "Nieprawidłowy numer PESEL – niepoprawna cyfra kontrolna.");
+                return (false, MsgInvalidChecksum);
+            
+            if (context.Uzytkownicy.Any(u => u.Pesel == pesel))
+                return (false, MsgAlreadyExists);
 
             return (true, string.Empty);
         }
-        public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec)
+        public static bool CzyPeselJestPoprawny(string pesel, DateTime dataUrodzenia, string plec, BibliotekaDbContext context)
         {
-            return WalidujSzczegolowo(pesel, dataUrodzenia, plec).IsValid;
+            return WalidujSzczegolowo(pesel, dataUrodzenia, plec, context).IsValid;
         }
 
 

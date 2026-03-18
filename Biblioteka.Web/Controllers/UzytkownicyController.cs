@@ -93,19 +93,16 @@ namespace Biblioteka.Web.Controllers
 
             if (!string.IsNullOrEmpty(model.Pesel))
             {
-                var (isValid, errorMessage) = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia!.Value, model.Plec);
+                var peselResult = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia!.Value, model.Plec, _context);
 
-                if (!isValid)
+                if (!peselResult.IsValid)
                 {
-                    ModelState.AddModelError("Pesel", errorMessage);
+                    ModelState.AddModelError("Pesel", peselResult.ErrorMessage);
                 }
             }
 
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login))
                 ModelState.AddModelError("Login", "Podany login jest już zajęty.");
-
-            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
-                ModelState.AddModelError("Pesel", "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.");
 
             if (!ModelState.IsValid) return View(model);
 
@@ -222,7 +219,7 @@ namespace Biblioteka.Web.Controllers
                     ModelState.AddModelError("Email", "Adres email został już zarejestrowany dla innego konta.");
             }
             string plecZFormatowana = string.IsNullOrEmpty(model.Plec) ? "" : char.ToUpper(model.Plec[0]) + model.Plec.Substring(1).ToLower();
-            var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana);
+            var wynikWalidacji = PeselValidator.WalidujSzczegolowo(model.Pesel, model.DataUrodzenia, plecZFormatowana, _context);
             if (!wynikWalidacji.IsValid) ModelState.AddModelError("Pesel", wynikWalidacji.ErrorMessage);
 
             if (_context.Uzytkownicy.Any(u => u.Login == model.Login && u.Id != model.Id))

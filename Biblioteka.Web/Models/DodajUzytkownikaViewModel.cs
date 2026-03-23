@@ -5,37 +5,37 @@ namespace Biblioteka.Web.Models
 {
     public class DodajUzytkownikaViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Login jest wymagany")]
         public required string Login { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Imię jest wymagane")]
         public required string Imie { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Nazwisko jest wymagane")]
         public required string Nazwisko { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Adres e-mail jest wymagany")]
         public required string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numer telefonu jest wymagany")]
         public required string Telefon { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numer PESEL jest wymagany")]
         public required string Pesel { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Data urodzenia jest wymagana")]
         public DateTime? DataUrodzenia { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Płeć jest wymagana")]
         public required string Plec { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Miejscowość jest wymagana")]
         public required string Miejscowosc { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Kod pocztowy jest wymagany")]
         public required string KodPocztowy { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Numer posesji jest wymagany")]
         public required string NumerPosesji { get; set; }
 
         public string? Ulica { get; set; }

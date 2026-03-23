@@ -65,6 +65,8 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
         {   
+            if (!ModelState.IsValid) return View(model); 
+    
             if(model.DataUrodzenia.HasValue)
             {
                 var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);
@@ -186,6 +188,8 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
+            if (!ModelState.IsValid) return View(model); 
+            
             var loginResult = LoginValidator.WalidujLogin(model.Login, _context, model.Id);
             if (!loginResult.IsValid)
                 ModelState.AddModelError("Login", loginResult.Message);

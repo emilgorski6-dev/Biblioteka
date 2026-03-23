@@ -72,36 +72,20 @@ namespace Biblioteka.Web.Controllers
                     ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
             }
 
-            if (!string.IsNullOrEmpty(model.Telefon))
-            {
-                var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
-                if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
-            }
+            var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
+            if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
 
-            if (!string.IsNullOrEmpty(model.Email))
-            {
-                var emailResult = EmailValidator.WalidujEmail(model.Email, _context);
-                if (!emailResult.IsValid)
-                {
-                    ModelState.AddModelError("Email", emailResult.ErrorMessage);
-                }
-            }
+            var emailResult = EmailValidator.WalidujEmail(model.Email, _context);
+            if (!emailResult.IsValid)
+                ModelState.AddModelError("Email", emailResult.ErrorMessage);
 
-            if (!string.IsNullOrEmpty(model.Pesel))
-            {
-                var peselResult = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context);
-                if (!peselResult.IsValid)
-                {
-                    ModelState.AddModelError("Pesel", peselResult.ErrorMessage);
-                }
-            }
+            var peselResult = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context);
+            if (!peselResult.IsValid)
+                ModelState.AddModelError("Pesel", peselResult.ErrorMessage);
 
-            if(!string.IsNullOrEmpty(model.Login))
-            {
-                var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
-                if (!loginResult.IsValid)
+            var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
+            if (!loginResult.IsValid)
                     ModelState.AddModelError("Login", loginResult.Message);
-            }
 
             if (!ModelState.IsValid) return View(model);
 
@@ -202,12 +186,9 @@ namespace Biblioteka.Web.Controllers
         [HttpPost]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
-            if(!string.IsNullOrEmpty(model.Login))
-            {
-                var loginResult = LoginValidator.WalidujLogin(model.Login, _context, model.Id);
-                if (!loginResult.IsValid)
-                    ModelState.AddModelError("Login", loginResult.Message);
-            }
+            var loginResult = LoginValidator.WalidujLogin(model.Login, _context, model.Id);
+            if (!loginResult.IsValid)
+                ModelState.AddModelError("Login", loginResult.Message);
 
             if(model.DataUrodzenia.HasValue)
             {
@@ -216,25 +197,17 @@ namespace Biblioteka.Web.Controllers
                     ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
             }
 
-            if (!string.IsNullOrEmpty(model.Telefon))
-            {
-                var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
-                if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
-            }
+            var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
+            if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
 
-            if (!string.IsNullOrEmpty(model.Email))
-            {
-                var emailResult = EmailValidator.WalidujEmail(model.Email, _context, model.Id);
-                if (!emailResult.IsValid)
-                        ModelState.AddModelError("Email", emailResult.ErrorMessage);
-            }
+            var emailResult = EmailValidator.WalidujEmail(model.Email, _context, model.Id);
+            if (!emailResult.IsValid)
+                ModelState.AddModelError("Email", emailResult.ErrorMessage);
 
-            if (!string.IsNullOrEmpty(model.Pesel))
-            {   
-                var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context, model.Id);
-                if (!peselRes.IsValid) 
-                    ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
-            }
+            var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context, model.Id);
+            if (!peselRes.IsValid) 
+                ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
+
 
             if (!ModelState.IsValid) return View(model);
 

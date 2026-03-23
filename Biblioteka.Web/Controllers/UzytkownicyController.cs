@@ -204,7 +204,7 @@ namespace Biblioteka.Web.Controllers
         {
             if(!string.IsNullOrEmpty(model.Login))
             {
-                var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
+                var loginResult = LoginValidator.WalidujLogin(model.Login, _context, model.Id);
                 if (!loginResult.IsValid)
                     ModelState.AddModelError("Login", loginResult.Message);
             }

@@ -64,14 +64,7 @@ namespace Biblioteka.Web.Controllers
         }
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
-        {
-            if (string.IsNullOrEmpty(model.Login) || string.IsNullOrEmpty(model.Email) ||
-                string.IsNullOrEmpty(model.Imie) || string.IsNullOrEmpty(model.Nazwisko) ||
-                string.IsNullOrEmpty(model.Pesel) || model.DataUrodzenia == null)
-            {
-                ModelState.AddModelError(string.Empty, "Nie uzupełniono wszystkich pól wymaganych");
-            }
-            
+        {   
             if(model.DataUrodzenia.HasValue)
             {
                 var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);

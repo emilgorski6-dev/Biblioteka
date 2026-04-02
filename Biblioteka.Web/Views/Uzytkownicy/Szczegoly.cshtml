@@ -69,6 +69,15 @@
                     Zapomnij użytkownika
                 </button>
             </form>
+
+            @* NOWY PRZYCISK: Nadaj uprawnienia *@
+            <button type="button" id="btnOpenPermModal" class="btn-nadaj-uprawnienia">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+                Nadaj uprawnienia
+            </button>
         </div>
     </div>
 
@@ -196,4 +205,147 @@
                 </div>
             </div>
         </div>
+</div>
+
+@* =========================================
+   KONTENER NA TOASTY (KOMUNIKATY)
+========================================= *@
+<div id="toastContainer" class="toast-container"></div>
+
+@* =========================================
+   OKNO MODALNE (POPUP Z UPRAWNIENIAMI)
+========================================= *@
+<div id="permissionsModal" class="perm-modal-overlay">
+    <div class="perm-modal-content">
+        <div class="perm-modal-header">
+            <div class="perm-icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+            </div>
+            <div>
+                <h3 class="perm-modal-title">Nadaj uprawnienia</h3>
+                <p class="perm-modal-subtitle">Użytkownik: <strong>@Model.Imie @Model.Nazwisko</strong></p>
+            </div>
+        </div>
+
+        <span class="perm-form-label">Wybierz uprawnienia</span>
+
+        <form id="permissionsForm">
+            <div class="perm-list">
+                @* Przykładowo zaznaczony SELECT, zgodnie z Twoim zrzutem ekranu *@
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="SELECT" class="perm-checkbox" checked>
+                    SELECT
+                </label>
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="INSERT" class="perm-checkbox">
+                    INSERT
+                </label>
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="UPDATE" class="perm-checkbox">
+                    UPDATE
+                </label>
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="DELETE" class="perm-checkbox">
+                    DELETE
+                </label>
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="ALTER" class="perm-checkbox">
+                    ALTER
+                </label>
+                <label class="perm-item-label">
+                    <input type="checkbox" name="permissions" value="ALL PRIVILEGES" class="perm-checkbox">
+                    ALL PRIVILEGES
+                </label>
+            </div>
+
+            <div class="perm-modal-actions">
+                <button type="button" id="btnClosePermModal" class="btn-perm-cancel">Anuluj</button>
+                <button type="submit" class="btn-nadaj-uprawnienia">Zapisz uprawnienia</button>
+            </div>
+        </form>
     </div>
+</div>
+
+@* =========================================
+   SKRYPTY (LOGIKA TESTOWA POPUPU I TOASTÓW)
+========================================= *@
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById("permissionsModal");
+        const btnOpen = document.getElementById("btnOpenPermModal");
+        const btnClose = document.getElementById("btnClosePermModal");
+        const form = document.getElementById("permissionsForm");
+        const toastContainer = document.getElementById("toastContainer");
+
+        // Funkcja wyświetlająca powiadomienia (Toast)
+        function showToast(type, message) {
+            const toast = document.createElement("div");
+            toast.className = `toast toast-${type}`;
+            
+            let iconHtml = '';
+            if(type === 'error') {
+                // Ikonka dla błędu
+                iconHtml = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12" stroke="#fff" stroke-width="2"></line><line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff" stroke-width="2"></line></svg>`;
+            } else {
+                // Ikonka dla sukcesu
+                iconHtml = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10" stroke="#fff" stroke-width="2" fill="none"></polyline></svg>`;
+            }
+
+            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+
+            // Automatyczne usuwanie komunikatu po 3.5 sekundach
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
+        }
+
+        // Otwieranie popupu
+        btnOpen.addEventListener("click", function() {
+            modal.style.display = "flex";
+        });
+
+        // Zamykanie popupu po kliknięciu "Anuluj"
+        btnClose.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        // Zamykanie popupu po kliknięciu w szare tło obok okna
+        window.addEventListener("click", function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        // Walidacja formularza po kliknięciu "Zapisz uprawnienia"
+        form.addEventListener("submit", function(e) {
+            e.preventDefault(); // Powstrzymuje stronę przed przeładowaniem (odświeżeniem)
+
+            // Sprawdzanie, czy jakikolwiek checkbox jest zaznaczony
+            const checkboxes = document.querySelectorAll('.perm-checkbox');
+            let isAnyChecked = false;
+            
+            checkboxes.forEach(function(checkbox) {
+                if(checkbox.checked) {
+                    isAnyChecked = true;
+                }
+            });
+
+            if (!isAnyChecked) {
+                // Pokaż czerwony błąd
+                showToast("error", "Zaznacz przynajmniej jedno uprawnienie.");
+                return;
+            }
+
+            // Wszystko w porządku - pokaż zielony sukces
+            modal.style.display = "none";
+            
+            // Dynamicznie wstawione Imię i Nazwisko z modelu
+            const userName = "@Model.Imie @Model.Nazwisko";
+            showToast("success", `Zmieniono uprawnienia użytkownikowi ${userName}.`);
+        });
+    });
+</script>

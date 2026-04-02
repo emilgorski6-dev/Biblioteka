@@ -1526,3 +1526,193 @@ a {
     font-family: 'Courier New', Courier, monospace;
     color: #475569;
 }
+
+/* =========================================
+   NOWY PRZYCISK "NADAJ UPRAWNIENIA"
+========================================= */
+.btn-nadaj-uprawnienia {
+    background-color: #d97706; /* Pomarańczowy ze zdjęcia */
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.btn-nadaj-uprawnienia:hover {
+    background-color: #b45309;
+}
+
+/* =========================================
+   OKNO MODALNE (POPUP)
+========================================= */
+.perm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none; /* Domyślnie ukryte */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.perm-modal-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.perm-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.perm-icon-wrapper {
+    background-color: #fef3c7;
+    color: #f59e0b;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.perm-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+}
+
+.perm-modal-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.perm-form-label {
+    display: block;
+    font-size: 0.875rem;
+    color: #475569;
+    margin-bottom: 0.75rem;
+}
+
+/* Lista uprawnień */
+.perm-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.perm-item-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+.perm-item-label:hover {
+    border-color: #cbd5e1;
+}
+
+/* Efekt zaznaczenia z pomarańczową ramką (jak na zdjęciu) */
+.perm-item-label:has(input:checked) {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b;
+}
+
+.perm-item-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0284c7; /* Niebieski ptaszek */
+    cursor: pointer;
+}
+
+/* Przyciski w modalu */
+.perm-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn-perm-cancel {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-perm-cancel:hover {
+    background-color: #e2e8f0;
+}
+
+/* =========================================
+   POWIADOMIENIA (TOASTY)
+========================================= */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px; /* Przypięcie do prawej krawędzi */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    animation: slideInRight 0.3s ease-out forwards; /* Zmieniona animacja */
+}
+
+.toast-error {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #e11d48;
+}
+
+.toast-success {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+}
+
+/* Animacja wsuwania z prawej strony */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

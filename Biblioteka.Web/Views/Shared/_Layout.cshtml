@@ -19,53 +19,53 @@
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
                 }
 
-                @if (currentController == "Uzytkownicy")
+                @* ZMIANA TUTAJ: Dodano sprawdzanie również dla kontrolera Uprawnienia *@
+                @if (currentController == "Uzytkownicy" || currentController == "Uprawnienia")
                 {
                     <a asp-controller="Home" asp-action="Index" style="color: #555;">Strona Główna</a>
 
                     <a asp-controller="Uzytkownicy" asp-action="Dashboard" class="active-nav-link"
-                           style="display: flex; align-items: center; gap: 6px;">
+                       style="display: flex; align-items: center; gap: 6px;">
                         <i class="fa-regular fa-user"></i> Konto
                     </a>
 
                     <a asp-controller="Account" asp-action="Logout"
-                           style="color: #666; display: flex; align-items: center; gap: 6px;">
+                       style="color: #666; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i> Wyloguj
                     </a>
                 }
                 else
                 {
                     <a asp-controller="Home" asp-action="Index"
-                           class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona
-                        Główna</a>
-                        <a asp-controller="Account" asp-action="Login"
-                               style="color: #555; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie
-                        </a>
+                       class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona Główna</a>
+                    
+                    <a asp-controller="Account" asp-action="Login"
+                       style="color: #555; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie
+                    </a>
 
-                        <a asp-controller="Account" asp-action="Register"
-                               style="color: #555; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-user-plus"></i> Rejestracja
-                        </a>
-                    }
-                </div>
-            </nav>
-        </header>
+                    <a asp-controller="Account" asp-action="Register"
+                       style="color: #555; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-user-plus"></i> Rejestracja
+                    </a>
+                }
+            </div>
+        </nav>
+    </header>
 
-        <main role="main">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success"
-                     style="padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin: 10px 20px; border-radius: 5px;">
-                    <i class="fa-solid fa-check-circle"></i> @TempData["SuccessMessage"]
-                </div>
-            }
-            @RenderBody()
-        </main>
+    <main role="main">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success"
+                 style="padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin: 10px 20px; border-radius: 5px;">
+                <i class="fa-solid fa-check-circle"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+        @RenderBody()
+    </main>
 
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        @await RenderSectionAsync("Scripts", required: false)
-    </body>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 </html>

@@ -1,0 +1,69 @@
+@model Biblioteka.Web.Models.UprawnienieSzczegolyViewModel
+
+@{
+    ViewData["Title"] = "Szczegóły uprawnienia";
+    
+    // Pobieramy nazwę z Modelu, a nie z ViewBaga!
+    string currentPerm = Model.NazwaUprawnienia;
+    
+    string badgeClass = "badge-select";
+    string description = "Uprawnienie do odczytu danych z tabel";
+
+    if (currentPerm == "INSERT") { badgeClass = "badge-insert"; description = "Uprawnienie do dodawania nowych rekordów"; }
+    else if (currentPerm == "UPDATE") { badgeClass = "badge-update"; description = "Uprawnienie do modyfikacji istniejących danych"; }
+    else if (currentPerm == "DELETE") { badgeClass = "badge-delete"; description = "Uprawnienie do usuwania rekordów"; }
+    else if (currentPerm == "ALTER") { badgeClass = "badge-alter"; description = "Uprawnienie do modyfikacji struktury tabel"; }
+    else if (currentPerm == "ALL PRIVILEGES" || currentPerm == "ALL") { currentPerm = "ALL PRIVILEGES"; badgeClass = "badge-all"; description = "Pełne uprawnienia do wszystkich operacji"; }
+}
+
+<div class="admin-wrapper">
+    <main class="admin-content">
+        <div class="permissions-container">
+            
+            <a href="/Uprawnienia/Index" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Powrót do listy uprawnień
+            </a>
+
+            <div class="permission-detail-header">
+                <span class="permission-badge @badgeClass">@currentPerm</span>
+                <span class="permission-detail-desc">@description</span>
+            </div>
+
+            <div class="table-container-simple">
+                <table class="table-simple">
+                    <thead>
+                        <tr>
+                            <th>Login</th>
+                            <th>Imię i nazwisko</th>
+                            <th>Rola</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* PĘTLA WYŚWIETLAJĄCA DANE Z KONTROLERA *@
+                        @foreach (var uzytkownik in Model.Uzytkownicy)
+                        {
+                            <tr>
+                                <td class="font-mono">@uzytkownik.Login</td>
+                                <td>@uzytkownik.ImieNazwisko</td>
+                                <td>@uzytkownik.Rola</td>
+                            </tr>
+                        }
+
+                        @* KOMUNIKAT GDY NIKT NIE MA UPRAWNIENIA *@
+                        @if (Model.Uzytkownicy.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: #94a3b8; padding: 2rem;">Brak użytkowników z tym uprawnieniem.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+</div>

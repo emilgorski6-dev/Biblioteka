@@ -268,7 +268,12 @@ namespace Biblioteka.Web.Controllers
             return RedirectToAction("Zapomniani");
         }
 
-
+    // Ekran uprawnień
+        public IActionResult Uprawnienia()
+        {
+            return View();
+        }
 
     }
+
 }

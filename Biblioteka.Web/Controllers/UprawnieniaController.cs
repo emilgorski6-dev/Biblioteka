@@ -2,107 +2,72 @@ using Microsoft.AspNetCore.Mvc;
 using Biblioteka.Web.Models;
 using System.Collections.Generic;
 using System.Linq;
-// using Biblioteka.Web.Data; // Odkomentuj, gdy podepniesz bazę
+using Biblioteka.Web.Data;
 
 namespace Biblioteka.Web.Controllers
 {
     public class UprawnieniaController : Controller
     {
-        // =========================================================================
-        // KROK 1: WSTRZYKNIĘCIE BAZY DANYCH (Odkomentuj, gdy będziesz gotowy)
-        // =========================================================================
-        /*
-        private readonly BibliotekaDbContext _context;
+        private readonly BibliotekaDbContext _bazaDanych;
 
         public UprawnieniaController(BibliotekaDbContext context)
         {
-            _context = context;
+            _bazaDanych = context;
         }
-        */
 
         // ==========================================
         // AKCJA 1: GŁÓWNA LISTA RÓL (Index)
         // ==========================================
         public IActionResult Index()
         {
-            // SYMULACJA ZLICZANIA (Docelowo użyj: _context.Uzytkownicy.Count(u => u.Rola == "Nazwa"))
-            int countAdmin = 2;
-            int countBibliotekarz = 4;
-            int countManager = 1;
-            int countKlient = 150;
-
-            var listaRol = new List<UprawnienieItemViewModel>
+            var listaDoWyswietlenia = _bazaDanych.Uprawnienia.Select(uprawnienie => new UprawnienieItemViewModel
             {
-                new UprawnienieItemViewModel { 
-                    Id = "Administrator", 
-                    Nazwa = "ADMINISTRATOR", 
-                    Opis = "Pełny dostęp do zarządzania systemem, bazą danych i uprawnieniami użytkowników.", 
-                    BadgeClass = "badge-all", 
-                    LiczbaUzytkownikow = countAdmin 
-                },
-                new UprawnienieItemViewModel { 
-                    Id = "Bibliotekarz", 
-                    Nazwa = "BIBLIOTEKARZ", 
-                    Opis = "Zarządzanie księgozbiorem, obsługą wypożyczeń, zwrotów oraz katalogowaniem pozycji.", 
-                    BadgeClass = "badge-insert", 
-                    LiczbaUzytkownikow = countBibliotekarz 
-                },
-                new UprawnienieItemViewModel { 
-                    Id = "Manager", 
-                    Nazwa = "MANAGER", 
-                    Opis = "Dostęp do statystyk, raportów finansowych i zarządzania kadrą biblioteczną.", 
-                    BadgeClass = "badge-alter", 
-                    LiczbaUzytkownikow = countManager 
-                },
-                new UprawnienieItemViewModel { 
-                    Id = "Klient", 
-                    Nazwa = "KLIENT", 
-                    Opis = "Podstawowy dostęp: przeglądanie katalogu, rezerwacje online i zarządzanie własnym profilem.", 
-                    BadgeClass = "badge-select", 
-                    LiczbaUzytkownikow = countKlient 
-                }
-            };
+                Id = uprawnienie.Id,
+                Nazwa = uprawnienie.Nazwa,
+                Opis = uprawnienie.Opis ?? string.Empty,
+                LiczbaUzytkownikow = uprawnienie.Uzytkownicy.Count()
+            }).ToList();
 
-            return View(listaRol);
+            return View(listaDoWyswietlenia);   
         }
 
         // ==========================================
         // AKCJA 2: LISTA UŻYTKOWNIKÓW DLA ROLI (Szczegoly)
         // ==========================================
-        public IActionResult Szczegoly(string id)
+        public IActionResult Szczegoly(int id)
         {
-            // Zabezpieczenie przed pustym ID
-            string rola = string.IsNullOrEmpty(id) ? "Klient" : id;
+            // 1. Szukamy w bazie uprawnienia o tym ID, aby poznać jego nazwę
+            var uprawnienie = _bazaDanych.Uprawnienia.FirstOrDefault(u => u.Id == id);
+
+            // 2. Jeśli nie znaleziono w bazie, ustawiamy domyślną nazwę (np. Klient)
+            string nazwaRoli = uprawnienie?.Nazwa ?? "Klient";
 
             var model = new UprawnienieSzczegolyViewModel
             {
-                NazwaUprawnienia = rola.ToUpper()
+                NazwaUprawnienia = nazwaRoli.ToUpper()
             };
 
-            // SYMULACJA POBIERANIA UŻYTKOWNIKÓW Z BAZY
-            // Docelowo: var userzy = _context.Uzytkownicy.Where(u => u.Rola == rola).ToList();
-
-            if (rola.Equals("Administrator", System.StringComparison.OrdinalIgnoreCase))
+            // 3. Sprawdzamy nazwę roli (którą pobraliśmy z bazy), aby dodać testowych użytkowników
+            if (nazwaRoli.Equals("Administrator", System.StringComparison.OrdinalIgnoreCase))
             {
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "admin", ImieNazwisko = "Emil Górski", Rola = "Administrator" });
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "jkowalski", ImieNazwisko = "Jan Kowalski", Rola = "Administrator" });
             }
-            else if (rola.Equals("Bibliotekarz", System.StringComparison.OrdinalIgnoreCase))
+            else if (nazwaRoli.Equals("Bibliotekarz", System.StringComparison.OrdinalIgnoreCase))
             {
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "pwisniewski", ImieNazwisko = "Piotr Wiśniewski", Rola = "Bibliotekarz" });
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "mlewandowska", ImieNazwisko = "Magdalena Lewandowski", Rola = "Bibliotekarz" });
             }
-            else if (rola.Equals("Manager", System.StringComparison.OrdinalIgnoreCase))
+            else if (nazwaRoli.Equals("Manager", System.StringComparison.OrdinalIgnoreCase))
             {
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "anowak", ImieNazwisko = "Anna Nowak", Rola = "Manager" });
             }
-            else if (rola.Equals("Klient", System.StringComparison.OrdinalIgnoreCase))
+            else if (nazwaRoli.Equals("Klient", System.StringComparison.OrdinalIgnoreCase))
             {
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "mwojcik", ImieNazwisko = "Maria Wójcik", Rola = "Klient" });
                 model.Uzytkownicy.Add(new UzytkownikZUprawnieniem { Login = "tzielinski", ImieNazwisko = "Tomasz Zieliński", Rola = "Klient" });
             }
 
-            // Zwraca widok uprawnienia.cshtml z listą osób przypisanych do danej roli
             return View("uprawnienia", model);
         }
     }

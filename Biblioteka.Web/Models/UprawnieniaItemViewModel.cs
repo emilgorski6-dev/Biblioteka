@@ -2,7 +2,7 @@ namespace Biblioteka.Web.Models
 {
     public class UprawnienieItemViewModel
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Nazwa { get; set; }
         public string Opis { get; set; }
         public string BadgeClass { get; set; }

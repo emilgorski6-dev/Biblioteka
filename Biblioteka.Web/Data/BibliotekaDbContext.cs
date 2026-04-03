@@ -31,7 +31,8 @@ namespace Biblioteka.Web.Data
             modelBuilder.Entity<Uprawnienie>().HasData(
                 new Uprawnienie { Id = 1, Nazwa = "Administrator", Opis = "Pełny dostęp do systemu" },
                 new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz", Opis = "Zarządzanie książkami i wypożyczeniami" },
-                new Uprawnienie { Id = 3, Nazwa = "Klient", Opis = "Podstawowy dostęp dla czytelników" }
+                new Uprawnienie { Id = 3, Nazwa = "Klient", Opis = "Podstawowy dostęp dla czytelników" },
+                new Uprawnienie { Id = 4, Nazwa = "Manager", Opis = "Zarządzanie treściami i użytkownikami" }
             );
             modelBuilder.Entity<Uzytkownik>().HasData(
                 new Uzytkownik

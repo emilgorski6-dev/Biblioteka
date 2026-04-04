@@ -64,30 +64,26 @@ namespace Biblioteka.Web.Controllers
         }
         [HttpPost]
         public IActionResult Dodaj(DodajUzytkownikaViewModel model)
-        {   
-            if (!ModelState.IsValid) return View(model); 
-    
-            if(model.DataUrodzenia.HasValue)
-            {
-                var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);
-                if (!birthDateResult.IsValid)
-                    ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
-            }
+        {
+            // KROK 1: Czy pola wymagane są uzupełnione? (Podejście z nagrania)
+            if (!ModelState.IsValid) return View(model);
 
-            var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
-            if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
+            // KROK 2: Logika merytoryczna (Data, Telefon, Email, PESEL)
+            var birthRes = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia!.Value);
+            if (!birthRes.IsValid) ModelState.AddModelError("DataUrodzenia", birthRes.Message);
 
-            var emailResult = EmailValidator.WalidujEmail(model.Email, _context);
-            if (!emailResult.IsValid)
-                ModelState.AddModelError("Email", emailResult.ErrorMessage);
+            // Przekazujemy _context do sprawdzenia unikalności numeru
+            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon, _context);
+            if (!phoneRes.IsValid) ModelState.AddModelError("Telefon", phoneRes.Message);
 
-            var peselResult = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context);
-            if (!peselResult.IsValid)
-                ModelState.AddModelError("Pesel", peselResult.ErrorMessage);
+            var emailRes = EmailValidator.WalidujEmail(model.Email, _context);
+            if (!emailRes.IsValid) ModelState.AddModelError("Email", emailRes.ErrorMessage);
+
+            var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec!.Value, _context);
+            if (!peselRes.IsValid) ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
 
             var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
-            if (!loginResult.IsValid)
-                    ModelState.AddModelError("Login", loginResult.Message);
+            if (!loginResult.IsValid) ModelState.AddModelError("Login", loginResult.Message);
 
             if (!ModelState.IsValid) return View(model);
 
@@ -98,13 +94,13 @@ namespace Biblioteka.Web.Controllers
                 Nazwisko = model.Nazwisko,
                 Pesel = model.Pesel,
                 DataUrodzenia = model.DataUrodzenia!.Value,
-                Plec = model.Plec,
+                Plec = model.Plec.Value,
                 Email = model.Email,
                 Telefon = model.Telefon,
                 Miejscowosc = model.Miejscowosc,
                 KodPocztowy = model.KodPocztowy,
-                Ulica = model.Ulica,
                 NumerPosesji = model.NumerPosesji,
+                Ulica = model.Ulica,
                 NumerLokalu = model.NumerLokalu
             };
 
@@ -192,94 +188,111 @@ namespace Biblioteka.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edytuj(EdytujUzytkownikaViewModel model)
         {
-            if (!ModelState.IsValid) return View(model); 
-            
-            var loginResult = LoginValidator.WalidujLogin(model.Login, _context, model.Id);
-            if (!loginResult.IsValid)
-                ModelState.AddModelError("Login", loginResult.Message);
-
-            if(model.DataUrodzenia.HasValue)
-            {
-                var birthDateResult = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia.Value);
-                if (!birthDateResult.IsValid)
-                    ModelState.AddModelError("DataUrodzenia", birthDateResult.Message);
-            }
-
-            var phoneResult = PhoneValidator.WalidujNrTelefonu(model.Telefon);
-            if (!phoneResult.IsValid) ModelState.AddModelError("Telefon", phoneResult.Message);
-
-            var emailResult = EmailValidator.WalidujEmail(model.Email, _context, model.Id);
-            if (!emailResult.IsValid)
-                ModelState.AddModelError("Email", emailResult.ErrorMessage);
-
-            var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec, _context, model.Id);
-            if (!peselRes.IsValid) 
-                ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
-
-
+            // KROK 1: Walidacja wstępna (puste pola)
             if (!ModelState.IsValid) return View(model);
 
             var userToUpdate = _context.Uzytkownicy.Find(model.Id);
             if (userToUpdate == null) return NotFound();
 
-            userToUpdate.Login = model.Login;
+            // KROK 2: Sprawdzenie czy cokolwiek zmieniono (wymóg prowadzącego)
+            bool bezZmian =
+                userToUpdate.Imie == model.Imie &&
+                userToUpdate.Nazwisko == model.Nazwisko &&
+                userToUpdate.Pesel == model.Pesel &&
+                userToUpdate.Email == model.Email &&
+                userToUpdate.Telefon == model.Telefon &&
+                userToUpdate.Plec == model.Plec &&
+                userToUpdate.Miejscowosc == model.Miejscowosc &&
+                userToUpdate.KodPocztowy == model.KodPocztowy &&
+                userToUpdate.NumerPosesji == model.NumerPosesji &&
+                userToUpdate.Ulica == model.Ulica &&
+                userToUpdate.NumerLokalu == model.NumerLokalu;
+
+            if (bezZmian)
+            {
+                ModelState.AddModelError(string.Empty, "Nie wprowadzono żadnych zmian do zapisania.");
+                return View(model);
+            }
+
+            // KROK 3: Walidacje merytoryczne (wykonywane tylko gdy zaszły zmiany)
+
+            // Walidacja Daty
+            var birthRes = BirthDateValidator.WalidujDateUrodzenia(model.DataUrodzenia!.Value);
+            if (!birthRes.IsValid) ModelState.AddModelError("DataUrodzenia", birthRes.Message);
+
+            // Walidacja Email (z ID użytkownika, aby pominąć unikalność własnego maila)
+            var emailRes = EmailValidator.WalidujEmail(model.Email, _context, model.Id);
+            if (!emailRes.IsValid) ModelState.AddModelError("Email", emailRes.ErrorMessage);
+
+            // Walidacja PESEL
+            if (model.Plec.HasValue)
+            {
+                var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec.Value, _context, model.Id);
+                if (!peselRes.IsValid) ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
+            }
+
+            // POPRAWKA BŁĘDU: Dodano _context i model.Id do walidacji telefonu
+            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon, _context, model.Id);
+            if (!phoneRes.IsValid) ModelState.AddModelError("Telefon", phoneRes.Message);
+
+            if (!ModelState.IsValid) return View(model);
+
+            // KROK 4: Aktualizacja danych (Loginu nie zmieniamy!)
             userToUpdate.Imie = model.Imie;
             userToUpdate.Nazwisko = model.Nazwisko;
             userToUpdate.Pesel = model.Pesel;
-            userToUpdate.DataUrodzenia = model.DataUrodzenia!.Value;
-            userToUpdate.Plec = model.Plec;
+            userToUpdate.Plec = model.Plec!.Value;
             userToUpdate.Email = model.Email;
             userToUpdate.Telefon = model.Telefon;
             userToUpdate.Miejscowosc = model.Miejscowosc;
             userToUpdate.KodPocztowy = model.KodPocztowy;
-            userToUpdate.Ulica = model.Ulica;
             userToUpdate.NumerPosesji = model.NumerPosesji;
+            userToUpdate.Ulica = model.Ulica;
             userToUpdate.NumerLokalu = model.NumerLokalu;
 
             _context.SaveChanges();
             TempData["SuccessMessage"] = $"Zaktualizowano dane użytkownika ({userToUpdate.Imie} {userToUpdate.Nazwisko}).";
             return RedirectToAction("Index");
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Zapomnij(int id)
         {
-            var user = _context.Uzytkownicy
-                            .Include(u => u.Uprawnienia)
-                            .FirstOrDefault(u => u.Id == id);
-
+            var user = _context.Uzytkownicy.Find(id);
             if (user == null) return NotFound();
-
-            user.Uprawnienia.Clear();
 
             var anon = PeselValidator.GenerujDaneAnonimowe();
 
-            user.Imie = Guid.NewGuid().ToString("N").Substring(0, 8);
-            user.Nazwisko = Guid.NewGuid().ToString("N").Substring(0, 10);
+            // Anonimizacja wszystkiego, co unikalne
+            user.Imie = "ZAPOMNIANE_" + Guid.NewGuid().ToString("N").Substring(0, 5);
+            user.Nazwisko = "RODO";
             user.Pesel = anon.Pesel;
             user.DataUrodzenia = anon.DataUrodzenia;
             user.Plec = anon.Plec;
-            user.ZapomnianyPrzezId = 1;
-            
+
+            // KLUCZOWE: Czyścimy kontakt, aby zwolnić te dane w systemie
+            user.Email = $"anon_{user.Id}@biblioteka.pl";
+            user.Telefon = "000000000";
+
             user.CzyZapomniany = true;
             user.DataZapomnienia = DateTime.Now;
+            user.ZapomnianyPrzezId = 1; // Tu ID zalogowanego admina
 
-            
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Użytkownik został pomyślnie zapomniany, a jego uprawnienia usunięte.";
+            TempData["SuccessMessage"] = "Użytkownik został zapomniany i przeniesiony do archiwum.";
             return RedirectToAction("Zapomniani");
         }
 
-    // Ekran uprawnień
+        // Ekran uprawnień
         public IActionResult Uprawnienia()
         {
             return View();
         }
-        
+
         [HttpPost]
         public IActionResult ZapiszUprawnienia([FromBody] ZapiszUprawnieniaModel model)
         {
@@ -309,8 +322,9 @@ namespace Biblioteka.Web.Controllers
             _context.SaveChanges();
 
             // Krok 12: Przygotowanie komunikatu z imieniem i nazwiskiem
-            return Ok(new { 
-                message = $"Zmieniono uprawnienia użytkownikowi ({user.Imie} {user.Nazwisko})" 
+            return Ok(new
+            {
+                message = $"Zmieniono uprawnienia użytkownikowi ({user.Imie} {user.Nazwisko})"
             });
         }
     }

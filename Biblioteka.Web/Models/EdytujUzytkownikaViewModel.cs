@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Biblioteka.Web.Data.Entities;
 
 namespace Biblioteka.Web.Models
 {
@@ -23,7 +24,7 @@ namespace Biblioteka.Web.Models
         public DateTime? DataUrodzenia { get; set; }
 
         [Required(ErrorMessage = "Płeć jest wymagana")]
-        public required string Plec { get; set; }
+        public TypPlci? Plec { get; set; }
 
         [Required(ErrorMessage = "Email jest wymagany")]
         [EmailAddress(ErrorMessage = "Nieprawidłowy format email")]

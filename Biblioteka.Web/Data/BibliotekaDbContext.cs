@@ -44,7 +44,7 @@ namespace Biblioteka.Web.Data
                     Email = "admin@biblioteka.pl",
                     Pesel = "90010112345",
                     DataUrodzenia = new DateTime(1990, 1, 1),
-                    Plec = "mężczyzna",
+                    Plec = TypPlci.Mezczyzna,
                     Telefon = "123456789",
                     Miejscowosc = "Łódź",
                     KodPocztowy = "90-001",

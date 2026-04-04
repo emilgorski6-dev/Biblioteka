@@ -22,7 +22,7 @@ namespace Biblioteka.Web.Data.Entities
         [Column("data_urodzenia")]
         public DateTime DataUrodzenia { get; set; }
 
-        public required string Plec { get; set; }
+        public TypPlci Plec { get; set; }
 
         public required string Email { get; set; }
 

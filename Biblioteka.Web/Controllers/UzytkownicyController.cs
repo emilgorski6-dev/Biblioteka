@@ -151,8 +151,14 @@ namespace Biblioteka.Web.Controllers
 
         public IActionResult Szczegoly(string login)
         {
-            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
+            var user = _context.Uzytkownicy
+                .Include(u => u.Uprawnienia) // Ładujemy relację uprawnień
+                .FirstOrDefault(u => u.Login == login);
+
             if (user == null) return NotFound();
+
+            // Przekazujemy listę nazw ról do widoku, aby zaznaczyć checkboxy w modalu
+            ViewBag.ObecneRole = user.Uprawnienia.Select(r => r.Nazwa).ToList();
 
             return View(user);
         }
@@ -273,7 +279,40 @@ namespace Biblioteka.Web.Controllers
         {
             return View();
         }
+        
+        [HttpPost]
+        public IActionResult ZapiszUprawnienia([FromBody] ZapiszUprawnieniaModel model)
+        {
+            // Krok 10 i Scenariusz wyjątku: Sprawdzenie czy zaznaczono przynajmniej jedno uprawnienie
+            if (model == null || model.WybraneRole == null || !model.WybraneRole.Any())
+            {
+                return BadRequest(new { message = "Użytkownik musi posiadać co najmniej jedno uprawnienie" });
+            }
 
+            var user = _context.Uzytkownicy
+                .Include(u => u.Uprawnienia)
+                .FirstOrDefault(u => u.Login == model.Login);
+
+            if (user == null) return NotFound();
+
+            // Krok 11: Zapisanie w bazie danych
+            var noweRole = _context.Uprawnienia
+                .Where(r => model.WybraneRole.Contains(r.Nazwa))
+                .ToList();
+
+            user.Uprawnienia.Clear();
+            foreach (var rola in noweRole)
+            {
+                user.Uprawnienia.Add(rola);
+            }
+
+            _context.SaveChanges();
+
+            // Krok 12: Przygotowanie komunikatu z imieniem i nazwiskiem
+            return Ok(new { 
+                message = $"Zmieniono uprawnienia użytkownikowi ({user.Imie} {user.Nazwisko})" 
+            });
+        }
     }
 
 }

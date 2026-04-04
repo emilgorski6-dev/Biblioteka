@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Profil użytkownika";
+    // Pobieramy listę ról z ViewBag i rzutujemy ją na Listę stringów dla bezpieczeństwa
+    var obecneRole = ViewBag.ObecneRole as List<string> ?? new List<string>();
 }
 
 <div class="profile-wrapper">
@@ -78,7 +80,7 @@
         </div>
     </div>
 
-    @* Sekcja danych (bez zmian) *@
+    @* Sekcja danych *@
     <div class="details-container-card">
         <div class="card-header-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2">
@@ -111,7 +113,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-@* MODAL Z WYBOREM RÓL (CHECKBOXY ZAMIAST RADIA) *@
+@* MODAL Z WYBOREM RÓL *@
 <div id="permissionsModal" class="perm-modal-overlay">
     <div class="perm-modal-content">
         <div class="perm-modal-header">
@@ -131,33 +133,34 @@
 
         <form id="permissionsForm">
             <div class="perm-list">
-                @* ADMINISTRATOR *@
+                @* Role zaznaczane dynamicznie na podstawie ViewBag *@
                 <label class="perm-item-label">
-                    <input type="checkbox" name="selectedRoles" value="Administrator" class="perm-checkbox">
+                    <input type="checkbox" name="selectedRoles" value="Administrator" class="perm-checkbox"
+                           @(obecneRole.Contains("Administrator") ? "checked" : "")>
                     <div class="role-card-content">
                         <span class="role-name">Administrator</span>
                     </div>
                 </label>
 
-                @* BIBLIOTEKARZ *@
                 <label class="perm-item-label">
-                    <input type="checkbox" name="selectedRoles" value="Bibliotekarz" class="perm-checkbox">
+                    <input type="checkbox" name="selectedRoles" value="Bibliotekarz" class="perm-checkbox"
+                           @(obecneRole.Contains("Bibliotekarz") ? "checked" : "")>
                     <div class="role-card-content">
                         <span class="role-name">Bibliotekarz</span>
                     </div>
                 </label>
 
-                @* MANAGER *@
                 <label class="perm-item-label">
-                    <input type="checkbox" name="selectedRoles" value="Manager" class="perm-checkbox">
+                    <input type="checkbox" name="selectedRoles" value="Manager" class="perm-checkbox"
+                           @(obecneRole.Contains("Manager") ? "checked" : "")>
                     <div class="role-card-content">
                         <span class="role-name">Manager</span>
                     </div>
                 </label>
 
-                @* KLIENT *@
                 <label class="perm-item-label">
-                    <input type="checkbox" name="selectedRoles" value="Klient" class="perm-checkbox">
+                    <input type="checkbox" name="selectedRoles" value="Klient" class="perm-checkbox"
+                           @(obecneRole.Contains("Klient") ? "checked" : "")>
                     <div class="role-card-content">
                         <span class="role-name">Klient</span>
                     </div>
@@ -200,17 +203,45 @@
             e.preventDefault();
             
             const checkedBoxes = form.querySelectorAll('input[name="selectedRoles"]:checked');
+            const selectedRoles = Array.from(checkedBoxes).map(cb => cb.value);
 
-            // WALIDACJA: Jeśli nic nie zaznaczono
-            if (checkedBoxes.length === 0) {
-                showToast("error", "Użytkownik musi posiadać co najmniej jedno uprawnienie.");
+            // KROK 10: Walidacja (Scenariusz Wyjątku)
+            if (selectedRoles.length === 0) {
+                showToast("error", "Użytkownik musi posiadać co najmniej jedno uprawnienie");
                 return;
             }
 
-            // Sukces
-            modal.style.display = "none";
-            const rolesList = Array.from(checkedBoxes).map(cb => cb.value).join(", ");
-            showToast("success", `Zmieniono uprawnienia użytkownikowi @Model.Imie @Model.Nazwisko. Przypisane role: ${rolesList}`);
+            // KROK 11: Wysłanie danych do bazy
+            fetch('/Uzytkownicy/ZapiszUprawnienia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    login: '@Model.Login',
+                    wybraneRole: selectedRoles
+                })
+            })
+            .then(async response => {
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // SUKCES
+                    modal.style.display = "none";
+                    
+                    // KROK 12: Wyświetlenie komunikatu sukcesu (z imieniem i nazwiskiem z serwera)
+                    showToast("success", data.message);
+                    
+                    // KROK 13: Powrót do widoku (odświeżenie strony po 2 sekundach)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // BŁĄD SERWERA (np. walidacja po stronie C#)
+                    showToast("error", data.message || "Wystąpił błąd podczas zapisywania.");
+                }
+            })
+            .catch(error => {
+                showToast("error", "Błąd połączenia z serwerem.");
+            });
         });
     });
 </script>

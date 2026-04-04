@@ -267,7 +267,7 @@ namespace Biblioteka.Web.Controllers
             var anon = PeselValidator.GenerujDaneAnonimowe();
 
             // Anonimizacja wszystkiego, co unikalne
-            user.Imie = "ZAPOMNIANE_" + Guid.NewGuid().ToString("N").Substring(0, 5);
+            user.Imie = Guid.NewGuid().ToString("N").Substring(0, 5);
             user.Nazwisko = "RODO";
             user.Pesel = anon.Pesel;
             user.DataUrodzenia = anon.DataUrodzenia;

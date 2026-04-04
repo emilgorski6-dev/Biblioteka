@@ -33,9 +33,9 @@ namespace Biblioteka.Web.Helpers
         {
             if (string.IsNullOrWhiteSpace(email) || email.Contains(" "))
                 return false;
-            
 
-            var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            // Ten wzorzec blokuje emotki i znaki specjalne poza . _ % + -
+            var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
             return regex.IsMatch(email);
         }
     }

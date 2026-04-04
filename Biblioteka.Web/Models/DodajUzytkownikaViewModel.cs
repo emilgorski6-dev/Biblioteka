@@ -7,7 +7,7 @@ namespace Biblioteka.Web.Models
     public class DodajUzytkownikaViewModel
     {
         [Required(ErrorMessage = "Login jest wymagany")]
-        [StringLength(20, ErrorMessage = "Login nie może przekraczać 20 znaków")]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "Login musi mieć od 3 do 20 znaków")]
         [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Login może zawierać tylko litery, cyfry i podkreślnik")]
         public required string Login { get; set; }
 
@@ -22,9 +22,9 @@ namespace Biblioteka.Web.Models
         public required string Nazwisko { get; set; }
 
         [Required(ErrorMessage = "Adres e-mail jest wymagany")]
-        [EmailAddress(ErrorMessage = "Nieprawidłowy format adresu e-mail")]
         [StringLength(255, ErrorMessage = "Email nie może przekraczać 255 znaków")]
-        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Adres e-mail zawiera niedozwolone znaki")]
+        // Usunięto [EmailAddress] na rzecz dokładniejszego Regexa - brak redundancji
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Nieprawidłowy format adresu e-mail")]
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "Numer telefonu jest wymagany")]
@@ -36,13 +36,14 @@ namespace Biblioteka.Web.Models
         public required string Pesel { get; set; }
 
         [Required(ErrorMessage = "Data urodzenia jest wymagana")]
+        [DataType(DataType.Date)]
         public DateTime? DataUrodzenia { get; set; }
 
         [Required(ErrorMessage = "Płeć jest wymagana")]
         public TypPlci? Plec { get; set; }
 
         [Required(ErrorMessage = "Miejscowość jest wymagana")]
-        [StringLength(100, ErrorMessage = "Miejscowość jest zbyt długa")]
+        [StringLength(100)]
         [RegularExpression(@"^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$", ErrorMessage = "Miejscowość może zawierać tylko litery")]
         public required string Miejscowosc { get; set; }
 
@@ -51,14 +52,14 @@ namespace Biblioteka.Web.Models
         public required string KodPocztowy { get; set; }
 
         [Required(ErrorMessage = "Numer posesji jest wymagany")]
-        [StringLength(10, ErrorMessage = "Numer posesji jest zbyt długi")]
+        [StringLength(10)]
         [RegularExpression(@"^[a-zA-Z0-9/ ]+$", ErrorMessage = "Nieprawidłowy format numeru posesji")]
         public required string NumerPosesji { get; set; }
 
-        [StringLength(100, ErrorMessage = "Nazwa ulicy jest zbyt długa")]
+        [StringLength(100)]
         public string? Ulica { get; set; }
 
-        [StringLength(10, ErrorMessage = "Numer lokalu jest zbyt długi")]
+        [StringLength(10)]
         public string? NumerLokalu { get; set; }
     }
 }

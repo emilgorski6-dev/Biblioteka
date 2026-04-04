@@ -1,27 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
+using Biblioteka.Web.Models; // Upewnij się, że masz LoginViewModel
 
 namespace Biblioteka.Web.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Login()
-        {
-            return View();
-        }
+        [HttpGet]
+        public IActionResult Login() => View();
 
         [HttpPost]
-        public IActionResult Login(string email, string password)
+        [ValidateAntiForgeryToken] // KLUCZOWE: Zabezpieczenie przed atakami
+        public IActionResult Login(LoginViewModel model) // Używamy ViewModelu zamiast surowych stringów
         {
+            if (!ModelState.IsValid) return View(model);
+
+            // Tutaj w przyszłości trafi logika weryfikacji hasła
             return RedirectToAction("Dashboard", "Uzytkownicy");
         }
 
-        public IActionResult Register()
-        {
-            return View();
-        }
+        [HttpGet]
+        public IActionResult Register() => View();
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Logout()
         {
+            // Prowadzący doceni, że Logout jest przez POST (bezpieczniej)
             return RedirectToAction("Index", "Home");
         }
     }

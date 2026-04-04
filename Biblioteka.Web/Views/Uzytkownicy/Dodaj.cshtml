@@ -92,7 +92,6 @@
                     <div>
                         <label class="form-label">Numer telefonu *</label>
                         <input asp-for="Telefon" class="form-input" maxlength="9" placeholder="9 cyfr" />
-                        <span asp-validation-for="Telefon" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -116,7 +115,6 @@
                     <div>
                         <label class="form-label">Data urodzenia *</label>
                         <input asp-for="DataUrodzenia" type="date" max="9999-12-31" class="form-input" />
-                        <span asp-validation-for="DataUrodzenia" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -127,7 +125,6 @@
                         <option value="2">Kobieta</option>
                         <option value="1">Mężczyzna</option>
                     </select>
-                    <span asp-validation-for="Plec" class="text-danger"></span>
                 </div>
 
                 <div class="form-section-title">Adres zamieszkania</div>
@@ -176,5 +173,8 @@
                 </div>
             </form>
         </div>
+        @section Scripts {
+            <partial name="_ValidationScriptsPartial" />
+        }
     </main>
 </div>

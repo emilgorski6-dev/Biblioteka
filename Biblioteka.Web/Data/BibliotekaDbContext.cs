@@ -20,6 +20,7 @@ namespace Biblioteka.Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Konfiguracja relacji Wiele-do-Wielu (bez zmian, jest OK)
             modelBuilder.Entity<Uzytkownik>()
                 .HasMany(u => u.Uprawnienia)
                 .WithMany(p => p.Uzytkownicy)
@@ -28,12 +29,14 @@ namespace Biblioteka.Web.Data
                     j => j.HasOne<Uprawnienie>().WithMany().HasForeignKey("uprawnienie_id"),
                     j => j.HasOne<Uzytkownik>().WithMany().HasForeignKey("uzytkownik_id"));
 
+            // Seed Data - Role
             modelBuilder.Entity<Uprawnienie>().HasData(
                 new Uprawnienie { Id = 1, Nazwa = "Administrator", Opis = "Pełny dostęp do systemu" },
                 new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz", Opis = "Zarządzanie książkami i wypożyczeniami" },
-                new Uprawnienie { Id = 3, Nazwa = "Klient", Opis = "Podstawowy dostęp dla czytelników" },
-                new Uprawnienie { Id = 4, Nazwa = "Manager", Opis = "Zarządzanie treściami i użytkownikami" }
+                new Uprawnienie { Id = 3, Nazwa = "Klient", Opis = "Podstawowy dostęp dla czytelników" }
             );
+
+            // Seed Data - Administrator
             modelBuilder.Entity<Uzytkownik>().HasData(
                 new Uzytkownik
                 {
@@ -44,16 +47,15 @@ namespace Biblioteka.Web.Data
                     Email = "admin@biblioteka.pl",
                     Pesel = "90010112345",
                     DataUrodzenia = new DateTime(1990, 1, 1),
-                    Plec = TypPlci.Mezczyzna,
+                    Plec = TypPlci.Mezczyzna, // GWARANCJA: Używamy Enuma, nie stringa
                     Telefon = "123456789",
                     Miejscowosc = "Łódź",
                     KodPocztowy = "90-001",
                     Ulica = "Piotrkowska",
                     NumerPosesji = "1",
-                    NumerLokalu = "",
-                    HasloHash = "admin123",
+                    NumerLokalu = null, // Zamiast pustego stringa dajemy null (lepsze dla bazy)
+                    HasloHash = "admin123", // W prawdziwym systemie byłby tu hash, ale na projekt wystarczy
                     CzyZablokowany = false,
-                    LiczbaBlednychLogowan = 0,
                     CzyZapomniany = false
                 }
             );

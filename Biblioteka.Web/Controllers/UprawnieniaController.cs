@@ -8,43 +8,42 @@ namespace Biblioteka.Web.Controllers
 {
     public class UprawnieniaController : Controller
     {
-        private readonly BibliotekaDbContext _bazaDanych;
+        private readonly BibliotekaDbContext _context; // Zmiana nazwy dla spójności
 
         public UprawnieniaController(BibliotekaDbContext context)
         {
-            _bazaDanych = context;
+            _context = context;
         }
 
-        // AKCJA 1: Lista ról (Index)
         public IActionResult Index()
         {
-            var listaDoWyswietlenia = _bazaDanych.Uprawnienia.Select(uprawnienie => new UprawnienieItemViewModel
-            {
-                Id = uprawnienie.Id,
-                Nazwa = uprawnienie.Nazwa,
-                Opis = uprawnienie.Opis ?? string.Empty,
-                // Liczymy tylko tych, którzy nie są zapomniani
-                LiczbaUzytkownikow = uprawnienie.Uzytkownicy.Count(u => !u.CzyZapomniany)
-            }).ToList();
+            var listaDoWyswietlenia = _context.Uprawnienia
+                .Select(uprawnienie => new UprawnienieItemViewModel
+                {
+                    Id = uprawnienie.Id,
+                    Nazwa = uprawnienie.Nazwa,
+                    Opis = uprawnienie.Opis ?? string.Empty,
+                    LiczbaUzytkownikow = uprawnienie.Uzytkownicy.Count(u => !u.CzyZapomniany)
+                }).ToList();
 
             return View(listaDoWyswietlenia);
         }
 
-        // AKCJA 2: Szczegóły roli (Szczegoly)
         public IActionResult Szczegoly(int id)
         {
-            // Pobieramy uprawnienie wraz z listą użytkowników
-            var uprawnienie = _bazaDanych.Uprawnienia
-                .Include(u => u.Uzytkownicy)
-                .FirstOrDefault(u => u.Id == id);
+            // 1. Pobieramy Uprawnienie i jego użytkowników (podstawowy Include działa w SQLite)
+            var uprawnienie = _context.Uprawnienia
+                .Include(p => p.Uzytkownicy)
+                .FirstOrDefault(p => p.Id == id);
 
             if (uprawnienie == null) return NotFound();
 
+            // 2. Filtrowanie i mapowanie robimy w pamięci (Memory), co rozwiązuje problem SQLite
             var model = new UprawnienieSzczegolyViewModel
             {
                 NazwaUprawnienia = uprawnienie.Nazwa.ToUpper(),
                 Uzytkownicy = uprawnienie.Uzytkownicy
-                    .Where(u => !u.CzyZapomniany) // Tylko aktywni użytkownicy
+                    .Where(u => !u.CzyZapomniany) // Filtrujemy w C#
                     .Select(u => new UzytkownikZUprawnieniem
                     {
                         Login = u.Login,
@@ -53,7 +52,7 @@ namespace Biblioteka.Web.Controllers
                     }).ToList()
             };
 
-            // Zauważ, że zwracasz widok o nazwie "uprawnienia"
+            // Zwracamy widok
             return View("uprawnienia", model);
         }
     }

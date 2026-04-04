@@ -26,11 +26,18 @@ namespace Biblioteka.Web.Controllers
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchLogin))
-                query = query.Where(u => u.Login.Contains(searchLogin));
+            {
+                // Normalizacja: obie strony do małych liter
+                query = query.Where(u => u.Login.ToLower().Contains(searchLogin.ToLower()));
+            }
 
             if (!string.IsNullOrEmpty(searchName))
-                query = query.Where(u => u.Imie.Contains(searchName) || u.Nazwisko.Contains(searchName));
-
+            {
+                // Sprawdzamy imię lub nazwisko (case-insensitive)
+                var searchLower = searchName.ToLower();
+                query = query.Where(u => u.Imie.ToLower().Contains(searchLower)
+                                      || u.Nazwisko.ToLower().Contains(searchLower));
+            }
             if (!string.IsNullOrEmpty(searchPesel))
                 query = query.Where(u => u.Pesel.Contains(searchPesel));
 
@@ -79,8 +86,11 @@ namespace Biblioteka.Web.Controllers
             var emailRes = EmailValidator.WalidujEmail(model.Email, _context);
             if (!emailRes.IsValid) ModelState.AddModelError("Email", emailRes.ErrorMessage);
 
-            var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec!.Value, _context);
-            if (!peselRes.IsValid) ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
+            var peselAlgRes = PeselValidator.WalidujAlgorytm(model.Pesel, model.DataUrodzenia, model.Plec!.Value);
+            if (!peselAlgRes.IsValid) ModelState.AddModelError("Pesel", peselAlgRes.ErrorMessage);
+
+            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel))
+                ModelState.AddModelError("Pesel", "Ten numer PESEL jest już w bazie.");
 
             var loginResult = LoginValidator.WalidujLogin(model.Login, _context);
             if (!loginResult.IsValid) ModelState.AddModelError("Login", loginResult.Message);
@@ -230,10 +240,11 @@ namespace Biblioteka.Web.Controllers
             // Walidacja PESEL
             if (model.Plec.HasValue)
             {
-                var peselRes = PeselValidator.WalidujPesel(model.Pesel, model.DataUrodzenia, model.Plec.Value, _context, model.Id);
-                if (!peselRes.IsValid) ModelState.AddModelError("Pesel", peselRes.ErrorMessage);
+                var peselAlgRes = PeselValidator.WalidujAlgorytm(model.Pesel, model.DataUrodzenia, model.Plec!.Value);
+                if (!peselAlgRes.IsValid) ModelState.AddModelError("Pesel", peselAlgRes.ErrorMessage);
             }
-
+            if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
+                ModelState.AddModelError("Pesel", "Ten numer PESEL jest już przypisany do innego użytkownika.");
             // POPRAWKA BŁĘDU: Dodano _context i model.Id do walidacji telefonu
             var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon, _context, model.Id);
             if (!phoneRes.IsValid) ModelState.AddModelError("Telefon", phoneRes.Message);

@@ -6,14 +6,20 @@ namespace Biblioteka.Web.Helpers
 {
     public static class PeselValidator
     {
-        // Komunikaty wyniesione do stałych - łatwiejsze zarządzanie
-        public const string MsgInvalidFormat = "Niepoprawny format numeru PESEL.";
-        public const string MsgDateMismatch = "PESEL nie zgadza się z datą urodzenia.";
-        public const string MsgGenderMismatch = "Płeć w PESEL niezgodna z wybraną.";
+        // --- Stałe z komunikatami błędów ---
+        public const string MsgInvalidFormat = "Nieprawidłowy format numeru PESEL";
+        public const string MsgDateMismatch = "Pierwsze sześć cyfr numeru PESEL nie zgadza się z podaną datą urodzenia";
         public const string MsgInvalidChecksum = "Błędna cyfra kontrolna PESEL.";
 
+        // Rozdzielone komunikaty dla płci
+        public const string MsgGenderMismatchMale = "Przedostatnia cyfra numeru PESEL wskazuje na płeć żeńską, a w formularzu wybrano płeć męską.";
+        public const string MsgGenderMismatchFemale = "Przedostatnia cyfra numeru PESEL wskazuje na płeć męską, a w formularzu wybrano płeć żeńską.";
+
+        // Komunikat unikalności (do użycia w kontrolerze)
+        public const string MsgPeselExists = "Podany numer PESEL jest już przypisany do innego użytkownika w systemie.";
+
         /// <summary>
-        /// Czysta logika walidacji algorytmu PESEL bez odwołań do bazy danych.
+        /// Główna metoda walidująca algorytm PESEL.
         /// </summary>
         public static (bool IsValid, string ErrorMessage) WalidujAlgorytm(string pesel, DateTime? dataUrodzenia, TypPlci plec)
         {
@@ -23,8 +29,10 @@ namespace Biblioteka.Web.Helpers
             if (!SprawdzDateUrodzenia(pesel, dataUrodzenia))
                 return (false, MsgDateMismatch);
 
-            if (!SprawdzPlec(pesel, plec))
-                return (false, MsgGenderMismatch);
+            // Walidacja płci z konkretnym komunikatem
+            var plecResult = SprawdzPlec(pesel, plec);
+            if (!plecResult.IsValid)
+                return (false, plecResult.Message);
 
             if (!SprawdzCyfreKontrolna(pesel))
                 return (false, MsgInvalidChecksum);
@@ -32,11 +40,22 @@ namespace Biblioteka.Web.Helpers
             return (true, string.Empty);
         }
 
-        private static bool SprawdzPlec(string pesel, TypPlci plec)
+        private static (bool IsValid, string Message) SprawdzPlec(string pesel, TypPlci plec)
         {
             int cyfraPlecowa = pesel[9] - '0';
             bool jestMezczyznaW_Pesel = cyfraPlecowa % 2 == 1;
-            return (plec == TypPlci.Mezczyzna) ? jestMezczyznaW_Pesel : !jestMezczyznaW_Pesel;
+
+            if (plec == TypPlci.Mezczyzna && !jestMezczyznaW_Pesel)
+            {
+                return (false, MsgGenderMismatchMale);
+            }
+            
+            if (plec == TypPlci.Kobieta && jestMezczyznaW_Pesel)
+            {
+                return (false, MsgGenderMismatchFemale);
+            }
+
+            return (true, string.Empty);
         }
 
         private static bool SprawdzDateUrodzenia(string pesel, DateTime? dataUrodzenia)
@@ -50,7 +69,7 @@ namespace Biblioteka.Web.Helpers
             int wiek = 1900;
             if (miesiac > 80) { wiek = 1800; miesiac -= 80; }
             else if (miesiac > 20) { wiek = 2000; miesiac -= 20; }
-            else if (miesiac > 40) { wiek = 4000; miesiac -= 40; } // Poprawka na wiek XXII
+            else if (miesiac > 40) { wiek = 4000; miesiac -= 40; } 
             else if (miesiac > 60) { wiek = 2200; miesiac -= 60; }
 
             try

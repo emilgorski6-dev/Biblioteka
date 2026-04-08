@@ -8,7 +8,7 @@ namespace Biblioteka.Web.Models
     {
         [Required(ErrorMessage = "Login jest wymagany")]
         [StringLength(20, MinimumLength = 3, ErrorMessage = "Login musi mieć od 3 do 20 znaków")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Login może zawierać tylko litery, cyfry i podkreślnik")]
+        [RegularExpression(@"^(?=.*[a-zA-Z0-9])[a-zA-Z0-9_]+$", ErrorMessage = "Login może zawierać tylko litery, cyfry i podkreślnik")]
         public required string Login { get; set; }
 
         [Required(ErrorMessage = "Imię jest wymagane")]
@@ -18,7 +18,7 @@ namespace Biblioteka.Web.Models
 
         [Required(ErrorMessage = "Nazwisko jest wymagane")]
         [StringLength(50, ErrorMessage = "Nazwisko nie może przekraczać 50 znaków")]
-        [RegularExpression(@"^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ \-]+$", ErrorMessage = "Nazwisko może zawierać tylko litery i myślnik")]
+        [RegularExpression(@"^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+([ \-][a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)?$", ErrorMessage = "Nazwisko może zawierać tylko litery i myślnik")]
         public required string Nazwisko { get; set; }
 
         [Required(ErrorMessage = "Adres e-mail jest wymagany")]

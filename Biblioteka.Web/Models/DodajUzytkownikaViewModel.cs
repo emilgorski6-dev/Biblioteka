@@ -12,23 +12,23 @@ namespace Biblioteka.Web.Models
         public required string Login { get; set; }
 
         [Required(ErrorMessage = "Imię jest wymagane")]
-        [StringLength(50, ErrorMessage = "Imię nie może przekraczać 50 znaków")]
+        [StringLength(50)]
         [RegularExpression(@"^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$", ErrorMessage = "Imię może zawierać tylko litery")]
         public required string Imie { get; set; }
 
         [Required(ErrorMessage = "Nazwisko jest wymagane")]
-        [StringLength(50, ErrorMessage = "Nazwisko nie może przekraczać 50 znaków")]
+        [StringLength(50)]
         [RegularExpression(@"^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+([ \-][a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)?$", ErrorMessage = "Nazwisko może zawierać tylko litery i myślnik")]
         public required string Nazwisko { get; set; }
 
         [Required(ErrorMessage = "Adres e-mail jest wymagany")]
-        [StringLength(255, ErrorMessage = "Email nie może przekraczać 255 znaków")]
+        [StringLength(255)]
         // Usunięto [EmailAddress] na rzecz dokładniejszego Regexa - brak redundancji
         [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Nieprawidłowy format adresu e-mail")]
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "Numer telefonu jest wymagany")]
-        [RegularExpression(@"^[0-9]{9}$", ErrorMessage = "Numer telefonu musi składać się z dokładnie 9 cyfr")]
+        [RegularExpression(@"^[0-9]{9}$", ErrorMessage = "Numer telefonu musi zawierać dokładnie 9 cyfr")]
         public required string Telefon { get; set; }
 
         [Required(ErrorMessage = "Numer PESEL jest wymagany")]

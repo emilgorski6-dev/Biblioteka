@@ -255,6 +255,7 @@ namespace Biblioteka.Web.Controllers
             userToUpdate.Imie = model.Imie;
             userToUpdate.Nazwisko = model.Nazwisko;
             userToUpdate.Pesel = model.Pesel;
+            userToUpdate.DataUrodzenia = model.DataUrodzenia!.Value;
             userToUpdate.Plec = model.Plec!.Value;
             userToUpdate.Email = model.Email;
             userToUpdate.Telefon = model.Telefon;

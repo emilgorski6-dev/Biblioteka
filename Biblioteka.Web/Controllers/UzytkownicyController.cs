@@ -114,6 +114,12 @@ namespace Biblioteka.Web.Controllers
                 NumerLokalu = model.NumerLokalu
             };
 
+            var rolaKlient = _context.Uprawnienia.FirstOrDefault(r => r.Nazwa == "Klient");
+            if (rolaKlient != null)
+            {
+                user.Uprawnienia = new List<Uprawnienie> { rolaKlient };
+            }
+
             _context.Uzytkownicy.Add(user);
             _context.SaveChanges();
 

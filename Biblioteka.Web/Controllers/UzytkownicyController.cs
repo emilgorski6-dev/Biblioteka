@@ -56,6 +56,11 @@ namespace Biblioteka.Web.Controllers
             ViewBag.CurrentName = searchName;
             ViewBag.CurrentPesel = searchPesel;
 
+            if (!users.Any())
+            {
+                ViewData["Message"] = "Brak użytkowników serwisu";
+            }
+
             return View(users);
         }
 
@@ -80,7 +85,7 @@ namespace Biblioteka.Web.Controllers
             if (!birthRes.IsValid) ModelState.AddModelError("DataUrodzenia", birthRes.Message);
 
             // Przekazujemy _context do sprawdzenia unikalności numeru
-            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon, _context);
+            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon ?? "", _context);
             if (!phoneRes.IsValid) ModelState.AddModelError("Telefon", phoneRes.Message);
 
             var emailRes = EmailValidator.WalidujEmail(model.Email, _context);
@@ -106,7 +111,7 @@ namespace Biblioteka.Web.Controllers
                 DataUrodzenia = model.DataUrodzenia!.Value,
                 Plec = model.Plec.Value,
                 Email = model.Email,
-                Telefon = model.Telefon,
+                Telefon = model.Telefon ?? "",
                 Miejscowosc = model.Miejscowosc,
                 KodPocztowy = model.KodPocztowy,
                 NumerPosesji = model.NumerPosesji,
@@ -252,7 +257,8 @@ namespace Biblioteka.Web.Controllers
             if (_context.Uzytkownicy.Any(u => u.Pesel == model.Pesel && u.Id != model.Id))
                 ModelState.AddModelError("Pesel", "Ten numer PESEL jest już przypisany do innego użytkownika.");
             // POPRAWKA BŁĘDU: Dodano _context i model.Id do walidacji telefonu
-            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon, _context, model.Id);
+            // model.Telefon ?? "" oznacza: weź numer telefonu, a jeśli jest nullem, użyj pustego tekstu.
+            var phoneRes = PhoneValidator.WalidujNrTelefonu(model.Telefon ?? "", _context, model.Id);
             if (!phoneRes.IsValid) ModelState.AddModelError("Telefon", phoneRes.Message);
 
             if (!ModelState.IsValid) return View(model);
@@ -264,7 +270,7 @@ namespace Biblioteka.Web.Controllers
             userToUpdate.DataUrodzenia = model.DataUrodzenia!.Value;
             userToUpdate.Plec = model.Plec!.Value;
             userToUpdate.Email = model.Email;
-            userToUpdate.Telefon = model.Telefon;
+            userToUpdate.Telefon = model.Telefon ?? "";
             userToUpdate.Miejscowosc = model.Miejscowosc;
             userToUpdate.KodPocztowy = model.KodPocztowy;
             userToUpdate.NumerPosesji = model.NumerPosesji;

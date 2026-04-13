@@ -41,7 +41,7 @@ namespace Biblioteka.Tests.Controllers
                 NumerPosesji = "10",
                 DataUrodzenia = new DateTime(1990, 1, 1),
                 Plec = TypPlci.Mezczyzna,
-                CzyZapomniany = false // Poprawiona nazwa pola!
+                CzyZapomniany = false
             };
             context.Uzytkownicy.Add(uzytkownik);
             context.SaveChanges();
@@ -49,14 +49,12 @@ namespace Biblioteka.Tests.Controllers
             var controller = new UzytkownicyController(context);
             controller.TempData = new TempDataDictionary(new DefaultHttpContext(), new LocalFakeTempDataProvider());
 
-            // Act
             var result = controller.Zapomnij(uzytkownik.Id) as RedirectToActionResult;
 
-            // Assert
             var zapomnianyUser = context.Uzytkownicy.Find(uzytkownik.Id);
 
-            Assert.True(zapomnianyUser!.CzyZapomniany); // Sprawdzamy flagę
-            Assert.NotEqual("Jan", zapomnianyUser.Imie); // Sprawdzamy czy zamazano dane
+            Assert.True(zapomnianyUser!.CzyZapomniany);
+            Assert.NotEqual("Jan", zapomnianyUser.Imie);
             Assert.NotEqual("Kowalski", zapomnianyUser.Nazwisko);
         }
         public class LocalFakeTempDataProvider : ITempDataProvider

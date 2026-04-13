@@ -47,7 +47,6 @@ namespace Biblioteka.Tests.Controllers
         [Fact]
         public void TC_U3_NadanieUprawnienia_Bibliotekarz_Sukces()
         {
-            // Arrange
             using var context = GetContext();
             var uzytkownik = StworzTestowegoUzytkownika("bozydarjp");
             var upr = new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz", Opis = "Test" };
@@ -59,17 +58,14 @@ namespace Biblioteka.Tests.Controllers
             var controller = new UzytkownicyController(context);
             controller.TempData = new TempDataDictionary(new DefaultHttpContext(), new LocalFakeTempDataProvider());
 
-            // POPRAWKA: Używamy pól, których wymaga Twój model (Login i WybraneRole)
             var model = new ZapiszUprawnieniaModel
             {
-                Login = uzytkownik.Login, // To pole jest wymagane (CS9035)
-                WybraneRole = new List<string> { "Bibliotekarz" } // To pole jest wymagane (CS9035)
+                Login = uzytkownik.Login,
+                WybraneRole = new List<string> { "Bibliotekarz" }
             };
 
-            // Act
             controller.ZapiszUprawnienia(model);
 
-            // Assert
             var userZazy = context.Uzytkownicy
                 .Include(u => u.Uprawnienia)
                 .First(u => u.Id == uzytkownik.Id);
@@ -80,7 +76,6 @@ namespace Biblioteka.Tests.Controllers
         [Fact]
         public void TC_U8_CzescioweOdebranieUprawnien_Sukces()
         {
-            // Arrange
             using var context = GetContext();
             var uzytkownik = StworzTestowegoUzytkownika("bozydarjp");
             var u1 = new Uprawnienie { Id = 1, Nazwa = "Administrator" };
@@ -94,17 +89,13 @@ namespace Biblioteka.Tests.Controllers
             var controller = new UzytkownicyController(context);
             controller.TempData = new TempDataDictionary(new DefaultHttpContext(), new LocalFakeTempDataProvider());
 
-            // POPRAWKA: Przesyłamy tylko listę z jedną rolą, którą chcemy zostawić
             var model = new ZapiszUprawnieniaModel
             {
                 Login = uzytkownik.Login,
                 WybraneRole = new List<string> { "Bibliotekarz" }
             };
-
-            // Act
             controller.ZapiszUprawnienia(model);
 
-            // Assert
             var userZazy = context.Uzytkownicy
                 .Include(u => u.Uprawnienia)
                 .First(u => u.Id == uzytkownik.Id);
@@ -113,7 +104,6 @@ namespace Biblioteka.Tests.Controllers
             Assert.Equal("Bibliotekarz", userZazy.Uprawnienia.First().Nazwa);
         }
 
-        // Helper dla TempData
         public class LocalFakeTempDataProvider : ITempDataProvider
         {
             public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();

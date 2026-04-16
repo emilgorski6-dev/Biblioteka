@@ -1794,3 +1794,212 @@ a {
     flex: 2; /* Przycisk zapisu jest szerszy */
     justify-content: center;
 }
+
+/* --- KOMUNIKATY I ALERTY --- */
+/* --- 1. KOMUNIKATY I ALERTY --- */
+.login-alert-lockout {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+    color: #991b1b;
+    font-size: 0.9rem;
+}
+
+.alert-modal-error {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+/* --- 2. MODALE (WSPÓLNE I RESETOWANIE) --- */
+.perm-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999 !important;
+}
+
+.perm-modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: none; border: none;
+    font-size: 22px; color: #cbd5e1;
+    cursor: pointer;
+}
+
+.reset-icon-box {
+    background-color: #fff9db !important;
+    color: #f59e0b !important;
+}
+
+/* --- 3. MODAL SUKCESU (SPECYFICZNE) --- */
+.success-modal-content {
+    text-align: center;
+    padding: 3rem 2rem !important;
+}
+
+.success-icon-circle {
+    width: 80px; height: 80px;
+    background-color: #ecfdf5;
+    color: #10b981;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.success-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.success-message {
+    color: #64748b;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+}
+
+/* --- 4. PRZYCISKI I LINKI --- */
+.forgot-password-link {
+    background: none; border: none; padding: 0;
+    color: #E67E22; font-weight: 600; font-size: 0.85rem;
+    cursor: pointer; font-family: inherit;
+}
+
+.forgot-password-link:hover { text-decoration: underline; }
+
+.btn-nadaj-uprawnienia, .btn-success-close {
+    background-color: #E67E22;
+    color: white; border: none;
+    padding: 12px 25px; border-radius: 8px;
+    font-weight: 700; cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-success-close {
+    padding: 12px 60px; /* Szeroki przycisk zamknięcia */
+}
+
+.btn-nadaj-uprawnienia:hover, .btn-success-close:hover {
+    background-color: #d35400;
+}
+
+.btn-perm-cancel {
+    background-color: #f1f5f9;
+    color: #475569; border: none;
+    padding: 12px 20px; border-radius: 8px;
+    font-weight: 600; cursor: pointer;
+}
+
+/* --- MODAL WYLOGOWANIA --- */
+.logout-confirmation-modal {
+    text-align: center;
+    max-width: 420px !important;
+    padding: 2.5rem !important;
+    border-radius: 20px !important;
+    background: white;
+}
+
+.logout-icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+}
+
+.logout-icon-circle {
+    width: 64px;
+    height: 64px;
+    background-color: #fff1f2; /* Jasnoróżowe tło ikony */
+    color: #e11d48;            /* Czerwień ikony */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.logout-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.logout-message {
+    color: #6b7280;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.logout-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* Przycisk Anuluj */
+.btn-logout-cancel {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Przycisk Wyloguj (Czerwony) */
+.btn-logout-confirm {
+    background-color: #e11d48;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-logout-confirm:hover {
+    background-color: #be123c;
+}
+
+/* Overlay (tło) dla wszystkich modali */
+.perm-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+

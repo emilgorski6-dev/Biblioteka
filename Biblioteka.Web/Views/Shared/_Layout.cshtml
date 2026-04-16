@@ -19,7 +19,6 @@
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
                 }
 
-                @* ZMIANA TUTAJ: Dodano sprawdzanie również dla kontrolera Uprawnienia *@
                 @if (currentController == "Uzytkownicy" || currentController == "Uprawnienia")
                 {
                     <a asp-controller="Home" asp-action="Index" style="color: #555;">Strona Główna</a>
@@ -29,7 +28,7 @@
                         <i class="fa-regular fa-user"></i> Konto
                     </a>
 
-                    <a asp-controller="Account" asp-action="Logout"
+                    <a href="javascript:void(0)" onclick="openLogoutModal()"
                        style="color: #666; display: flex; align-items: center; gap: 6px;">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i> Wyloguj
                     </a>
@@ -64,8 +63,48 @@
         @RenderBody()
     </main>
 
+    @* --- MODAL POTWIERDZENIA WYLOGOWANIA --- *@
+    <div id="logoutModal" class="perm-modal-overlay">
+        <div class="perm-modal-content logout-confirmation-modal">
+            <div class="logout-icon-container">
+                <div class="logout-icon-circle">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </div>
+            </div>
+
+            <h3 class="logout-title">Wylogowanie</h3>
+            <p class="logout-message">Czy na pewno chcesz się wylogować z systemu?</p>
+
+            <div class="logout-actions">
+                <button type="button" onclick="closeLogoutModal()" class="btn-logout-cancel">Anuluj</button>
+                
+                <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+                    <button type="submit" class="btn-logout-confirm">Wyloguj</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function openLogoutModal() {
+            document.getElementById("logoutModal").style.display = "flex";
+        }
+
+        function closeLogoutModal() {
+            document.getElementById("logoutModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById("logoutModal");
+            if (event.target == modal) {
+                closeLogoutModal();
+            }
+        };
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

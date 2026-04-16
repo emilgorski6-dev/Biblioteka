@@ -7,6 +7,7 @@
 <div class="login-body">
     <div class="login-wrapper">
         
+        @* NAGŁÓWEK *@
         <div class="login-header">
             <div class="icon-box">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
@@ -15,9 +16,22 @@
             <p>Nie masz jeszcze konta? <a asp-controller="Account" asp-action="Register">Zarejestruj się bezpłatnie</a></p>
         </div>
 
+        @* KARTA LOGOWANIA *@
         <div class="login-card">
+            @* Alert blokady konta *@
+            @if (true)  // aby wyświetlić alert tylko wtedy, gdy konto jest zablokowane @if (true)
+            {
+                <div class="login-alert-lockout">
+                    <div class="alert-icon"><i class="fa-regular fa-clock"></i></div>
+                    <div class="alert-content">
+                        Przekroczono liczbę prób logowania.
+                        <br> Konto zostało zablokowane. 
+                        <br>Ponowne logowanie będzie możliwe o godzinie <strong>@ViewBag.LockoutTime</strong>.
+                    </div>
+                </div>
+            }
+
             <form asp-action="Login" method="post">
-                
                 <div class="form-group">
                     <label>Adres e-mail</label>
                     <div class="input-with-icon">
@@ -27,7 +41,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Hasło <a href="#" class="forgot-password-link">Zapomniałeś hasła?</a></label>
+                    <label>
+                        Hasło 
+                        <button type="button" id="btnOpenForgotModal" class="forgot-password-link">Odzyskiwanie hasła</button>
+                    </label>
                     <div class="input-with-icon" style="margin-top: 8px;">
                         <i class="fa-solid fa-lock icon"></i>
                         <input type="password" placeholder="Twoje hasło" asp-for="Password" required />
@@ -37,6 +54,106 @@
                 <button type="submit" class="btn-login-submit">Zaloguj się</button>
             </form>
         </div>
-
     </div>
 </div>
+
+@* --- OKNO 1: MODAL RESETOWANIA --- *@
+<div id="forgotPasswordModal" class="perm-modal-overlay">
+    <div class="perm-modal-content">
+        <button type="button" class="modal-close-x" id="btnCloseForgotX">&times;</button>
+        
+        <div class="perm-modal-header">
+            <div class="perm-icon-wrapper reset-icon-box">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <div>
+                <h3 class="perm-modal-title">Odzyskiwanie hasła</h3>
+                <p class="perm-modal-subtitle">Podaj dane powiązane z Twoim kontem.</p>
+            </div>
+        </div>
+
+        <div id="modalErrorContainer"></div>
+
+        <form id="resetPasswordForm">
+            <div class="form-group">
+                <label class="perm-form-label">Identyfikator użytkownika</label>
+                <div class="input-with-icon">
+                    <i class="fa-regular fa-user icon"></i>
+                    <input type="text" id="resetUserId" placeholder="Wpisz 'admin' dla sukcesu" required />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.2rem;">
+                <label class="perm-form-label">Adres e-mail</label>
+                <div class="input-with-icon">
+                    <i class="fa-regular fa-envelope icon"></i>
+                    <input type="email" placeholder="jan.kowalski@example.com" required />
+                </div>
+            </div>
+
+            <div class="perm-modal-actions" style="margin-top: 2rem;">
+                <button type="button" id="btnCloseForgotModal" class="btn-perm-cancel">Anuluj</button>
+                <button type="submit" class="btn-nadaj-uprawnienia">Wyślij nowe hasło</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* --- OKNO 2: MODAL SUKCESU --- *@
+<div id="successPasswordModal" class="perm-modal-overlay">
+    <div class="perm-modal-content success-modal-content">
+        <div class="success-icon-container">
+            <div class="success-icon-circle">
+                <i class="fa-regular fa-envelope"></i>
+            </div>
+        </div>
+        <h2 class="success-title">Hasło zostało wysłane</h2>
+        <p class="success-message">Nowe hasło zostało wysłane na podany adres e-mail.</p>
+        <div class="success-actions">
+            <button type="button" id="btnConfirmSuccess" class="btn-success-close">Zamknij</button>
+        </div>
+    </div>
+</div>
+
+@* --- LOGIKA JAVASCRIPT --- *@
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modalReset = document.getElementById("forgotPasswordModal");
+        const modalSuccess = document.getElementById("successPasswordModal");
+        const btnOpen = document.getElementById("btnOpenForgotModal");
+        const formReset = document.getElementById("resetPasswordForm");
+        const errorContainer = document.getElementById("modalErrorContainer");
+
+        if(btnOpen) {
+            btnOpen.onclick = function() {
+                errorContainer.innerHTML = ""; 
+                modalReset.style.display = "flex";
+            };
+        }
+
+        formReset.onsubmit = function(e) {
+            e.preventDefault();
+            const userId = document.getElementById("resetUserId").value;
+            if (userId.toLowerCase() === "admin") {
+                modalReset.style.display = "none";
+                modalSuccess.style.display = "flex";
+                formReset.reset();
+            } else {
+                errorContainer.innerHTML = `
+                    <div class="alert-modal-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>Nie znaleziono użytkownika o takim identyfikatorze.</span>
+                    </div>`;
+            }
+        };
+
+        document.getElementById("btnConfirmSuccess").onclick = () => modalSuccess.style.display = "none";
+        document.getElementById("btnCloseForgotModal").onclick = () => modalReset.style.display = "none";
+        document.getElementById("btnCloseForgotX").onclick = () => modalReset.style.display = "none";
+
+        window.onclick = function(event) {
+            if (event.target == modalReset) modalReset.style.display = "none";
+            if (event.target == modalSuccess) modalSuccess.style.display = "none";
+        };
+    });
+</script>

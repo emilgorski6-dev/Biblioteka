@@ -95,7 +95,7 @@
                     <label class="perm-form-label">Adres e-mail</label>
                     <div class="input-with-icon">
                         <i class="fa-regular fa-envelope icon"></i>
-                        <input type="email" placeholder="jan.kowalski@example.com" required />
+                        <input type="email" id="resetEmail" placeholder="jan.kowalski@example.com" required />
                     </div>
                 </div>
 
@@ -139,20 +139,44 @@
                 };
             }
 
-            formReset.onsubmit = function (e) {
+            formReset.onsubmit = async function (e) {
                 e.preventDefault();
-                const userId = document.getElementById("resetUserId").value;
-                // Mock sukcesu - w przyszłości tutaj będzie wywołanie AJAX do Account/ForgotPassword
-                if (userId.toLowerCase() === "admin") {
-                    modalReset.style.display = "none";
-                    modalSuccess.style.display = "flex";
-                    formReset.reset();
-                } else {
-                    errorContainer.innerHTML = `
+                errorContainer.innerHTML = ""; // Clear previous errors
+
+                const login = document.getElementById("resetUserId").value;
+                const email = document.getElementById("resetEmail").value;
+
+                // Pobranie tokena anty-forgery (wymagane przez [ValidateAntiForgeryToken])
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                try {
+                    const response = await fetch('/Account/ForgotPassword', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({ Login: login, Email: email })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Kroki 7-9 scenariusza
+                        modalReset.style.display = "none";
+                        modalSuccess.style.display = "flex";
+                        formReset.reset();
+                    } else {
+                        // Scenariusz wyjątku: Błędne dane
+                        errorContainer.innerHTML = `
                             <div class="alert-modal-error">
                                 <i class="fa-solid fa-circle-exclamation"></i>
-                                <span>Nie znaleziono użytkownika o takim identyfikatorze.</span>
+                                <span>${result.message}</span>
                             </div>`;
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    errorContainer.innerHTML = "<span>Wystąpił błąd połączenia.</span>";
                 }
             };
 

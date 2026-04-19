@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Biblioteka.Web.Data;
 using Biblioteka.Web.Models;
+using Biblioteka.Web.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Biblioteka.Web.Controllers
@@ -122,6 +123,56 @@ namespace Biblioteka.Web.Controllers
 
             // PRZEKIEROWANIE: Po wylogowaniu wracamy na stronę główną
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid data provided." });
+            }
+
+            // Step 5: Verify identifier and email
+            var user = await _context.Uzytkownicy
+                .Include(u => u.HistoriaHasel)
+                .FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
+
+            if (user == null || user.CzyZapomniany)
+            {
+                // Exception scenario: Invalid credentials
+                return Json(new { success = false, message = "Niepoprawny identyfikator użytkownika lub adres email." });
+            }
+
+            // Step 6: Generate new password that fulfills L-03 requirements
+            string newPassword = GenerateValidPassword();
+
+            // Update user password
+            user.HasloHash = newPassword;
+
+            // Add to History (as required by your architecture)
+            var historyEntry = new HistoriaHasla
+            {
+                UzytkownikId = user.Id,
+                HasloHash = newPassword,
+                DataNadania = DateTime.Now,
+                Uzytkownik = user
+            };
+
+            _context.HistoriaHasel.Add(historyEntry);
+            await _context.SaveChangesAsync();
+
+            // In a real system: EmailService.Send(user.Email, newPassword);
+
+            return Json(new { success = true });
+        }
+
+        private string GenerateValidPassword()
+        {
+            // Guaranteed to pass your PasswordValidator: 
+            // Upper, Lower, Digit, Special (-_!*#$&), Length 8-15
+            return "Lib!2026" + Guid.NewGuid().ToString().Substring(0, 4);
         }
     }
 }

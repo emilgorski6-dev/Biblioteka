@@ -1,5 +1,7 @@
 @{
-    ViewData["Title"] = "Panel Admina";
+    // Sprawdzamy, czy zalogowany użytkownik ma rolę Administrator
+    bool isAdmin = User.IsInRole("Administrator");
+    ViewData["Title"] = isAdmin ? "Panel Admina" : "Panel Użytkownika";
 }
 
 <div class="admin-wrapper">
@@ -9,37 +11,48 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-                 Panel Admina
+                @* Zmiana napisu w zależności od roli *@
+                @(isAdmin ? "Panel Admina" : "Panel Użytkownika")
             </h3>
-    <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
-</div>
+            <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
+        </div>
 
         <nav class="sidebar-nav">
-            <a href="/Uzytkownicy/Index" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                Klienci / Wyszukiwanie
-            </a>
-            
-            <a href="/Uzytkownicy/Dodaj" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="8.5" cy="7" r="4"></circle>
-                    <line x1="20" y1="8" x2="20" y2="14"></line>
-                    <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-                Dodaj użytkownika
-            </a>
-            <a href="/Uprawnienia/Index" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-                </svg>
-                Lista uprawnień
-            </a>
+            @* Zakładki wyświetlane TYLKO dla Administratora *@
+            @if (isAdmin)
+            {
+                <a href="/Uzytkownicy/Index" class="sidebar-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Klienci / Wyszukiwanie
+                </a>
+                
+                <a href="/Uzytkownicy/Dodaj" class="sidebar-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Dodaj użytkownika
+                </a>
+
+                <a href="/Uprawnienia/Index" class="sidebar-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                    </svg>
+                    Lista uprawnień
+                </a>
+            }
+            else
+            {
+                @* Opcjonalnie: treść dla zwykłego użytkownika w nawigacji, jeśli pusta - nic nie wpisuj *@
+                <p style="padding: 15px; font-size: 0.8rem; color: #888;">Brak dodatkowych modułów.</p>
+            }
         </nav>
     </aside>
 
@@ -50,8 +63,17 @@
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
             </div>
-            <h2>Witaj w Panelu Administratora</h2>
-            <p>Wybierz zakładkę z menu po lewej stronie, aby rozpocząć pracę.</p>
+            @* Dynamiczne powitanie *@
+            <h2>@(isAdmin ? "Witaj w Panelu Administratora" : "Witaj w Panelu Użytkownika")</h2>
+            
+            @if (isAdmin)
+            {
+                <p>Wybierz zakładkę z menu po lewej stronie, aby rozpocząć pracę.</p>
+            }
+            else
+            {
+                <p>Użyj nawigacji na górze strony, aby przeglądać zasoby biblioteki.</p>
+            }
         </div>
     </main>
 </div>

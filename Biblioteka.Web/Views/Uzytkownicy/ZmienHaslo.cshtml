@@ -4,7 +4,7 @@
     <h2>Zmiana hasła użytkownika</h2>
     <p>Użytkownik: <strong>@Model.PelnaNazwa (@Model.Login)</strong></p>
 
-    <div class="details-container-card" style="max-width: 500px; padding: 20px;">
+    <div class="details-container-card">
         <form asp-action="ZmienHaslo" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
@@ -21,7 +21,7 @@
                     Zapisz hasło
                 </button>
                 @* Scenariusz alternatywny: Anuluj *@
-                <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="btn-cancel" style="background: #bdc3c7; color: black; text-decoration: none; padding: 10px 20px;">
+                <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="btn-cancel" style="background: #bdc3c7; color: black; text-decoration: none; padding: 10px 20px; border-radius: 7px; display: inline-block;">
                     Anuluj
                 </a>
             </div>

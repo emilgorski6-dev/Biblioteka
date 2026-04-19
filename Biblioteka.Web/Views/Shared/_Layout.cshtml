@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
         <nav class="navbar-custom">
@@ -19,92 +21,103 @@
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
                 }
 
-                @if (currentController == "Uzytkownicy" || currentController == "Uprawnienia")
-                {
-                    <a asp-controller="Home" asp-action="Index" style="color: #555;">Strona Główna</a>
-
-                    <a asp-controller="Uzytkownicy" asp-action="Dashboard" class="active-nav-link"
-                       style="display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-regular fa-user"></i> Konto
-                    </a>
-
-                    <a href="javascript:void(0)" onclick="openLogoutModal()"
-                       style="color: #666; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Wyloguj
-                    </a>
-                }
-                else
+                @* SPRAWDZAMY CZY UŻYTKOWNIK JEST ZALOGOWANY W OGÓLE *@
+                @if (User.Identity?.IsAuthenticated == true)
                 {
                     <a asp-controller="Home" asp-action="Index"
-                       class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona Główna</a>
-                    
-                    <a asp-controller="Account" asp-action="Login"
-                       style="color: #555; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie
-                    </a>
+                           class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona
+                        Główna</a>
 
-                    <a asp-controller="Account" asp-action="Register"
-                       style="color: #555; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-user-plus"></i> Rejestracja
-                    </a>
+                        @* PANEL ADMINA - te linki będą widoczne zawsze, gdy jesteś zalogowany *@
+                        <a asp-controller="Uzytkownicy" asp-action="Index" style="color: #555;">
+                            <i class="fa-solid fa-magnifying-glass"></i> Wyszukiwanie klientów
+                        </a>
+
+                        <a asp-controller="Uzytkownicy" asp-action="Dodaj" style="color: #555;">
+                            <i class="fa-solid fa-user-plus"></i> Rejestracja klientów
+                        </a>
+
+                        <a asp-controller="Uzytkownicy" asp-action="Dashboard"
+                               class="@(currentController == "Uzytkownicy" ? "active-nav-link" : "")"
+                               style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-regular fa-user"></i> Konto
+                        </a>
+
+                        <a href="javascript:void(0)" onclick="openLogoutModal()"
+                               style="color: #666; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i> Wyloguj
+                        </a>
+                    }
+    else
+                    {
+                        @* MENU DLA GOŚCIA *@
+                        <a asp-controller="Home" asp-action="Index"
+                               class="@(currentController == "Home" ? "active-nav-link" : "")" style="color: #555;">Strona
+                            Główna</a>
+        
+                            <a asp-controller="Account" asp-action="Login"
+                                   style="color: #555; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i> Logowanie
+                            </a>
+                        }
+                    </div>
+                </nav>
+            </header>
+
+            <main role="main">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success"
+                         style="padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin: 10px 20px; border-radius: 5px;">
+                        <i class="fa-solid fa-check-circle"></i> @TempData["SuccessMessage"]
+                    </div>
                 }
-            </div>
-        </nav>
-    </header>
+                @RenderBody()
+            </main>
 
-    <main role="main">
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success"
-                 style="padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin: 10px 20px; border-radius: 5px;">
-                <i class="fa-solid fa-check-circle"></i> @TempData["SuccessMessage"]
-            </div>
-        }
-        @RenderBody()
-    </main>
+            @* --- MODAL POTWIERDZENIA WYLOGOWANIA --- *@
+            <div id="logoutModal" class="perm-modal-overlay">
+                <div class="perm-modal-content logout-confirmation-modal">
+                    <div class="logout-icon-container">
+                        <div class="logout-icon-circle">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </div>
+                    </div>
 
-    @* --- MODAL POTWIERDZENIA WYLOGOWANIA --- *@
-    <div id="logoutModal" class="perm-modal-overlay">
-        <div class="perm-modal-content logout-confirmation-modal">
-            <div class="logout-icon-container">
-                <div class="logout-icon-circle">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <h3 class="logout-title">Wylogowanie</h3>
+                    <p class="logout-message">Czy na pewno chcesz się wylogować z systemu?</p>
+
+                    <div class="logout-actions">
+                        <button type="button" onclick="closeLogoutModal()" class="btn-logout-cancel">Anuluj</button>
+                
+                        <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+                            <button type="submit" class="btn-logout-confirm">Wyloguj</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <h3 class="logout-title">Wylogowanie</h3>
-            <p class="logout-message">Czy na pewno chcesz się wylogować z systemu?</p>
+            <script src="~/lib/jquery/dist/jquery.min.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-            <div class="logout-actions">
-                <button type="button" onclick="closeLogoutModal()" class="btn-logout-cancel">Anuluj</button>
-                
-                <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
-                    <button type="submit" class="btn-logout-confirm">Wyloguj</button>
-                </form>
-            </div>
-        </div>
-    </div>
+            <script>
+                function openLogoutModal() {
+                document.getElementById("logoutModal").style.display = "flex";
+                }
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+                function closeLogoutModal() {
+                document.getElementById("logoutModal").style.display = "none";
+                }
 
-    <script>
-        function openLogoutModal() {
-            document.getElementById("logoutModal").style.display = "flex";
-        }
-
-        function closeLogoutModal() {
-            document.getElementById("logoutModal").style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            let modal = document.getElementById("logoutModal");
-            if (event.target == modal) {
+                window.onclick = function (event) {
+                let modal = document.getElementById("logoutModal");
+                if (event.target == modal) {
                 closeLogoutModal();
-            }
-        };
-    </script>
+                }
+                };
+            </script>
 
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+            @await RenderSectionAsync("Scripts", required: false)
+        </body>
+
+    </html>

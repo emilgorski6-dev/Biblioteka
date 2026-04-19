@@ -1,5 +1,6 @@
 using System.Linq;
 using Biblioteka.Web.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Biblioteka.Web.Helpers
 {
@@ -15,4 +16,12 @@ namespace Biblioteka.Web.Helpers
             return (true, string.Empty);
         }
     }
+    public class LoginViewModel
+{
+    [Required(ErrorMessage = "Proszę podać login")] 
+    public string Login { get; set; }
+
+    [Required(ErrorMessage = "Hasło jest wymagane")] 
+    public string Password { get; set; }
+}
 }

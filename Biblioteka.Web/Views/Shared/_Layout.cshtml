@@ -29,13 +29,6 @@
                         Główna</a>
 
                         @* PANEL ADMINA - te linki będą widoczne zawsze, gdy jesteś zalogowany *@
-                        <a asp-controller="Uzytkownicy" asp-action="Index" style="color: #555;">
-                            <i class="fa-solid fa-magnifying-glass"></i> Wyszukiwanie klientów
-                        </a>
-
-                        <a asp-controller="Uzytkownicy" asp-action="Dodaj" style="color: #555;">
-                            <i class="fa-solid fa-user-plus"></i> Rejestracja klientów
-                        </a>
 
                         <a asp-controller="Uzytkownicy" asp-action="Dashboard"
                                class="@(currentController == "Uzytkownicy" ? "active-nav-link" : "")"

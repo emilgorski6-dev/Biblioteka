@@ -132,16 +132,32 @@ a {
 .btn-orange:hover {
     background-color: #D35400;
 }
-
-/* Link "Zaloguj się do panelu" */
 .link-panel {
     color: white;
-    font-weight: 500;
     font-size: 15px;
+    font-weight: 600; 
+    background-color: #E67E22; 
+    padding: 10px 24px; 
+    border-radius: 8px; 
+    border: none; 
+    display: inline-block; 
+    text-decoration: none; 
+    text-align: center;
+    cursor: pointer; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .link-panel:hover {
-    text-decoration: underline;
+    background-color: #d35400; 
+    transform: translateY(-1px); 
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.link-panel:active {
+    transform: translateY(1px); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* =========================================
@@ -2001,5 +2017,194 @@ a {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+}
+
+/* SEKCJA WYSZUKIWANIA  DODATKOWA !!!!!!!!!!*/
+    .search-filter-section {
+        margin-top: 40px;
+        margin-bottom: 3rem;
+        background-color: transparent;
+    }
+
+    .search-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+
+    .search-subtitle {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+
+    .chips-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
+
+    /* CHIPSY / PASTYLKI */
+    .filter-chip {
+        cursor: pointer;
+    }
+
+    .filter-chip input {
+        display: none;
+    }
+
+    .chip-label {
+        display: inline-block;
+        padding: 10px 22px;
+        border: 1px solid #e0e0e0;
+        border-radius: 50px;
+        background-color: white;
+        color: #444;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .filter-chip:hover .chip-label {
+        border-color: #E67E22;
+        color: #E67E22;
+    }
+
+    .filter-chip input:checked + .chip-label {
+        border-color: #E67E22;
+        background-color: #fffaf5;
+        color: #E67E22;
+        box-shadow: 0 2px 4px rgba(230, 126, 34, 0.1);
+    }
+
+    /* PRZYCISK WYSZUKAJ */
+    .btn-search-orange {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #E67E22;
+        color: white;
+        border: none;
+        padding: 11px 28px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        margin-left: 8px;
+    }
+
+    .btn-search-orange:hover {
+        background-color: #d35400;
+    }
+
+    .btn-search-orange:active {
+        transform: scale(0.98);
+    }
+
+    /* DOPASOWANIE LISTY (Z Twojego poprzedniego kodu) */
+    .permissions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0; /* Złączone karty */
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+
+    .permission-card {
+        display: grid;
+        grid-template-columns: 150px 1fr auto;
+        align-items: center;
+        padding: 1.2rem 1.5rem;
+        background: white;
+        border-bottom: 1px solid #eee;
+        transition: background 0.2s;
+    }
+
+    .permission-card:last-child {
+        border-bottom: none;
+    }
+
+    .permission-card:hover {
+        background: #fcfcfc;
+    }
+
+    .permission-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .btn-show-users {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        transition: all 0.2s;
+    }
+
+    .btn-show-users:hover {
+        background: #f5f5f5;
+        border-color: #ccc;
+        color: #333;
+    }
+
+    /* GŁÓWNY ALERT DLA BŁĘDNEGO HASŁA/LOGINU */
+.login-alert-danger {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #991b1b;
+    text-align: left;
+}
+
+/* Gwarancja, że alerty są widoczne i estetyczne */
+.login-alert-danger, .login-alert-lockout {
+    display: flex !important; /* Wymuszamy widoczność */
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-alert-danger {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #991b1b;
+}
+
+.login-alert-lockout {
+    background-color: #fefce8;
+    border: 1px solid #fef08a;
+    color: #854d0e;
+}
+
+.alert-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.alert-content p {
+    margin: 0;
+    line-height: 1.4;
 }
 

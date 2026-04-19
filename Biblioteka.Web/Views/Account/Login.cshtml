@@ -6,8 +6,6 @@
 
 <div class="login-body">
     <div class="login-wrapper">
-        
-        @* NAGŁÓWEK *@
         <div class="login-header">
             <div class="icon-box">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
@@ -15,24 +13,25 @@
             <h2>Zaloguj się</h2>
         </div>
 
-        @* KARTA LOGOWANIA *@
         <div class="login-card">
-            
-            @* Alert blokady konta - wyświetla się tylko gdy kontroler przekaże błąd blokady *@
-            @if (ViewData.ModelState.Values.Any(v => v.Errors.Any(e => e.ErrorMessage.Contains("zablokowane"))))
-            {
-                <div class="login-alert-lockout">
-                    <div class="alert-icon"><i class="fa-regular fa-clock"></i></div>
-                    <div class="alert-content">
-                        @Html.ValidationSummary(true, "")
-                    </div>
-                </div>
+            @* --- POPRAWIONA SEKCJA BŁĘDÓW: TYLKO BŁĘDY OGÓLNE --- *@
+            @{
+                // Pobieramy tylko błędy, które NIE są przypisane do konkretnych pól (klucz "")
+                var modelErrors = ViewData.ModelState[""]?.Errors;
             }
-            @* Standardowe błędy (np. niepoprawne hasło) *@
-            else if (!ViewData.ModelState.IsValid)
+
+            @if (modelErrors != null && modelErrors.Any())
             {
-                <div class="text-danger mb-3" style="font-size: 0.9em; text-align: center;">
-                    <div asp-validation-summary="ModelOnly"></div>
+                <div class="login-alert-danger" style="display: flex !important;">
+                    <div class="alert-icon">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <div class="alert-content">
+                        @foreach (var error in modelErrors)
+                        {
+                            <div class="error-text">@error.ErrorMessage</div>
+                        }
+                    </div>
                 </div>
             }
 
@@ -40,153 +39,153 @@
                 <div class="form-group">
                     <label asp-for="Login">Login</label>
                     <div class="input-with-icon">
-                        <i class="fa-regular fa-user icon"></i> @* Zmieniono na ikonę użytkownika *@
+                        <i class="fa-regular fa-user icon"></i>
                         <input type="text" placeholder="Twój login" asp-for="Login" />
                     </div>
-                    <span asp-validation-for="Login" class="text-danger" style="font-size: 0.8em;"></span>
+                    @* Tutaj będą się pojawiać napisy "Pole wymagalne" *@
+                    <span asp-validation-for="Login" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 5px;"></span>
                 </div>
 
                 <div class="form-group">
                     <label>
                         Hasło
-                        <button type="button" id="btnOpenForgotModal" class="forgot-password-link">Odzyskiwanie
-                            hasła</button>
-                        </label>
-                        <div class="input-with-icon" style="margin-top: 8px;">
-                            <i class="fa-solid fa-lock icon"></i>
-                            <input type="password" placeholder="Twoje hasło" asp-for="Password" />
-                        </div>
-                        <span asp-validation-for="Password" class="text-danger" style="font-size: 0.8em;"></span>
+                        <button type="button" id="btnOpenForgotModal" class="forgot-password-link">Odzyskiwanie hasła</button>
+                    </label>
+                    <div class="input-with-icon" style="margin-top: 8px;">
+                        <i class="fa-solid fa-lock icon"></i>
+                        <input type="password" placeholder="Twoje hasło" asp-for="Password" />
                     </div>
-
-                    <button type="submit" class="btn-login-submit">Zaloguj się</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    @* --- OKNO 1: MODAL RESETOWANIA --- *@
-    <div id="forgotPasswordModal" class="perm-modal-overlay">
-        <div class="perm-modal-content">
-            <button type="button" class="modal-close-x" id="btnCloseForgotX">&times;</button>
-        
-            <div class="perm-modal-header">
-                <div class="perm-icon-wrapper reset-icon-box">
-                    <i class="fa-solid fa-key"></i>
-                </div>
-                <div>
-                    <h3 class="perm-modal-title">Odzyskiwanie hasła</h3>
-                    <p class="perm-modal-subtitle">Podaj dane powiązane z Twoim kontem.</p>
-                </div>
-            </div>
-
-            <div id="modalErrorContainer"></div>
-
-            <form id="resetPasswordForm">
-                <div class="form-group">
-                    <label class="perm-form-label">Identyfikator użytkownika</label>
-                    <div class="input-with-icon">
-                        <i class="fa-regular fa-user icon"></i>
-                        <input type="text" id="resetUserId" placeholder="Wpisz 'admin' dla sukcesu" required />
-                    </div>
+                    @* Tutaj będą się pojawiać napisy "Pole wymagalne" *@
+                    <span asp-validation-for="Password" class="text-danger" style="font-size: 0.8rem; display: block; margin-top: 5px;"></span>
                 </div>
 
-                <div class="form-group" style="margin-top: 1.2rem;">
-                    <label class="perm-form-label">Adres e-mail</label>
-                    <div class="input-with-icon">
-                        <i class="fa-regular fa-envelope icon"></i>
-                        <input type="email" id="resetEmail" placeholder="jan.kowalski@example.com" required />
-                    </div>
-                </div>
-
-                <div class="perm-modal-actions" style="margin-top: 2rem;">
-                    <button type="button" id="btnCloseForgotModal" class="btn-perm-cancel">Anuluj</button>
-                    <button type="submit" class="btn-nadaj-uprawnienia">Wyślij nowe hasło</button>
-                </div>
+                <button type="submit" class="btn-login-submit">Zaloguj się</button>
             </form>
         </div>
     </div>
+</div>
 
-    @* --- OKNO 2: MODAL SUKCESU --- *@
-    <div id="successPasswordModal" class="perm-modal-overlay">
-        <div class="perm-modal-content success-modal-content">
-            <div class="success-icon-container">
-                <div class="success-icon-circle">
-                    <i class="fa-regular fa-envelope"></i>
-                </div>
+@* --- MODALE (BEZ ZMIAN) --- *@
+<div id="forgotPasswordModal" class="perm-modal-overlay">
+    <div class="perm-modal-content">
+        <button type="button" class="modal-close-x" id="btnCloseForgotX">&times;</button>
+        <div class="perm-modal-header">
+            <div class="perm-icon-wrapper reset-icon-box">
+                <i class="fa-solid fa-key"></i>
             </div>
-            <h2 class="success-title">Hasło zostało wysłane</h2>
-            <p class="success-message">Nowe hasło zostało wysłane na podany adres e-mail.</p>
-            <div class="success-actions">
-                <button type="button" id="btnConfirmSuccess" class="btn-success-close">Zamknij</button>
+            <div>
+                <h3 class="perm-modal-title">Odzyskiwanie hasła</h3>
+                <p class="perm-modal-subtitle">Podaj dane powiązane z Twoim kontem.</p>
             </div>
         </div>
+        <div id="modalErrorContainer"></div>
+        <form id="resetPasswordForm">
+            <div class="form-group">
+                <label class="perm-form-label">Identyfikator użytkownika</label>
+                <div class="input-with-icon">
+                    <i class="fa-regular fa-user icon"></i>
+                    <input type="text" id="resetUserId" placeholder="Wpisz 'admin' dla sukcesu" required />
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 1.2rem;">
+                <label class="perm-form-label">Adres e-mail</label>
+                <div class="input-with-icon">
+                    <i class="fa-regular fa-envelope icon"></i>
+                    <input type="email" id="resetEmail" placeholder="jan.kowalski@example.com" required />
+                </div>
+            </div>
+            <div class="perm-modal-actions" style="margin-top: 2rem;">
+                <button type="button" id="btnCloseForgotModal" class="btn-perm-cancel">Anuluj</button>
+                <button type="submit" class="btn-nadaj-uprawnienia">Wyślij nowe hasło</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    @* --- LOGIKA JAVASCRIPT --- *@
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const modalReset = document.getElementById("forgotPasswordModal");
-            const modalSuccess = document.getElementById("successPasswordModal");
-            const btnOpen = document.getElementById("btnOpenForgotModal");
-            const formReset = document.getElementById("resetPasswordForm");
-            const errorContainer = document.getElementById("modalErrorContainer");
+<div id="successPasswordModal" class="perm-modal-overlay">
+    <div class="perm-modal-content success-modal-content">
+        <div class="success-icon-container">
+            <div class="success-icon-circle">
+                <i class="fa-regular fa-envelope"></i>
+            </div>
+        </div>
+        <h2 class="success-title">Hasło zostało wysłane</h2>
+        <p class="success-message">Nowe hasło zostało wysłane na podany adres e-mail.</p>
+        <div class="success-actions">
+            <button type="button" id="btnConfirmSuccess" class="btn-success-close">Zamknij</button>
+        </div>
+    </div>
+</div>
 
-            if (btnOpen) {
-                btnOpen.onclick = function () {
-                    errorContainer.innerHTML = "";
-                    modalReset.style.display = "flex";
-                };
-            }
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modalReset = document.getElementById("forgotPasswordModal");
+        const modalSuccess = document.getElementById("successPasswordModal");
+        const btnOpen = document.getElementById("btnOpenForgotModal");
+        const formReset = document.getElementById("resetPasswordForm");
+        const errorContainer = document.getElementById("modalErrorContainer");
 
-            formReset.onsubmit = async function (e) {
-                e.preventDefault();
-                errorContainer.innerHTML = ""; // Clear previous errors
+        if (btnOpen) {
+            btnOpen.onclick = () => {
+                errorContainer.innerHTML = "";
+                modalReset.style.display = "flex";
+            };
+        }
 
-                const login = document.getElementById("resetUserId").value;
-                const email = document.getElementById("resetEmail").value;
+        formReset.onsubmit = async function (e) {
+            e.preventDefault();
+            errorContainer.innerHTML = "";
+            const login = document.getElementById("resetUserId").value;
+            const email = document.getElementById("resetEmail").value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
 
-                // Pobranie tokena anty-forgery (wymagane przez [ValidateAntiForgeryToken])
-                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-                try {
-                    const response = await fetch('/Account/ForgotPassword', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify({ Login: login, Email: email })
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        // Kroki 7-9 scenariusza
-                        modalReset.style.display = "none";
-                        modalSuccess.style.display = "flex";
-                        formReset.reset();
-                    } else {
-                        // Scenariusz wyjątku: Błędne dane
-                        errorContainer.innerHTML = `
-                            <div class="alert-modal-error">
-                                <i class="fa-solid fa-circle-exclamation"></i>
-                                <span>${result.message}</span>
-                            </div>`;
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    errorContainer.innerHTML = "<span>Wystąpił błąd połączenia.</span>";
+            try {
+                const response = await fetch('/Account/ForgotPassword', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                    body: JSON.stringify({ Login: login, Email: email })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    modalReset.style.display = "none";
+                    modalSuccess.style.display = "flex";
+                    formReset.reset();
+                } else {
+                    errorContainer.innerHTML = `<div class="alert-modal-error"><i class="fa-solid fa-circle-exclamation"></i><span>${result.message}</span></div>`;
                 }
-            };
+            } catch (error) {
+                errorContainer.innerHTML = "<span>Wystąpił błąd połączenia.</span>";
+            }
+        };
 
-            document.getElementById("btnConfirmSuccess").onclick = () => modalSuccess.style.display = "none";
-            document.getElementById("btnCloseForgotModal").onclick = () => modalReset.style.display = "none";
-            document.getElementById("btnCloseForgotX").onclick = () => modalReset.style.display = "none";
+        document.getElementById("btnConfirmSuccess").onclick = () => modalSuccess.style.display = "none";
+        document.getElementById("btnCloseForgotModal").onclick = () => modalReset.style.display = "none";
+        document.getElementById("btnCloseForgotX").onclick = () => modalReset.style.display = "none";
 
-            window.onclick = function (event) {
-                if (event.target == modalReset) modalReset.style.display = "none";
-                if (event.target == modalSuccess) modalSuccess.style.display = "none";
-            };
-        });
-    </script>
+        window.onclick = (event) => {
+            if (event.target == modalReset) modalReset.style.display = "none";
+            if (event.target == modalSuccess) modalSuccess.style.display = "none";
+        };
+    });
+</script>
+
+<style>
+    .login-alert-danger {
+        background-color: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        color: #991b1b;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .error-text {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .alert-icon { font-size: 1.1rem; }
+    .text-danger { color: #e11d48; font-weight: 500; }
+</style>

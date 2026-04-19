@@ -351,6 +351,61 @@ namespace Biblioteka.Web.Controllers
                 message = $"Zmieniono uprawnienia użytkownikowi ({user.Imie} {user.Nazwisko})"
             });
         }
+        // GET: /Uzytkownicy/ZmienHaslo?id=5
+        [HttpGet]
+        public IActionResult ZmienHaslo(int id)
+        {
+            var user = _context.Uzytkownicy.Find(id);
+            if (user == null) return NotFound();
+
+            var model = new ZmienHasloViewModel
+            {
+                Id = user.Id,
+                Login = user.Login,
+                PelnaNazwa = $"{user.Imie} {user.Nazwisko}"
+            };
+            return View(model);
+        }
+
+        // POST: /Uzytkownicy/ZmienHaslo
+        [HttpPost]
+            [ValidateAntiForgeryToken]
+            public IActionResult ZmienHaslo(ZmienHasloViewModel model)
+            {
+                if (!ModelState.IsValid) return View(model);
+
+                var user = _context.Uzytkownicy.Find(model.Id);
+                if (user == null) return NotFound();
+
+                // Przekazujemy 'user', aby walidator sprawdził obecne hasło (user.HasloHash)
+                var validationResult = PasswordValidator.Waliduj(model.NoweHaslo!, user, _context);
+                
+                if (!validationResult.IsValid)
+                {
+                    ModelState.AddModelError("NoweHaslo", validationResult.Message);
+                    return View(model);
+                }
+
+                // 1. Archiwizacja starego hasła do historii (tylko jeśli nie było nullem)
+                if (!string.IsNullOrEmpty(user.HasloHash))
+                {
+                    _context.HistoriaHasel.Add(new HistoriaHasla
+                    {
+                        UzytkownikId = user.Id,
+                        HasloHash = user.HasloHash, // zapisujemy tekst jawny
+                        DataNadania = DateTime.Now,
+                        Uzytkownik = user
+                    });
+                }
+
+                // 2. Zapis nowego hasła (tekst jawny)
+                user.HasloHash = model.NoweHaslo; 
+                
+                _context.SaveChanges();
+
+                TempData["SuccessMessage"] = $"Zmieniono hasło użytkownikowi {user.Imie} {user.Nazwisko}";
+                return RedirectToAction("Szczegoly", new { login = user.Login });
+            }
     }
 
 }

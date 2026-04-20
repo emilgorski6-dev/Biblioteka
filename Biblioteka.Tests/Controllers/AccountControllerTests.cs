@@ -3,6 +3,7 @@ using Biblioteka.Web.Controllers;
 using Biblioteka.Web.Models;
 using Biblioteka.Web.Data;
 using Biblioteka.Web.Data.Entities;
+using Biblioteka.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,6 @@ namespace Biblioteka.Tests.Controllers
         private void MockAuthentication(AccountController controller)
         {
             var authServiceMock = new Mock<IAuthenticationService>();
-
             var urlHelperMock = new Mock<IUrlHelper>();
 
             var services = new ServiceCollection();
@@ -72,9 +72,13 @@ namespace Biblioteka.Tests.Controllers
         [Fact]
         public async Task TC_L1_Logowanie_PoprawneDane_Sukces()
         {
+            // 1. ARRANGE
             using var context = GetContext();
             SeedUser(context);
-            var controller = new AccountController(context);
+
+            // Tworzymy mocka serwisu e-mail, bo kontroler go teraz wymaga
+            var emailServiceMock = new Mock<IEmailService>();
+            var controller = new AccountController(context, emailServiceMock.Object);
 
             MockAuthentication(controller);
 
@@ -84,16 +88,22 @@ namespace Biblioteka.Tests.Controllers
                 Password = TestData.Password
             };
 
+            // 2. ACT
             var result = await controller.Login(model);
 
+            // 3. ASSERT
             Assert.IsType<RedirectToActionResult>(result);
         }
 
         [Fact]
         public async Task TC_L2_Logowanie_NiepoprawnyLogin_Blad()
         {
+            // 1. ARRANGE
             using var context = GetContext();
-            var controller = new AccountController(context);
+
+            // Tworzymy mocka serwisu e-mail również tutaj
+            var emailServiceMock = new Mock<IEmailService>();
+            var controller = new AccountController(context, emailServiceMock.Object);
 
             var model = new LoginViewModel
             {
@@ -101,8 +111,10 @@ namespace Biblioteka.Tests.Controllers
                 Password = TestData.Password
             };
 
+            // 2. ACT
             var result = await controller.Login(model) as ViewResult;
 
+            // 3. ASSERT
             Assert.NotNull(result);
             Assert.False(controller.ModelState.IsValid);
             var errorMessage = controller.ModelState[""]?.Errors[0].ErrorMessage;

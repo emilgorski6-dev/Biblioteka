@@ -11,6 +11,9 @@ builder.Services.AddDbContext<BibliotekaDbContext>(options =>
 // REJESTRACJA SERWISÓW (Ważne dla działania kontrolerów)
 builder.Services.AddScoped<PasswordService>();
 
+// EMAIL SENDER
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // WBUDOWANA OBSŁUGA LOGOWANIA/WYLOGOWANIA
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

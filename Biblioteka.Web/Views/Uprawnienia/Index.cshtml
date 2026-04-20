@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Uprawnienia";
+    // Pobieramy dane przekazane z kontrolera
+    var filteredUsers = ViewBag.FilteredUsers as List<Biblioteka.Web.Data.Entities.Uzytkownik>;
+    var selectedRoles = ViewBag.SelectedRoles as string[] ?? new string[0];
 }
 
 <div class="admin-wrapper">
@@ -9,7 +12,8 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <h3 class="sidebar-title">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
                 Panel Admina
@@ -36,7 +40,9 @@
             </a>
             <a href="/Uprawnienia/Index" class="sidebar-link active">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4">
+                    </path>
                 </svg>
                 Lista uprawnień
             </a>
@@ -52,10 +58,8 @@
                 <p class="page-description">Przeglądaj role i użytkowników, którzy je posiadają.</p>
             </div>
 
-           
-
-            @* --- LISTA UPRAWNIEŃ --- *@
-            <div class="permissions-list">
+            @* --- LISTA UPRAWNIEŃ (KARTY) --- *@
+            <div class="permissions-list" style="margin-bottom: 3rem;">
                 @foreach (var item in Model)
                 {
                     <div class="permission-card">
@@ -70,7 +74,8 @@
 
                         <div class="permission-action">
                             <a href="/Uprawnienia/Szczegoly?id=@item.Id" class="btn-show-users">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
@@ -81,37 +86,103 @@
                 }
             </div>
 
-             @* --- SEKCJA WYSZUKIWANIA !!!!!!!!! DODATKOWE !!!!!!!!!!--- *@
-            <div class="search-filter-section">
+            @* --- SEKCJA WYSZUKIWANIA WEDŁUG UPRAWNIEŃ --- *@
+            <div class="search-filter-section"
+                 style="background: #fdfdfd; padding: 2rem; border-radius: 12px; border: 1px solid #eee;">
                 <h2 class="search-title">Wyszukiwanie użytkowników według uprawnień</h2>
-                <p class="search-subtitle">Zaznacz uprawnienia, aby znaleźć użytkowników, którzy je posiadają.</p>
+                <p class="search-subtitle">Zaznacz uprawnienia, aby znaleźć użytkowników, którzy posiadają
+                    <strong>wszystkie</strong> wybrane role.</p>
 
-                <form action="/Uprawnienia/Index" method="get" class="filter-form">
-                    <div class="chips-container">
-                        @foreach (var item in Model)
-                        {
-                            <label class="filter-chip">
-                                <input type="checkbox" name="selectedRoles" value="@item.Nazwa">
-                                <span class="chip-label">@item.Nazwa</span>
-                            </label>
-                        }
+                    <form action="/Uprawnienia/Index" method="get" class="filter-form">
+                        <div class="chips-container"
+                             style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            @foreach (var item in Model)
+                            {
+                                <label class="filter-chip">
+                                    @* Sprawdzamy czy rola była zaznaczona *@
+                                    <input type="checkbox" name="selectedRoles" value="@item.Nazwa"
+                                    @(selectedRoles.Contains(item.Nazwa) ? "checked" : "")>
+                                    <span class="chip-label">@item.Nazwa</span>
+                                </label>
+                            }
                         
-                        <label class="filter-chip">
-                            <input type="checkbox" name="selectedRoles" value="Klient">
-                            <span class="chip-label">Klient</span>
-                        </label>
+                            @* Przycisk wyszukiwania *@
+                            <button type="submit" class="btn-search-orange" style="margin-left: 10px; padding: 10px 25px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                Wyszukaj
+                            </button>
+                        </div>
+                    </form>
 
-                        <button type="submit" class="btn-search-orange">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            Wyszukaj
-                        </button>
+                    @* --- WYNIKI WYSZUKIWANIA --- *@
+                    @if (selectedRoles.Any())
+                    {
+                        <div class="search-results-table" style="margin-top: 2.5rem;">
+                            <h3
+                                style="font-size: 1.1rem; margin-bottom: 1rem; color: #333; border-bottom: 2px solid #E67E22; display: inline-block; padding-bottom: 5px;">
+                                Wyniki wyszukiwania (@(filteredUsers?.Count ?? 0))
+                            </h3>
+
+                            @if (filteredUsers != null && filteredUsers.Any())
+                            {
+                                <div style="overflow-x: auto;">
+                                    <table class="custom-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                        <thead>
+                                            <tr style="background: #f8f9fa; border-bottom: 2px solid #eee;">
+                                                <th style="padding: 12px; text-align: left;">Użytkownik</th>
+                                                <th style="padding: 12px; text-align: left;">Login</th>
+                                                <th style="padding: 12px; text-align: left;">Wszystkie przypisane role</th>
+                                                <th style="padding: 12px; text-align: center;">Akcja</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var user in filteredUsers)
+                                            {
+                                                <tr style="border-bottom: 1px solid #eee;">
+                                                    <td style="padding: 12px;"><strong>@user.Imie @user.Nazwisko</strong></td>
+                                                    <td style="padding: 12px;"><code
+                                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">@user.Login</code>
+                                                    </td>
+                                                    <td style="padding: 12px;">
+                                                        @foreach (var r in user.Uprawnienia)
+                                                        {
+                                                            <span
+                                                                style="font-size: 0.75rem; background: #E67E2222; color: #E67E22; padding: 2px 8px; border-radius: 10px; margin-right: 4px; border: 1px solid #E67E2244;">
+                                                                @r.Nazwa
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center;">
+                                                        <a href="/Uzytkownicy/Szczegoly?login=@user.Login"
+                                                               style="color: #E67E22; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Profil
+                                                            &rarr;</a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                        else
+                                {
+                                    <div
+                                        style="padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; color: #666;">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                             stroke-width="1" style="margin-bottom: 10px; opacity: 0.5;">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                                        </svg>
+                                        <p>Brak użytkowników posiadających jednocześnie wszystkie wybrane uprawnienia.</p>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
-                </form>
-            </div>
             
+                </div>
+            </main>
         </div>
-    </main>
-</div>

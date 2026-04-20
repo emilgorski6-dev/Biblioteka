@@ -76,34 +76,71 @@ namespace Biblioteka.Tests.Controllers
         [Fact]
         public void TC_U8_CzescioweOdebranieUprawnien_Sukces()
         {
+            // 1. ARRANGE
             using var context = GetContext();
-            var uzytkownik = StworzTestowegoUzytkownika("bozydarjp");
-            var u1 = new Uprawnienie { Id = 1, Nazwa = "Administrator" };
-            var u2 = new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz" };
 
-            context.Uprawnienia.AddRange(u1, u2);
-            uzytkownik.Uprawnienia = new List<Uprawnienie> { u1, u2 };
+            var uzytkownik = StworzTestowegoUzytkownika("bozydarjp");
+            uzytkownik.Imie = "Bożydar";
+            uzytkownik.Nazwisko = "Matejko";
+
+            var rolaAdmin = new Uprawnienie { Id = 1, Nazwa = "Administrator", Opis = "Opis" };
+            var rolaKlient = new Uprawnienie { Id = 2, Nazwa = "Klient", Opis = "Opis" };
+
+            context.Uprawnienia.AddRange(rolaAdmin, rolaKlient);
             context.Uzytkownicy.Add(uzytkownik);
+
+            uzytkownik.Uprawnienia.Add(rolaAdmin);
+            uzytkownik.Uprawnienia.Add(rolaKlient);
             context.SaveChanges();
 
             var controller = new UzytkownicyController(context);
+
             controller.TempData = new TempDataDictionary(new DefaultHttpContext(), new LocalFakeTempDataProvider());
 
             var model = new ZapiszUprawnieniaModel
             {
-                Login = uzytkownik.Login,
-                WybraneRole = new List<string> { "Bibliotekarz" }
+                Login = "bozydarjp",
+                WybraneRole = new List<string> { "Klient" }
             };
-            controller.ZapiszUprawnienia(model);
 
-            var userZazy = context.Uzytkownicy
+            var result = controller.ZapiszUprawnienia(model) as OkObjectResult;
+
+            var userPoZmianie = context.Uzytkownicy
                 .Include(u => u.Uprawnienia)
-                .First(u => u.Id == uzytkownik.Id);
+                .First(u => u.Login == "bozydarjp");
 
-            Assert.Single(userZazy.Uprawnienia);
-            Assert.Equal("Bibliotekarz", userZazy.Uprawnienia.First().Nazwa);
+            Assert.Contains(userPoZmianie.Uprawnienia, u => u.Nazwa == "Klient");
+            Assert.DoesNotContain(userPoZmianie.Uprawnienia, u => u.Nazwa == "Administrator");
+
+            Assert.NotNull(result);
+            var data = result.Value;
+            var message = data?.GetType().GetProperty("message")?.GetValue(data, null) as string;
+
+            // Sprawdzenie czy komunikat jest dokładnie taki jak w tabeli
+            Assert.Equal("Zmieniono uprawnienia użytkownikowi (Bożydar Matejko)", message);
         }
+        [Fact]
+        public void TC_U12_BrakUzytkownikowZUprawnieniem_Sukces()
+        {
+            // 1. ARRANGE (Przygotowanie)
+            using var context = GetContext();
 
+            var rolaLib = new Uprawnienie { Id = 2, Nazwa = "Bibliotekarz", Opis = "Test" };
+            context.Uprawnienia.Add(rolaLib);
+            context.SaveChanges();
+
+            var controller = new UprawnieniaController(context);
+
+            var result = controller.Szczegoly(2) as ViewResult;
+
+            Assert.NotNull(result);
+            var model = result.Model as UprawnienieSzczegolyViewModel;
+            Assert.NotNull(model);
+
+            Assert.Empty(model.Uzytkownicy);
+
+            Assert.Equal("Brak użytkowników o wybranym uprawnieniu", result.ViewData["Message"]);
+        }
         public class LocalFakeTempDataProvider : ITempDataProvider
         {
             public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();

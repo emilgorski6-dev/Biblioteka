@@ -4,18 +4,21 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Biblioteka.Web.Data;
 using Biblioteka.Web.Models;
+using Biblioteka.Web.Services;
 using Biblioteka.Web.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Biblioteka.Web.Controllers
 {
-    public class AccountController : Controller
+        public class AccountController : Controller
     {
         private readonly BibliotekaDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public AccountController(BibliotekaDbContext context)
+        public AccountController(BibliotekaDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -129,50 +132,34 @@ namespace Biblioteka.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new { success = false, message = "Invalid data provided." });
-            }
+            if (!ModelState.IsValid) return Json(new { success = false, message = "Błędne dane." });
 
-            // Step 5: Verify identifier and email
             var user = await _context.Uzytkownicy
-                .Include(u => u.HistoriaHasel)
                 .FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
 
-            if (user == null || user.CzyZapomniany)
-            {
-                // Exception scenario: Invalid credentials
-                return Json(new { success = false, message = "Niepoprawny identyfikator użytkownika lub adres email." });
-            }
+            if (user == null)
+                return Json(new { success = false, message = "Niepoprawny identyfikator lub e-mail." });
 
-            // Step 6: Generate new password that fulfills L-03 requirements
-            string newPassword = GenerateValidPassword();
+            string newPassword = "Lib!" + Guid.NewGuid().ToString().Substring(0, 5);
+            user.HasloHash = newPassword; // Plain text zgodnie z Twoją decyzją
 
-            // Update user password
-            user.HasloHash = newPassword;
-
-            // Add to History (as required by your architecture)
-            var historyEntry = new HistoriaHasla
-            {
+            // Zapis do historii
+            _context.HistoriaHasel.Add(new HistoriaHasla {
                 UzytkownikId = user.Id,
                 HasloHash = newPassword,
                 DataNadania = DateTime.Now,
                 Uzytkownik = user
-            };
+            });
 
-            _context.HistoriaHasel.Add(historyEntry);
             await _context.SaveChangesAsync();
 
-            // In a real system: EmailService.Send(user.Email, newPassword);
-
-            return Json(new { success = true });
-        }
-
-        private string GenerateValidPassword()
-        {
-            // Guaranteed to pass your PasswordValidator: 
-            // Upper, Lower, Digit, Special (-_!*#$&), Length 8-15
-            return "Lib!2026" + Guid.NewGuid().ToString().Substring(0, 4);
+            // WYSYŁKA GOOGLE
+            try {
+                await _emailService.SendEmailAsync(user.Email, "Odzyskiwanie hasła", $"Twoje nowe hasło to: {newPassword}");
+                return Json(new { success = true });
+            } catch (Exception ex) {
+                return Json(new { success = false, message = "Błąd serwera Google: " + ex.Message });
+            }
         }
     }
     

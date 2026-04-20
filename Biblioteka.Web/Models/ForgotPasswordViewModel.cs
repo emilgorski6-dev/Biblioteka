@@ -5,10 +5,10 @@ namespace Biblioteka.Web.Models
     public class ForgotPasswordViewModel
     {
         [Required]
-        public string Login { get; set; }
+        public string Login { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 }

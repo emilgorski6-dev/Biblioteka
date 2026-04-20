@@ -18,10 +18,10 @@ namespace Biblioteka.Web.Helpers
     }
     public class LoginViewModel
 {
-    [Required(ErrorMessage = "Proszę podać login")] 
-    public string Login { get; set; }
+    [Required(ErrorMessage = "Proszę podać login")]
+    public string Login { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Hasło jest wymagane")] 
-    public string Password { get; set; }
+    [Required(ErrorMessage = "Hasło jest wymagane")]
+    public string Password { get; set; } = string.Empty;
 }
 }

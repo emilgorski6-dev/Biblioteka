@@ -88,6 +88,9 @@ namespace Biblioteka.Web.Data.Entities
         [Column("liczba_blednych_logowan")]
         public int LiczbaBlednychLogowan { get; set; } = 0;
 
+        [Column("czy_haslo_tymczasowe")]
+        public bool CzyHasloTymczasowe { get; set; } = false;
+
         // --- RODO ---
         [Column("czy_zapomniany")]
         public bool CzyZapomniany { get; set; } = false;

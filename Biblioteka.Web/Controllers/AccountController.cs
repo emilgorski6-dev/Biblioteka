@@ -7,6 +7,8 @@ using Biblioteka.Web.Models;
 using Biblioteka.Web.Services;
 using Biblioteka.Web.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Biblioteka.Web.Helpers;
+using LoginViewModel = Biblioteka.Web.Models.LoginViewModel;
 
 namespace Biblioteka.Web.Controllers
 {
@@ -14,11 +16,13 @@ namespace Biblioteka.Web.Controllers
     {
         private readonly BibliotekaDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly PasswordService _passwordService;
 
-        public AccountController(BibliotekaDbContext context, IEmailService emailService)
+        public AccountController(BibliotekaDbContext context, IEmailService emailService, PasswordService passwordService)
         {
             _context = context;
             _emailService = emailService;
+            _passwordService = passwordService;
         }
 
         [HttpGet]
@@ -66,6 +70,11 @@ namespace Biblioteka.Web.Controllers
                 uzytkownik.CzyZablokowany = false;
                 uzytkownik.BlokadaDo = null;
                 await _context.SaveChangesAsync();
+
+                if (uzytkownik.CzyHasloTymczasowe)
+                {
+                    return RedirectToAction("ForcePasswordChange", new { login = uzytkownik.Login });
+                }
 
                 // Tworzenie tożsamości użytkownika (Claims)
                 var claims = new List<Claim>
@@ -140,8 +149,9 @@ namespace Biblioteka.Web.Controllers
             if (user == null)
                 return Json(new { success = false, message = "Niepoprawny identyfikator lub e-mail." });
 
-            string newPassword = "Lib!" + Guid.NewGuid().ToString().Substring(0, 5);
+            string newPassword = _passwordService.GenerujHasloAutomatyczne();
             user.HasloHash = newPassword; // Plain text zgodnie z Twoją decyzją
+            user.CzyHasloTymczasowe = true;
 
             // Zapis do historii
             _context.HistoriaHasel.Add(new HistoriaHasla {
@@ -160,6 +170,56 @@ namespace Biblioteka.Web.Controllers
             } catch (Exception ex) {
                 return Json(new { success = false, message = "Błąd serwera Google: " + ex.Message });
             }
+        }
+        [HttpGet]
+        public IActionResult ForcePasswordChange(string login)
+        {
+            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
+            if (user == null || !user.CzyHasloTymczasowe) return RedirectToAction("Login");
+
+            var model = new WymuszenieZmianyHaslaViewModel { Id = user.Id, Login = user.Login };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForcePasswordChange(WymuszenieZmianyHaslaViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _context.Uzytkownicy.FindAsync(model.Id);
+            if (user == null) return NotFound();
+
+            // Walidacja: Czy nowe hasło nie jest takie samo jak tymczasowe
+            if (model.NoweHaslo == user.HasloHash)
+            {
+                ModelState.AddModelError("NoweHaslo", "Nowe hasło nie może być identyczne z hasłem tymczasowym.");
+                return View(model);
+            }
+
+            // Walidacja siły i historii (korzystamy z klasy PasswordValidator)
+            var val = PasswordValidator.Waliduj(model.NoweHaslo!, user, _context);
+            if (!val.IsValid)
+            {
+                ModelState.AddModelError("NoweHaslo", val.Message);
+                return View(model);
+            }
+
+            // Zmiana hasła i zdjęcie flagi
+            user.HasloHash = model.NoweHaslo!;
+            user.CzyHasloTymczasowe = false;
+
+            _context.HistoriaHasel.Add(new HistoriaHasla {
+                UzytkownikId = user.Id,
+                HasloHash = model.NoweHaslo!,
+                DataNadania = DateTime.Now,
+                Uzytkownik = user // Dodajemy obiekt użytkownika, aby uniknąć błędu CS9035
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Hasło zostało zmienione. Możesz się zalogować.";
+            return RedirectToAction("Login");
         }
     }
     

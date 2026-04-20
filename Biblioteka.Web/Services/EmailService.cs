@@ -30,7 +30,7 @@ namespace Biblioteka.Web.Services
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(senderEmail, "Biblioteka System"),
+                    From = new MailAddress(senderEmail!, "Biblioteka System"),
                     Subject = subject,
                     Body = message,
                     IsBodyHtml = true

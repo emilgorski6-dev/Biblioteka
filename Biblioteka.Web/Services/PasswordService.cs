@@ -34,7 +34,7 @@ namespace Biblioteka.Web.Services
             const string wielkie = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
             const string male = "abcdefghijkmnopqrstuvwxyz";
             const string cyfry = "123456789";
-            const string specjalne = "!@#$%^&*-_";
+            const string specjalne = "-_!*#$&";
 
             var random = new Random();
             var password = new StringBuilder();

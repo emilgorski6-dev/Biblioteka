@@ -158,7 +158,8 @@ namespace Biblioteka.Web.Controllers
                 UzytkownikId = user.Id,
                 HasloHash = newPassword,
                 DataNadania = DateTime.Now,
-                Uzytkownik = user
+                Uzytkownik = user,
+                CzyTymczasowe = true
             });
 
             await _context.SaveChangesAsync();
@@ -213,7 +214,8 @@ namespace Biblioteka.Web.Controllers
                 UzytkownikId = user.Id,
                 HasloHash = model.NoweHaslo!,
                 DataNadania = DateTime.Now,
-                Uzytkownik = user // Dodajemy obiekt użytkownika, aby uniknąć błędu CS9035
+                Uzytkownik = user, // Dodajemy obiekt użytkownika, aby uniknąć błędu CS9035
+                CzyTymczasowe = false
             });
 
             await _context.SaveChangesAsync();

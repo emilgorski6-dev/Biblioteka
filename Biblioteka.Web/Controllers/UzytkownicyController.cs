@@ -394,7 +394,8 @@ namespace Biblioteka.Web.Controllers
                         UzytkownikId = user.Id,
                         HasloHash = user.HasloHash, // zapisujemy tekst jawny
                         DataNadania = DateTime.Now,
-                        Uzytkownik = user
+                        Uzytkownik = user,
+                        CzyTymczasowe = user.CzyHasloTymczasowe
                     });
                 }
 

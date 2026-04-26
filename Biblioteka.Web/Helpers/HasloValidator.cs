@@ -32,7 +32,7 @@ namespace Biblioteka.Web.Helpers
 
             // --- 3. Sprawdzenie z HISTORIĄ (3 ostatnie) ---
             var historia = context.HistoriaHasel
-                .Where(h => h.UzytkownikId == user.Id)
+                .Where(h => h.UzytkownikId == user.Id && !h.CzyTymczasowe)
                 .OrderByDescending(h => h.DataNadania)
                 .Take(3)
                 .Select(h => h.HasloHash)

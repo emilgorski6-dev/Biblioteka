@@ -17,6 +17,10 @@ namespace Biblioteka.Web.Data.Entities
         [Column("data_nadania")]
         public DateTime DataNadania { get; set; }
 
+        // NOWA KOLUMNA
+        [Column("czy_tymczasowe")]
+        public bool CzyTymczasowe { get; set; }
+
         [ForeignKey("UzytkownikId")]
         public required virtual Uzytkownik Uzytkownik { get; set; }
     }

@@ -30,6 +30,16 @@ namespace Biblioteka.Web.Helpers
                 return (false, "Nowe hasło nie może być takie samo jak obecne.");
             }
 
+            // Sprawdzenie czy hasło BYŁO KIEDYKOLWIEK hasłem tymczasowym ---
+            // Sprawdzamy całą tabelę HistoriaHasel dla tego użytkownika
+            bool czyByloTymczasowe = context.HistoriaHasel
+                .Any(h => h.UzytkownikId == user.Id && h.CzyTymczasowe && h.HasloHash == password);
+
+            if (czyByloTymczasowe)
+            {
+                return (false, "Nie możesz ustawić hasła, które było wcześniej Twoim hasłem tymczasowym.");
+            }
+
             // --- 3. Sprawdzenie z HISTORIĄ (3 ostatnie) ---
             var historia = context.HistoriaHasel
                 .Where(h => h.UzytkownikId == user.Id && !h.CzyTymczasowe)

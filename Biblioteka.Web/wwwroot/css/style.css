@@ -608,22 +608,35 @@ a {
 }
 
 .btn-cancel {
-    color: #555;
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    /* Dodatki dla przycisku reset */
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    font-family: inherit;
-    transition: color 0.2s;
+    
+    height: 42px !important;      
+    width: 120px !important;      
+    padding: 0 !important;       
+    margin: 0 !important;
+    box-sizing: border-box !important;
 
+    /* 2. Idealne centrowanie tekstu (metoda line-height) */
+    display: inline-block !important;
+    text-align: center !important;
+    line-height: 42px !important; 
+    vertical-align: middle !important;
+
+   
+    background-color: #bdc3c7 !important; 
+    color: #000000 !important;         
+    border: none !important;
+    border-radius: 8px !important;
+    
+    /* 4. Typografia */
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
 }
 
 .btn-cancel:hover {
-    color: #222;
+    background-color: #95a5a6 !important;
+    text-decoration: none !important;
 }
 
 .btn-submit {
@@ -2263,4 +2276,786 @@ a {
 .welcome-text {
     font-size: 1.1rem;
     color: #666;
+}
+
+
+
+
+
+
+
+
+
+/* To sprawi, że ikona będzie po lewej stronie tekstu */
+.sidebar-header {
+    display: flex !important;
+    flex-direction: row !important; /* Układ poziomy */
+    align-items: center !important;  /* Wyśrodkowanie ikony względem tekstu */
+    gap: 12px;                      /* Odstęp między ikoną a tekstem */
+    padding: 25px;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+/* Kontener samej ikony */
+.sidebar-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Ikona nie będzie się zmniejszać */
+}
+
+/* Kontener tekstów (Tytuł i podtytuł) */
+.sidebar-titles {
+    display: flex;
+    flex-direction: column; /* Napisy zostają jeden pod drugim */
+    text-align: left;
+}
+
+.sidebar-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #E67E22;
+    line-height: 1.1;
+}
+
+.sidebar-subtitle {
+    margin: 2px 0 0 0;
+    font-size: 0.7rem;
+    color: #999;
+    white-space: nowrap; /* Zapobiega łamaniu się napisu pod ikonę */
+}
+
+/* --- KATALOG KSIĄŻEK --- */
+.catalog-container {
+    padding: 40px;
+    background-color: #fcfcfc;
+    width: 100%;
+}
+
+.catalog-main-title {
+    font-family: 'Playfair Display', serif; /* Możesz użyć Georgia lub Times jeśli nie masz tej czcionki */
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+}
+
+.catalog-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1.05rem;
+}
+
+/* Wyszukiwarka */
+.search-section {
+    margin-bottom: 40px;
+}
+
+.search-bar-wrapper {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.search-input-large {
+    flex: 1;
+    border: none;
+    padding: 15px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.btn-filter {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-filter:hover {
+    background: #eee;
+}
+
+/* Tabela Katalogu */
+.books-card-table {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-header-row {
+    display: flex;
+    background: #fafafa;
+    padding: 20px 30px;
+    border-bottom: 1px solid #eee;
+    font-weight: 700;
+    color: #444;
+    font-size: 0.95rem;
+}
+
+.book-item-row {
+    display: flex;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+}
+
+.book-item-row:hover {
+    background-color: #fffaf5;
+}
+
+/* Kolumny */
+.col-main { flex: 3; display: flex; align-items: center; }
+.col-info { flex: 1.5; }
+.col-isbn { flex: 1.5; }
+.col-status { flex: 1.2; }
+.col-link { flex: 0.8; text-align: right; }
+
+/* Detale książki */
+.book-icon-bg {
+    width: 45px;
+    height: 45px;
+    background: #edf6fd;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.book-text-info { display: flex; flex-direction: column; }
+.book-title { font-weight: 700; color: #222; font-size: 1.05rem; }
+.book-author { color: #888; font-size: 0.9rem; }
+
+.book-cat { display: block; font-weight: 600; color: #444; }
+.book-year { color: #999; font-size: 0.85rem; }
+
+.isbn-pill {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #777;
+    font-family: monospace;
+}
+
+/* Badge Statusu */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.status-badge.available { background-color: #e6fffa; color: #1fb18d; }
+.status-badge.rented { background-color: #fff5f5; color: #e53e3e; }
+.status-badge.reserved { background-color: #fffaf0; color: #dd6b20; }
+
+.details-orange-link {
+    color: #E67E22;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.details-orange-link:hover {
+    text-decoration: underline;
+}
+
+/* Aktywne menu (dla sidebaru z poprzednich kroków) */
+.sidebar-link.active {
+    background-color: #fff5eb;
+    color: #E67E22;
+}
+
+/* --- GŁÓWNY UKŁAD PANELU --- */
+.management-panel-layout {
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+    background-color: #fff;
+}
+
+/* Sidebar bez zmian, tylko dodajemy tło dla spójności */
+.sidebar {
+    width: 280px;
+    border-right: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    background-color: #fff;
+}
+
+/* SEKCJA TREŚCI - Teraz zaczyna się od góry (start) */
+.management-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Zmienione z center na flex-start */
+    align-items: center;
+    padding: 60px 40px; /* Zwiększony padding góra/dół dla oddechu */
+    background-color: #fff;
+}
+
+/* KONTENER KATALOGU */
+.catalog-container {
+    width: 100%;
+    max-width: 1200px; /* Zmniejszyłem lekko dla lepszej czytelności jak na screenie */
+}
+
+.catalog-main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.catalog-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+/* WYSZUKIWARKA */
+.search-bar-wrapper {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    display: flex;
+    padding: 5px 15px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.search-input-large {
+    flex: 1;
+    border: none;
+    padding: 15px;
+    font-size: 1rem;
+    outline: none;
+    color: #4a5568;
+}
+
+.btn-filter {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #4a5568;
+    cursor: pointer;
+    margin: 8px 0;
+}
+
+/* TABELA */
+.books-card-table {
+    background: white;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+
+.table-header-row {
+    display: flex;
+    padding: 20px 30px;
+    border-bottom: 1px solid #edf2f7;
+    background-color: #fff;
+    color: #2d3748;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.book-item-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 30px;
+    border-bottom: 1px solid #f7fafc;
+    transition: 0.2s;
+}
+
+.book-item-row:last-child { border-bottom: none; }
+.book-item-row:hover { background-color: #fcfcfc; }
+
+/* KOLUMNY */
+.col-main { flex: 3.5; display: flex; align-items: center; }
+.col-info { flex: 2; }
+.col-isbn { flex: 2; }
+.col-status { flex: 1.5; }
+.col-link { flex: 1; text-align: right; }
+
+.book-icon-bg {
+    width: 40px;
+    height: 40px;
+    background: #ebf8ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+}
+
+.book-text-info { display: flex; flex-direction: column; }
+.book-title { font-weight: 700; color: #2d3748; font-size: 1rem; }
+.book-author { color: #a0aec0; font-size: 0.85rem; }
+
+.book-cat { display: block; font-weight: 600; color: #4a5568; font-size: 0.9rem; }
+.book-year { color: #cbd5e0; font-size: 0.8rem; }
+
+.isbn-pill {
+    background: #f7fafc;
+    border: 1px solid #edf2f7;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #718096;
+    font-family: monospace;
+}
+
+/* BADGE STATUSU */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.status-badge.available { background: #e6fffa; color: #319795; }
+.status-badge.rented { background: #fff5f5; color: #e53e3e; }
+.status-badge.reserved { background: #fffaf0; color: #dd6b20; }
+
+.details-orange-link {
+    color: #E67E22;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+/* --- OGÓLNY PANEL --- */
+.management-panel-layout { display: flex; width: 100%; min-height: calc(100vh - 70px); background: #fff; }
+.management-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #fff; }
+.catalog-container { width: 100%; max-width: 1200px; }
+
+/* --- FILTRY --- */
+.filter-top-bar { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+.btn-top-filter { background: #fef9e7; border: 1px solid #f9ebbe; color: #856404; padding: 10px 22px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+.filter-card { background: white; border: 1px solid #f0f0f0; border-radius: 15px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-bottom: 40px; }
+.filter-instruction { font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 20px; }
+
+.filter-category { border: 1px solid #f0f0f0; border-radius: 10px; margin-bottom: 10px; }
+.category-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.category-name { font-weight: 700; color: #1a1a1a; font-size: 0.95rem; }
+
+/* --- NAPRAWA CHECKBOXÓW --- */
+.custom-checkbox { position: relative; width: 20px; height: 20px; display: block; margin: 0; }
+.custom-checkbox input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+.checkmark { position: absolute; top: 0; left: 0; height: 20px; width: 20px; background-color: #fff; border: 2px solid #ddd; border-radius: 4px; }
+.custom-checkbox input:checked ~ .checkmark { background-color: #007bff; border-color: #007bff; }
+.checkmark:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.custom-checkbox input:checked ~ .checkmark:after { display: block; }
+
+/* --- SIATKA OPCJI --- */
+.category-content { display: none; padding: 20px; border-top: 1px solid #f8f8f8; }
+.filter-category.active .category-content { display: grid; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+.option-item { border: 1px solid #eee; padding: 12px 15px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #444; }
+.option-item input { margin: 0; width: 16px; height: 16px; }
+
+/* --- STOPKA FILTRÓW (PROPORCJE 1:2) --- */
+.filter-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
+
+.btn-clear { 
+    flex: 0 0 120px; 
+    background: #f1f3f5; border: none; color: #495057; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; 
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+/* --- RESET I WYRÓWNANIE PRZYCISKÓW W STOPCE --- */
+.filter-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Wyrównanie w osi pionowej */
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-clear, 
+.btn-apply {
+    /* Wspólna wysokość dla obu */
+    height: 45px; 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    /* Resetujemy ewentualne narzuty z innych klas */
+    line-height: 1;
+    margin: 0;
+    padding: 0 20px; 
+    box-sizing: border-box;
+}
+
+/* --- RÓŻNICE --- */
+
+.btn-clear {
+    flex: 0 0 130px; /* Stała szerokość dla Wyczyść */
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.btn-apply {
+    flex: 0 0 220px; /* Stała szerokość dla Zastosuj (szerszy, ale nie wyższy) */
+    background-color: #d35400;
+    color: white;
+}
+
+/* Efekty najechania */
+.btn-clear:hover { background-color: #e9ecef; }
+.btn-apply:hover { background-color: #e67e22; transform: translateY(-1px); }
+/* --- TABELA --- */
+.books-card-table { background: white; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+.table-header-row { display: flex; padding: 20px 30px; border-bottom: 1px solid #f5f5f5; font-weight: 700; font-size: 0.85rem; color: #444; }
+.book-item-row { display: flex; align-items: center; padding: 18px 30px; border-bottom: 1px solid #f9f9f9; }
+.col-main { flex: 3.5; display: flex; align-items: center; }
+.col-info, .col-isbn { flex: 2; }
+.col-status { flex: 1.5; }
+.col-link { flex: 1; text-align: right; }
+.details-orange-link { color: #E67E22; text-decoration: none; font-weight: 800; font-size: 1.1rem; }
+.status-badge { padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+.status-badge.available { background: #e6fffa; color: #1fb18d; }
+
+/* --- SZCZEGÓŁY KSIĄŻKI --- */
+.details-container {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 20px;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    transition: 0.2s;
+}
+
+.back-link:hover { color: #000; }
+
+.book-details-card {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.details-header {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.details-icon-box {
+    width: 80px;
+    height: 80px;
+    background: #f0f7ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.details-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 5px 0;
+    color: #1a1a1a;
+}
+
+.details-author {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+/* Siatka danych */
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 40px;
+    margin-bottom: 35px;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.grid-item label, .details-description label {
+    font-size: 0.85rem;
+    color: #999;
+    font-weight: 600;
+}
+
+.grid-item span {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.details-description p {
+    margin-top: 8px;
+    color: #444;
+    line-height: 1.6;
+}
+
+/* Stopka karty */
+.details-footer {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #f5f5f5;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-register-action {
+    background-color: #d35400;
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s ease;
+}
+
+.btn-register-action:hover {
+    background-color: #e67e22;
+    transform: translateY(-2px);
+}
+
+/* --- FORMULARZ REJESTRACJI --- */
+.form-container {
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 20px;
+}
+
+.form-card {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.form-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: #fef9e7;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.form-main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.form-subtitle {
+    color: #888;
+    margin: 5px 0 0 0;
+    font-size: 0.95rem;
+}
+
+/* Układ pól */
+.form-row {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #444;
+}
+
+.input-group input, 
+.input-group textarea {
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: 0.2s;
+}
+
+.input-group input:focus, 
+.input-group textarea:focus {
+    border-color: #cbd5e0;
+    background-color: #fdfdfd;
+}
+
+.input-group input::placeholder, 
+.input-group textarea::placeholder {
+    color: #cbd5e0;
+}
+
+/* Stopka formularza - PRZYCISKI */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #f8f8f8;
+}
+
+.btn-cancel {
+    height: 48px;
+    padding: 0 30px;
+    background-color: #f1f3f5;
+    border: none;
+    border-radius: 10px;
+    color: #495057;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-submit-orange {
+    height: 48px;
+    padding: 0 35px;
+    background-color: #d35400;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+.btn-submit-orange:hover {
+    background-color: #e67e22;
+}
+
+/* GŁÓWNY KONTENER NAGŁÓWKA */
+.sidebar-header {
+    display: grid !important;
+    /* Tworzymy dwie kolumny: ikona (auto) i tekst (1fr) */
+    grid-template-columns: auto 1fr;
+    /* Tworzymy dwa rzędy dla tytułu i podtytułu */
+    grid-template-areas: 
+        "icon title"
+        "icon subtitle";
+    column-gap: 15px;
+    row-gap: 2px;
+    align-items: center;
+    padding: 20px 10px;
+    margin-bottom: 20px;
+}
+
+/* POZYCJONOWANIE IKONY */
+.sidebar-icon-box {
+    grid-area: icon;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* TYTUŁ (Panel administratora / Panel bibliotekarza) */
+.sidebar-title {
+    grid-area: title;
+    color: #E67E22 !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+    /* Zapobiega uciekaniu tekstu w jedną linię z podtytułem */
+    display: block !important; 
+}
+
+/* PODTYTUŁ (Zarządzanie systemem...) */
+.sidebar-subtitle {
+    grid-area: subtitle;
+    color: #888 !important;
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+    display: block !important;
+    /* Ograniczamy szerokość, żeby tekst ładnie się zawijał */
+    max-width: 180px; 
+}
+
+/* RESET DLA FLEXA (na wypadek gdyby siedział w HTML) */
+.sidebar-titles-group {
+    display: contents !important; /* Sprawia, że div-kontener "znika", a dzieci słuchają Grida powyżej */
 }

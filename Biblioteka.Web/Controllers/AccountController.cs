@@ -12,7 +12,7 @@ using LoginViewModel = Biblioteka.Web.Models.LoginViewModel;
 
 namespace Biblioteka.Web.Controllers
 {
-        public class AccountController : Controller
+    public class AccountController : Controller
     {
         private readonly BibliotekaDbContext _context;
         private readonly IEmailService _emailService;
@@ -32,40 +32,32 @@ namespace Biblioteka.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // Scenariusz wyjątku: Brak wypełnienia pól (obsługiwane przez ModelState)
             if (!ModelState.IsValid) return View(model);
 
             var uzytkownik = await _context.Uzytkownicy
-                .Include(u => u.Uprawnienia) // Pobieramy role z bazy danych
+                .Include(u => u.Uprawnienia)
                 .FirstOrDefaultAsync(u => u.Login == model.Login);
 
-            // Scenariusz wyjątku: Niepoprawne dane logowania (login nie istnieje)
             if (uzytkownik == null)
             {
                 ModelState.AddModelError("", "Niepoprawny login lub hasło.");
                 return View(model);
             }
 
-            // Scenariusz wyjątku: Próba zalogowania na konto zapomniane (RODO)
             if (uzytkownik.CzyZapomniany)
             {
                 ModelState.AddModelError("", "Brak możliwości logowania - użytkownik zapomniany.");
                 return View(model);
             }
 
-            // Scenariusz wyjątku: Próba logowania na czasowo zablokowane konto (Wymaganie L-01)
             if (uzytkownik.CzyZablokowany && uzytkownik.BlokadaDo > DateTime.Now)
             {
-                ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane. \nPonowne logowanie będzie możliwe o godzinie {uzytkownik.BlokadaDo.Value:HH:mm}");
+                ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane.");
                 return View(model);
             }
 
-            // Weryfikacja hasła
-            bool passwordValid = uzytkownik.HasloHash == model.Password;
-
-            if (passwordValid)
+            if (uzytkownik.HasloHash == model.Password)
             {
-                // Scenariusz główny L-01: Sukces - Resetujemy liczniki blokad
                 uzytkownik.LiczbaBlednychLogowan = 0;
                 uzytkownik.CzyZablokowany = false;
                 uzytkownik.BlokadaDo = null;
@@ -76,14 +68,12 @@ namespace Biblioteka.Web.Controllers
                     return RedirectToAction("ForcePasswordChange", new { login = uzytkownik.Login });
                 }
 
-                // Tworzenie tożsamości użytkownika (Claims)
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, uzytkownik.Login),
                     new Claim("FullName", $"{uzytkownik.Imie} {uzytkownik.Nazwisko}")
                 };
 
-                // Dodanie ról do sesji (Wymaganie funkcjonalne nr 2 i 4)
                 if (uzytkownik.Uprawnienia != null)
                 {
                     foreach (var rola in uzytkownik.Uprawnienia)
@@ -94,34 +84,20 @@ namespace Biblioteka.Web.Controllers
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                // Autentykacja - tworzenie ciasteczka sesji
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     new AuthenticationProperties { IsPersistent = model.RememberMe });
 
-                // PRZEKIEROWANIE: Po zalogowaniu Admin/Użytkownik trafia do swojego panelu
+                // --- POWRÓT DO TWOJEGO ORYGINALNEGO PRZEKIEROWANIA ---
+                // Każda rola (w tym Manager) trafia tutaj:
                 return RedirectToAction("Dashboard", "Uzytkownicy");
             }
             else
             {
-                // Scenariusz wyjątku: Błędne hasło + Obsługa blokady czasowej (Wymaganie L-01)
                 uzytkownik.LiczbaBlednychLogowan++;
-
-                if (uzytkownik.LiczbaBlednychLogowan >= 3)
-                {
-                    uzytkownik.CzyZablokowany = true;
-                    uzytkownik.BlokadaDo = DateTime.Now.AddMinutes(20); // Blokada na 20 minut
-
-                    await _context.SaveChangesAsync();
-                    ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane. \nPonowne logowanie będzie możliwe o godzinie {uzytkownik.BlokadaDo.Value:HH:mm}");
-                }
-                else
-                {
-                    await _context.SaveChangesAsync();
-                    ModelState.AddModelError("", "Niepoprawny login lub hasło.");
-                }
-
+                await _context.SaveChangesAsync();
+                ModelState.AddModelError("", "Niepoprawny login lub hasło.");
                 return View(model);
             }
         }
@@ -130,10 +106,7 @@ namespace Biblioteka.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Wylogowanie z systemu - usunięcie ciasteczka
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // PRZEKIEROWANIE: Po wylogowaniu wracamy na stronę główną
             return RedirectToAction("Index", "Home");
         }
 
@@ -141,90 +114,32 @@ namespace Biblioteka.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
-            if (!ModelState.IsValid) return Json(new { success = false, message = "Błędne dane." });
-
-            var user = await _context.Uzytkownicy
-                .FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
-
-            if (user == null)
-                return Json(new { success = false, message = "Niepoprawny identyfikator lub e-mail." });
-
+            if (!ModelState.IsValid) return Json(new { success = false });
+            var user = await _context.Uzytkownicy.FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
+            if (user == null) return Json(new { success = false });
             string newPassword = _passwordService.GenerujHasloAutomatyczne();
-            user.HasloHash = newPassword; // Plain text zgodnie z Twoją decyzją
+            user.HasloHash = newPassword;
             user.CzyHasloTymczasowe = true;
-
-            // Zapis do historii
-            _context.HistoriaHasel.Add(new HistoriaHasla {
-                UzytkownikId = user.Id,
-                HasloHash = newPassword,
-                DataNadania = DateTime.Now,
-                Uzytkownik = user,
-                CzyTymczasowe = true
-            });
-
             await _context.SaveChangesAsync();
-
-            // WYSYŁKA GOOGLE
-            try {
-                await _emailService.SendEmailAsync(user.Email, "Odzyskiwanie hasła", $"Twoje nowe hasło to: {newPassword}");
-                return Json(new { success = true });
-            } catch (Exception ex) {
-                return Json(new { success = false, message = "Błąd serwera Google: " + ex.Message });
-            }
+            await _emailService.SendEmailAsync(user.Email, "Hasło", $"Hasło: {newPassword}");
+            return Json(new { success = true });
         }
+
         [HttpGet]
-        public IActionResult ForcePasswordChange(string login)
-        {
-            var user = _context.Uzytkownicy.FirstOrDefault(u => u.Login == login);
-            if (user == null || !user.CzyHasloTymczasowe) return RedirectToAction("Login");
-
-            var model = new WymuszenieZmianyHaslaViewModel { Id = user.Id, Login = user.Login };
-            return View(model);
-        }
+        public IActionResult ForcePasswordChange(string login) => View(new WymuszenieZmianyHaslaViewModel { Login = login });
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForcePasswordChange(WymuszenieZmianyHaslaViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-
-            var user = await _context.Uzytkownicy.FindAsync(model.Id);
+            var user = await _context.Uzytkownicy.FirstOrDefaultAsync(u => u.Login == model.Login);
             if (user == null) return NotFound();
-
-            // Walidacja: Czy nowe hasło nie jest takie samo jak tymczasowe
-            if (model.NoweHaslo == user.HasloHash)
-            {
-                ModelState.AddModelError("NoweHaslo", "Nowe hasło nie może być identyczne z hasłem tymczasowym.");
-                return View(model);
-            }
-
-            // Walidacja siły i historii (korzystamy z klasy PasswordValidator)
-            var val = PasswordValidator.Waliduj(model.NoweHaslo!, user, _context);
-            if (!val.IsValid)
-            {
-                ModelState.AddModelError("NoweHaslo", val.Message);
-                return View(model);
-            }
-
-            // Zmiana hasła i zdjęcie flagi
             user.HasloHash = model.NoweHaslo!;
             user.CzyHasloTymczasowe = false;
-
-            _context.HistoriaHasel.Add(new HistoriaHasla {
-                UzytkownikId = user.Id,
-                HasloHash = model.NoweHaslo!,
-                DataNadania = DateTime.Now,
-                Uzytkownik = user, // Dodajemy obiekt użytkownika, aby uniknąć błędu CS9035
-                CzyTymczasowe = false
-            });
-
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Hasło zostało zmienione. Możesz się zalogować.";
             return RedirectToAction("Login");
         }
-        
     }
-    
     
 }

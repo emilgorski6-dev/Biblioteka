@@ -3,6 +3,7 @@ using System;
 using Biblioteka.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Biblioteka.Web.Migrations
 {
     [DbContext(typeof(BibliotekaDbContext))]
-    partial class BibliotekaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430175851_DodajTabeleKsiazki")]
+    partial class DodajTabeleKsiazki
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
@@ -60,29 +63,25 @@ namespace Biblioteka.Web.Migrations
                     b.Property<decimal>("Cena")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DataRejestracji")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Gatunek")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("LiczbaStron")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("liczba_stron");
 
                     b.Property<int>("LiczbaSztuk")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("liczba_sztuk");
 
                     b.Property<string>("Opis")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("OsobaRejestrujaca")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("RokWydania")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("rok_wydania");
 
                     b.Property<string>("Status")
                         .IsRequired()

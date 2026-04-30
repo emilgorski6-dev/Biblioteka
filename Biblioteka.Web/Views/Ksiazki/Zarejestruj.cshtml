@@ -1,9 +1,13 @@
+@model Biblioteka.Web.Models.KsiazkaListaViewModel
 @using System.Security.Claims
 @{
     bool isAdmin = User.IsInRole("Administrator");
     bool isLibrarian = User.IsInRole("Bibliotekarz");
     string sidebarTitle = isAdmin ? "Panel administratora" : "Panel bibliotekarza";
-    ViewData["Title"] = "Zarejestruj książkę";
+    
+    // Zmieniamy nagłówek w zależności od trybu (Scenariusz Główny vs Alternatywny)
+    bool isFromList = Model.Id > 0;
+    ViewData["Title"] = isFromList ? "Rejestracja egzemplarzy" : "Zarejestruj nową książkę";
 }
 
 @* --- WYŁĄCZNIE PŁYWAJĄCY TOAST --- *@
@@ -12,7 +16,8 @@
     <div id="successToast" class="toast-container-top-right">
         <div class="toast-alert">
             <div class="toast-check-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
+                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
@@ -28,7 +33,7 @@
             if (toast) {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateX(30px)';
-                setTimeout(function() { toast.remove(); }, 500);
+                setTimeout(function () { toast.remove(); }, 500);
             }
         }, 5000);
     </script>
@@ -38,9 +43,17 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    @if (isAdmin) { <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path> }
-                    else { <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path> }
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    @if (isAdmin)
+                    {
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    }
+                    else
+                    {
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    }
                 </svg>
             </div>
             <div class="sidebar-titles">
@@ -49,64 +62,125 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                Lista książek
-            </a>
-            <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
-                Zarejestruj książkę
-            </a>
+            <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link">Lista książek</a>
+            <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link active">Zarejestruj książkę</a>
         </nav>
     </aside>
 
     <main class="management-content">
         <div class="form-container">
-            <a asp-controller="Ksiazki" asp-action="Lista" class="back-link" style="margin-bottom: 20px; display: inline-flex; align-items: center; text-decoration: none; color: #666;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <a asp-controller="Ksiazki" asp-action="Lista" class="back-link"
+                   style="margin-bottom: 20px; display: inline-flex; align-items: center; text-decoration: none; color: #666;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     style="margin-right: 5px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
                 Powrót
             </a>
 
             <div class="form-card">
                 <header class="form-header">
                     <div class="form-icon-circle">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
                     </div>
                     <div class="form-title-group">
-                        <h1 class="form-main-title">Zarejestruj nową książkę</h1>
-                        <p class="form-subtitle">Wypełnij formularz, aby dodać książkę do katalogu biblioteki.</p>
+                        <h1 class="form-main-title">@(isFromList ? "Rejestracja z listy" : "Zarejestruj nową książkę")
+                        </h1>
+                        <p class="form-subtitle">@(isFromList ? "Wypełniasz dane dla kolejnych egzemplarzy istniejącej pozycji." : "Wypełnij formularz, aby dodać książkę do katalogu biblioteki.")</p>
                     </div>
                 </header>
 
                 <form class="book-registration-form" method="post" asp-action="Zarejestruj">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 15px;"></div>
+                    
+                    @* Jeśli rejestrujemy z listy, musimy przesłać ID z powrotem *@
+                    <input type="hidden" asp-for="Id" />
+
                     <div class="form-row grid-2">
                         <div class="input-group">
                             <label>Autorzy książki</label>
-                            <input type="text" name="Autor" placeholder="np. Andrzej Sapkowski" required>
+                            @* Scenariusz Alternatywny: System automatycznie wypełnia dane. Blokujemy edycję jeśli
+                            isFromList *@
+                            <input asp-for="Autor" placeholder="np. Andrzej Sapkowski" readonly="@isFromList"
+                                   style="@(isFromList ? "background-color: #f9f9f9; color: #777;" : "")">
+                            <span asp-validation-for="Autor" class="text-danger" style="font-size: 12px;"></span>
                         </div>
                         <div class="input-group">
                             <label>Tytuł książki</label>
-                            <input type="text" name="Tytul" placeholder="np. Wiedźmin" required>
+                            <input asp-for="Tytul" placeholder="np. Wiedźmin" readonly="@isFromList"
+                                   style="@(isFromList ? "background-color: #f9f9f9; color: #777;" : "")">
+                            <span asp-validation-for="Tytul" class="text-danger" style="font-size: 12px;"></span>
                         </div>
                     </div>
+
                     <div class="form-row grid-1">
                         <div class="input-group">
                             <label>Gatunek</label>
-                            <input type="text" name="Gatunek" placeholder="Fantastyka" required>
+                            @if (isFromList)
+                            {
+                                @* Select nie obsługuje dobrze readonly, więc przy rejestracji z listy pokazujemy
+                            zablokowany input i ukryty select dla danych *@
+                                <input type="text" value="@Model.Gatunek" readonly
+                                       style="background-color: #f9f9f9; color: #777; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                <input type="hidden" asp-for="Gatunek" />
+                            }
+                            else
+                            {
+                                <select asp-for="Gatunek" asp-items="ViewBag.Gatunki"
+                                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="">-- Wybierz gatunek --</option>
+                                </select>
+                            }
+                            <span asp-validation-for="Gatunek" class="text-danger" style="font-size: 12px;"></span>
                         </div>
                     </div>
+
                     <div class="form-row grid-3">
-                        <div class="input-group"><label>Liczba stron</label><input type="number" name="LiczbaStron" required></div>
-                        <div class="input-group"><label>Rok wydania</label><input type="number" name="RokWydania" required></div>
-                        <div class="input-group"><label>Cena (PLN)</label><input type="text" name="Cena" required></div>
+                        <div class="input-group">
+                            <label>Liczba stron</label>
+                            <input asp-for="LiczbaStron" type="number">
+                            <span asp-validation-for="LiczbaStron" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="input-group">
+                            <label>Rok wydania</label>
+                            <input asp-for="RokWydania" type="number">
+                            <span asp-validation-for="RokWydania" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="input-group">
+                            <label>Cena (PLN)</label>
+                            <input asp-for="Cena">
+                            <span asp-validation-for="Cena" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
                     </div>
+
                     <div class="form-row grid-2">
-                        <div class="input-group"><label>Wydawnictwo</label><input type="text" name="Wydawnictwo" required></div>
-                        <div class="input-group"><label>Sztuki</label><input type="number" name="Ilosc" required></div>
+                        <div class="input-group">
+                            <label>Wydawnictwo</label>
+                            <input asp-for="Wydawnictwo">
+                            <span asp-validation-for="Wydawnictwo" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="input-group">
+                            <label>Liczba rejestrowanych sztuk</label>
+                            @* Poprawiona nazwa labela zgodnie ze specyfikacją *@
+                            <input asp-for="LiczbaSztuk" type="number">
+                            <span asp-validation-for="LiczbaSztuk" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
                     </div>
+
                     <div class="form-row grid-1">
-                        <div class="input-group"><label>Opis</label><textarea rows="4" name="Opis" placeholder="Krótki opis książki..."></textarea></div>
+                        <div class="input-group">
+                            <label>Opis książki</label>
+                            <textarea asp-for="Opis" rows="4" placeholder="Krótki opis książki..."></textarea>
+                            <span asp-validation-for="Opis" class="text-danger" style="font-size: 12px;"></span>
+                        </div>
                     </div>
+
                     <div class="form-footer">
                         <button type="button" class="btn-cancel" onclick="history.back()">Anuluj</button>
                         <button type="submit" class="btn-submit-orange">Dodaj książkę</button>
@@ -116,3 +190,24 @@
         </div>
     </main>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Nadpisujemy domyślne komunikaty jQuery Validation
+        if ($.validator) {
+            $.extend($.validator.messages, {
+                number: "Pole może zawierać tylko cyfry",
+                digits: "Pole może zawierać tylko cyfry"
+            });
+        }
+
+        // Naprawa walidacji liczb z przecinkiem (opcjonalnie, jeśli Cena wywala błąd na kropce/przecinku)
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:[\s\.,]\d{3})+)(?:[\.,]\d+)?$/.test(value);
+        }
+    </script>
+}

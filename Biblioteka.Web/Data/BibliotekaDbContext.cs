@@ -15,7 +15,7 @@ namespace Biblioteka.Web.Data
         public DbSet<Uzytkownik> Uzytkownicy { get; set; }
         public DbSet<Uprawnienie> Uprawnienia { get; set; }
         public DbSet<HistoriaHasla> HistoriaHasel { get; set; }
-
+        public DbSet<Ksiazka> Ksiazki { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

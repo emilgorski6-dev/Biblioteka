@@ -1,36 +1,52 @@
+@model IEnumerable<Biblioteka.Web.Models.KsiazkaListaViewModel>
 @{
     ViewData["Title"] = "Lista rejestracji książek";
-    string sidebarTitle = "Panel managera";
+    bool isAdmin = User.IsInRole("Administrator");
+    string sidebarTitle = isAdmin ? "Panel administratora" : "Panel managera";
+    
+    bool hasAnyBooks = Model != null && Model.Any();
+    bool isFilterActive = ViewBag.IsFilterActive ?? false;
 }
 
 <div class="management-panel-layout">
-    @* --- PASEK BOCZNY (Tylko jedna zakładka) --- *@
+    @* --- SIDEBAR --- *@
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-icon-box">
-                @* Ikona teczki dla Managera *@
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
             </div>
             <div class="sidebar-titles">
                 <h3 class="sidebar-title">@sidebarTitle</h3>
-                <p class="sidebar-subtitle">Zarządzanie systemem biblioteka Nova</p>
+                <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
             </div>
         </div>
 
         <nav class="sidebar-nav">
-            @* Zostawiamy tylko to: *@
-            <a href="/Manager/Rejestracje" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <a asp-controller="Manager" asp-action="Rejestracje" class="sidebar-link active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="3" y1="9" x2="21" y2="9"></line>
                     <line x1="9" y1="21" x2="9" y2="9"></line>
                 </svg>
                 Lista rejestracji książek
             </a>
+            <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                Katalog książek
+            </a>
         </nav>
     </aside>
 
-    @* --- TREŚĆ Z LISTĄ --- *@
+    @* --- TREŚĆ GŁÓWNA --- *@
     <main class="management-content">
         <div class="catalog-container">
             <header class="catalog-header">
@@ -38,32 +54,181 @@
                 <p class="catalog-subtitle">Przegląd wszystkich rejestracji książek dokonanych przez bibliotekarzy.</p>
             </header>
 
-            <div class="registration-table-wrapper">
-                <div class="reg-table-header">
-                    <div class="col-reg-main">Tytuł i Autor</div>
-                    <div class="col-reg-info">Gatunek</div>
-                    <div class="col-reg-info">Wydawnictwo</div>
-                    <div class="col-reg-date">Data rejestracji</div>
-                    <div class="col-reg-user">Zarejestrował(a)</div>
-                </div>
+            @* --- SYSTEM FILTROWANIA (ZRK-02 Scenariusz Alternatywny) --- *@
+            <div class="filter-section-wrapper" style="margin-bottom: 25px;">
+                <button type="button" class="btn-top-filter" id="toggleFilterBtn"
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Filtruj
+                </button>
 
-                <div class="reg-table-body">
-                    @* Tutaj trafi Twoja pętla @foreach z danymi z bazy *@
-                    <div class="reg-item-row">
-                        <div class="col-reg-main">
-                            <div class="reg-book-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-                            <div class="reg-text">
-                                <span class="reg-title">Przykładowa Książka</span>
-                                <span class="reg-author">Jan Kowalski</span>
+                <div id="filterPanel" class="filter-expandable-panel"
+                     style="display: @(isFilterActive || !ViewData.ModelState.IsValid ? "block" : "none"); background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 15px; padding: 20px;">
+                    <form method="get" asp-action="Rejestracje">
+                        @* Błąd zakresu dat (Scenariusz wyjątku) *@
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("DataRange"))
+                        {
+                            <div class="alert-error-box"
+                                 style="background: #fff5f5; color: #c53030; padding: 10px; border-radius: 4px; border: 1px solid #feb2b2; margin-bottom: 15px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" style="margin-right: 8px;">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                @Html.ValidationMessage("DataRange")
                             </div>
-                        </div>
-                        <div class="col-reg-info">Literatura</div>
-                        <div class="col-reg-info">PWN</div>
-                        <div class="col-reg-date">2026-04-30</div>
-                        <div class="col-reg-user">Anna Bibliotekarz</div>
+                        }
+
+                        <div class="filter-grid"
+                             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div class="filter-col">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Tytuł /
+                                    Wydawnictwo</label>
+                                    <input type="text" name="tytul" value="@Context.Request.Query["tytul"]"
+                                           placeholder="Szukaj tytułu..."
+                                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;">
+                                    <input type="text" name="wydawnictwo" value="@Context.Request.Query["wydawnictwo"]"
+                                           placeholder="Szukaj wydawnictwa..."
+                                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                </div>
+                                  <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                                <div class="filter-col">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Autor (Wielokrotny wybór)</label>
+                                        <select name="autorzy" multiple class="form-select-multiple" style="width: 100%; height: 80px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+                                        @foreach (var a in ViewBag.DostepniAutorzy as List<string> ?? new List<string>())
+                                            {
+                                                <option value="@a">@a</option>
+                                            }
+                                    </select>
+                                </div>                      
+                                <div class="filter-col">
+                                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Gatunek
+                                        (Wielokrotny wybór)</label>
+                                        <select name="gatunki" multiple class="form-select-multiple"
+                                                style="width: 100%; height: 80px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+                                            @foreach (var g in ViewBag.DostepneGatunki as List<string> ?? new List<string>())
+                                            {
+                                                <option value="@g">@g</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="filter-col">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Osoba
+                                            rejestrująca</label>
+                                            <select name="pracownicy" multiple class="form-select-multiple"
+                                                    style="width: 100%; height: 80px; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+                                                @foreach (var p in ViewBag.Pracownicy as List<string> ?? new List<string>())
+                                                {
+                                                    <option value="@p">@p</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="filter-col">
+                                            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Zakres dat</label>
+                                            <input type="date" name="dataOd" value="@Context.Request.Query["dataOd"]"
+                                                   class="form-control"
+                                                   style="width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;">
+                                            <input type="date" name="dataDo" value="@Context.Request.Query["dataDo"]"
+                                                   class="form-control"
+                                                   style="width: 100%; padding: 7px; border: 1px solid #ccc; border-radius: 4px;">
+                                        </div>
+                                    </div>
+
+                                    <div class="filter-actions"
+                                         style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #eee; padding-top: 15px;">
+                                        <a asp-action="Rejestracje" class="btn-cancel"
+                                           style="text-decoration: none; padding: 8px 15px; background: #eee; color: #333; border-radius: 4px;">Wyczyść</a>
+                                        <button type="submit" class="btn-submit-orange"
+                                                style="padding: 8px 20px; background: #E67E22; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Zastosuj
+                                            filtry</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            @* --- TABELA LUB KOMUNIKATY --- *@
+                            @if (!hasAnyBooks)
+                            {
+                                <div class="empty-state-card"
+                                     style="text-align: center; padding: 50px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
+                                    <div class="empty-state-icon" style="font-size: 40px; margin-bottom: 15px;">
+                                        @(isFilterActive ? "🔍" : "📁")
+                                    </div>
+                                    <p class="empty-state-text" style="font-size: 18px; color: #666;">
+                                        @(ViewBag.EmptyMessage ?? "Brak danych do wyświetlenia.")
+                                    </p>
+                                    @if (isFilterActive)
+                                    {
+                                        <a asp-action="Rejestracje"
+                                               style="color: #E67E22; text-decoration: underline; margin-top: 10px; display: inline-block;">Wyczyść
+                                            filtry i spróbuj ponownie</a>
+                                        }
+                                    </div>
+                                }
+            else
+                                {
+                                    <div class="registration-table-wrapper"
+                                         style="background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden;">
+                                        <div class="reg-table-header"
+                                             style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; background: #f8f9fa; padding: 15px; font-weight: 600; border-bottom: 2px solid #eee;">
+                                            <div class="col-reg-main">Tytuł i Autor</div>
+                                            <div class="col-reg-info">Gatunek</div>
+                                            <div class="col-reg-info">Wydawnictwo</div>
+                                            <div class="col-reg-date">Data rejestracji</div>
+                                            <div class="col-reg-user">Zarejestrował(a)</div>
+                                        </div>
+
+                                        <div class="reg-table-body">
+                                            @foreach (var item in Model)
+                                            {
+                                                <div class="reg-item-row"
+                                                     style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 15px; border-bottom: 1px solid #eee; align-items: center;">
+                                                    <div class="col-reg-main" style="display: flex; gap: 12px; align-items: center;">
+                                                        <div class="reg-book-icon">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db"
+                                                                 stroke-width="2">
+                                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <div class="reg-text" style="display: flex; flex-direction: column;">
+                                                            <span class="reg-title" style="font-weight: 600; color: #2c3e50;">@item.Tytul</span>
+                                                            <span class="reg-author" style="font-size: 13px; color: #7f8c8d;">@item.Autor</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-reg-info">@item.Gatunek</div>
+                                                    <div class="col-reg-info">@item.Wydawnictwo</div>
+                                                    <div class="col-reg-date" style="font-size: 14px;">@item.DataRejestracji.ToString("yyyy-MM-dd HH:mm")</div>
+                                                    <div class="col-reg-user">
+                                                        <span class="user-badge"
+                                                              style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">
+                                                            @item.OsobaRejestrujaca
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </main>
                     </div>
-                </div>
-            </div>
-        </div>
-    </main>
-</div>
+
+                    @section Scripts {
+                        <script>
+                            // Logika pokazywania/ukrywania panelu filtrów (Scenariusz Alternatywny ZRK-02)
+                            document.getElementById('toggleFilterBtn').addEventListener('click', function () {
+                                var panel = document.getElementById('filterPanel');
+                                if (panel.style.display === 'none') {
+                                    panel.style.display = 'block';
+                                } else {
+                                    panel.style.display = 'none';
+                                }
+                            });
+                        </script>
+                    }

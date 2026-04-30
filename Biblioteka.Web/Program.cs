@@ -1,5 +1,5 @@
 using Biblioteka.Web.Data;
-using Biblioteka.Web.Services; // Dodane
+using Biblioteka.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -8,10 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BibliotekaDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// REJESTRACJA SERWISÓW (Ważne dla działania kontrolerów)
+// REJESTRACJA SERWISÓW
 builder.Services.AddScoped<PasswordService>();
-
-// EMAIL SENDER
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 // WBUDOWANA OBSŁUGA LOGOWANIA/WYLOGOWANIA
@@ -23,7 +21,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Login";
     });
 
-builder.Services.AddControllersWithViews();
+// KONFIGURACJA KOMUNIKATÓW WALIDACJI (ZRK-01 pkt 6)
+builder.Services.AddControllersWithViews()
+    .AddMvcOptions(options =>
+    {
+        // Obsługa błędu formatu danych liczbowych (wprowadzenie liter zamiast cyfr)
+        options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+            (value, name) => $"Pole {name} może zawierać tylko cyfry");
+
+        options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(
+            (name) => $"Pole {name} może zawierać tylko cyfry");
+    });
 
 var app = builder.Build();
 
@@ -36,7 +44,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-// KOLEJNOŚĆ MIDDLEWARE (Kluczowa dla bezpieczeństwa)
+// KOLEJNOŚĆ MIDDLEWARE
 app.UseAuthentication();
 app.UseAuthorization();
 

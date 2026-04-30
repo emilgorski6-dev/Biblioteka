@@ -1,43 +1,55 @@
 using System.ComponentModel.DataAnnotations;
+
 namespace Biblioteka.Web.Models
 {
     public class KsiazkaListaViewModel
     {
         public int Id { get; set; }
-        
-        [Required(ErrorMessage = "Tytuł książki jest wymagany")]
-        public string Tytul { get; set; } = null!;
 
-        [Required(ErrorMessage = "Autorzy książki są wymagani")]
-        public string Autor { get; set; } = null!;
+        [Display(Name = "tytuł książki")]
+        [Required(ErrorMessage = "Tytuł książki jest wymagana")]
+        public string Tytul { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Gatunek jest wymagany")]
-        public string Gatunek { get; set; } = null!;
+        [Display(Name = "autorzy książki")]
+        [Required(ErrorMessage = "Autorzy książki jest wymagana")]
+        public string Autor { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Wydawnictwo jest wymagane")]
-        public string Wydawnictwo { get; set; } = null!;
+        [Display(Name = "gatunek")]
+        [Required(ErrorMessage = "Gatunek jest wymagana")]
+        public string Gatunek { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Rok wydania jest wymagany")]
-        [Range(1000, 2026, ErrorMessage = "Rok wydania nie może być z przyszłości")] // Walidacja z dok.
-        public int RokWydania { get; set; }
-
+        [Display(Name = "liczba stron")]
         [Required(ErrorMessage = "Liczba stron jest wymagana")]
-        [Range(1, int.MaxValue, ErrorMessage = "Wartość w polu Liczba stron musi być większa od zera")]
-        public int LiczbaStron { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Wartość w polu liczba stron musi być większa od zera")]
+        public int? LiczbaStron { get; set; }
 
-        [Required(ErrorMessage = "Cena jest wymagana")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Wartość w polu Cena musi być większa od zera")]
-        public decimal Cena { get; set; }
+        [Display(Name = "rok wydania")]
+        [Required(ErrorMessage = "Rok wydania jest wymagana")]
+        [Range(1000, 2026, ErrorMessage = "Rok wydania nie może być z przyszłości")]
+        public int? RokWydania { get; set; }
 
-        [Required(ErrorMessage = "Liczba sztuk jest wymagana")]
-        [Range(1, 1000, ErrorMessage = "Wartość w polu Liczba rejestrowanych sztuk musi być większa od zera")]
-        public int LiczbaSztuk { get; set; }
+        [Display(Name = "cena książki")]
+        [Required(ErrorMessage = "Cena książki jest wymagana")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Wartość w polu cena książki musi być większa od zera")]
+        public decimal? Cena { get; set; }
 
+        [Display(Name = "liczba rejestrowanych sztuk")]
+        [Required(ErrorMessage = "Liczba rejestrowanych sztuk jest wymagana")]
+        [Range(1, 1000, ErrorMessage = "Wartość w polu liczba rejestrowanych sztuk musi być większa od zera")]
+        public int? LiczbaSztuk { get; set; }
+
+        [Display(Name = "wydawnictwo")]
+        [Required(ErrorMessage = "Wydawnictwo jest wymagana")]
+        public string Wydawnictwo { get; set; } = string.Empty;
+
+        [Display(Name = "opis książki")]
+        [Required(ErrorMessage = "Opis książki jest wymagana")]
         public string Opis { get; set; } = string.Empty;
+
         public string Status { get; set; } = "Dostępna";
-        
-        // Dane dla Managera (ZRK-02)
-        public DateTime DataRejestracji { get; set; }
+
+        // --- POLA POTRZEBNE DLA MANAGERCONTROLLER ---
+        public DateTime DataRejestracji { get; set; } = DateTime.Now;
         public string OsobaRejestrujaca { get; set; } = string.Empty;
     }
 }

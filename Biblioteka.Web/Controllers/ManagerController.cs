@@ -13,7 +13,17 @@ namespace Biblioteka.Web.Controllers
         // Widok listy: /Manager/Rejestracje
         public IActionResult Rejestracje()
         {
-            return View();
+            // Manager widzi te same dane, ale z naciskiem na datę i osobę
+            // Narazie używamy tej samej statycznej listy co w KsiazkiController
+            var historia = KsiazkiController._biblioteka; 
+            
+            if (!historia.Any())
+            {
+                // Dokumentacja: Brak zarejestrowanych książek
+                ViewBag.EmptyMessage = "Nie zarejestrowano jeszcze żadnych książek";
+            }
+            
+            return View(historia);
         }
     }
 }

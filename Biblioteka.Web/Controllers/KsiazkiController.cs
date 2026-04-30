@@ -22,30 +22,48 @@ namespace Biblioteka.Web.Controllers
         }
 
         // --- ZRK-01: LISTA KSIĄŻEK (Dla Bibliotekarza/Użytkownika) ---
-        [HttpGet]
-        public async Task<IActionResult> Lista(string searchString)
+       [HttpGet]
+       [Authorize(Roles = "Bibliotekarz,Manager")]
+       public async Task<IActionResult> Lista(KsiazkaFiltrViewModel filtr)
         {
-            var ksiazkiQuery = _context.Ksiazki.AsQueryable();
-            ViewBag.IsFilterActive = !string.IsNullOrEmpty(searchString);
+            var query = _context.Ksiazki.AsQueryable();
 
-            if (!string.IsNullOrEmpty(searchString))
+            // FILTR TYTUŁU: Teraz ignoruje wielkość liter
+            if (!string.IsNullOrEmpty(filtr.Tytul))
             {
-                ksiazkiQuery = ksiazkiQuery.Where(s => s.Tytul.Contains(searchString)
-                                                   || s.Autorzy.Contains(searchString));
-                ViewBag.CurrentFilter = searchString;
+                // Zamieniamy i tytuł w bazie, i szukaną frazę na małe litery
+                query = query.Where(k => k.Tytul.ToLower().Contains(filtr.Tytul.ToLower()));
             }
 
-            var model = await ksiazkiQuery.Select(k => new KsiazkaListaViewModel
-            {
+            // Pozostałe filtry (tutaj zazwyczaj wybierasz z listy, więc są dokładne)
+            if (!string.IsNullOrEmpty(filtr.WybranyAutor))
+                query = query.Where(k => k.Autorzy == filtr.WybranyAutor);
+
+            if (!string.IsNullOrEmpty(filtr.WybranyGatunek))
+                query = query.Where(k => k.Gatunek == filtr.WybranyGatunek);
+
+            if (!string.IsNullOrEmpty(filtr.WybraneWydawnictwo))
+                query = query.Where(k => k.Wydawnictwo == filtr.WybraneWydawnictwo);
+
+            if (!string.IsNullOrEmpty(filtr.WybranyStatus))
+                query = query.Where(k => k.Status == filtr.WybranyStatus);
+
+            // Reszta kodu bez zmian...
+            filtr.Wyniki = await query.Select(k => new KsiazkaListaViewModel {
                 Id = k.Id,
                 Tytul = k.Tytul,
                 Autor = k.Autorzy,
                 Gatunek = k.Gatunek,
-                RokWydania = k.RokWydania,
-                Status = k.Status
+                Wydawnictwo = k.Wydawnictwo,
+                Status = k.Status,
+                RokWydania = k.RokWydania
             }).ToListAsync();
 
-            return View(model);
+            filtr.DostepniAutorzy = await _context.Ksiazki.Select(k => k.Autorzy).Distinct().OrderBy(a => a).ToListAsync();
+            filtr.DostepneGatunki = await _context.Ksiazki.Select(k => k.Gatunek).Distinct().OrderBy(g => g).ToListAsync();
+            filtr.DostepneWydawnictwa = await _context.Ksiazki.Select(k => k.Wydawnictwo).Distinct().OrderBy(w => w).ToListAsync();
+
+            return View(filtr);
         }
 
         // --- ZRK-02: LISTA REJESTRACJI (Dla Managera) ---

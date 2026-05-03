@@ -177,7 +177,10 @@
                                 <th>Gatunek</th>
                                 <th>Wydawnictwo</th>
                                 <th>Status</th>
+                                @if (User.IsInRole("Bibliotekarz"))
+                                {
                                 <th style="text-align: right;">Akcje</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -194,12 +197,15 @@
                                     <td>
                                         <span class="badge @(item.Status == "Dostępna" ? "bg-success" : "bg-warning")">@item.Status</span>
                                     </td>
+                                    @if (User.IsInRole("Bibliotekarz"))
+                                    {
                                     <td style="text-align: right;">
                                         <div style="display: flex; gap: 10px; justify-content: flex-end;">
                                             <a asp-action="Szczegoly" asp-route-id="@item.Id" class="link-orange">Szczegóły</a>
-                                            <a asp-action="ZarejestrujZListy" asp-route-id="@item.Id" class="link-orange">Zarejestruj</a>
+                                            <a asp-action="ZarejestrujZListy" asp-route-id="@item.Id" class="link-orange">Zarejestruj</a> 
                                         </div>
                                     </td>
+                                    }
                                 </tr>
                             }
                         </tbody>

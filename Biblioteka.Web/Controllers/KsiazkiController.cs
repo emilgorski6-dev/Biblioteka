@@ -235,5 +235,18 @@ namespace Biblioteka.Web.Controllers
 
             return View(model);
         }
+        private void PrepareGenreList()
+        {
+            ViewBag.Gatunki = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        {
+            new() { Value = "Fantastyka", Text = "Fantastyka" },
+            new() { Value = "Kryminał", Text = "Kryminał" },
+            new() { Value = "Literatura piękna", Text = "Literatura piękna" },
+            new() { Value = "Nauka", Text = "Nauka" },
+            new() { Value = "Thriller", Text = "Thriller" },
+            new() { Value = "Biografia", Text = "Biografia" },
+            new() { Value = "Historyczna", Text = "Historyczna" }
+        };
+        }
     }
 }

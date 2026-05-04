@@ -5,16 +5,15 @@
     bool isLibrarian = User.IsInRole("Bibliotekarz");
     bool isManager = User.IsInRole("Manager");
 
-    // Logika wyboru tytułu panelu
-    string sidebarTitle = isAdmin ? "Panel Administratora" : 
-                        isManager ? "Panel Managera" : 
+    string sidebarTitle = isAdmin ? "Panel Administratora" :
+                        isManager ? "Panel Managera" :
                         isLibrarian ? "Panel Bibliotekarza" : "Panel użytkownika";
-    // Zmieniamy nagłówek w zależności od trybu (Scenariusz Główny vs Alternatywny)
+
     bool isFromList = Model.Id > 0;
     ViewData["Title"] = isFromList ? "Rejestracja egzemplarzy" : "Zarejestruj nową książkę";
 }
 
-@* --- WYŁĄCZNIE PŁYWAJĄCY TOAST --- *@
+@* --- POWIADOMIENIE TOAST --- *@
 @if (TempData["SuccessMessage"] != null)
 {
     <div id="successToast" class="toast-container-top-right">
@@ -30,17 +29,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        setTimeout(function () {
-            var toast = document.getElementById('successToast');
-            if (toast) {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(30px)';
-                setTimeout(function () { toast.remove(); }, 500);
-            }
-        }, 5000);
-    </script>
 }
 
 <div class="management-panel-layout">
@@ -66,9 +54,9 @@
             </div>
         </div>
         <nav class="sidebar-nav">
-            @* Lista książek - widoczna dla obu ról *@
             <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
@@ -77,9 +65,9 @@
 
             @if (isLibrarian)
             {
-                @* Link dla Bibliotekarza *@
-                <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -91,9 +79,9 @@
 
             @if (isManager)
             {
-                @* Link dla Managera *@
                 <a href="/Manager/Rejestracje" class="sidebar-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="3" y1="9" x2="21" y2="9"></line>
                         <line x1="9" y1="21" x2="9" y2="9"></line>
@@ -127,8 +115,7 @@
                         </svg>
                     </div>
                     <div class="form-title-group">
-                        <h1 class="form-main-title">@(isFromList ? "Rejestracja z listy" : "Zarejestruj nową książkę")
-                        </h1>
+                        <h1 class="form-main-title">@(isFromList ? "Rejestracja z listy" : "Zarejestruj nową książkę")</h1>
                         <p class="form-subtitle">@(isFromList ? "Wypełniasz dane dla kolejnych egzemplarzy istniejącej pozycji." : "Wypełnij formularz, aby dodać książkę do katalogu biblioteki.")</p>
                     </div>
                 </header>
@@ -136,14 +123,11 @@
                 <form class="book-registration-form" method="post" asp-action="Zarejestruj">
                     <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 15px;"></div>
                     
-                    @* Jeśli rejestrujemy z listy, musimy przesłać ID z powrotem *@
                     <input type="hidden" asp-for="Id" />
 
                     <div class="form-row grid-2">
                         <div class="input-group">
                             <label>Autorzy książki</label>
-                            @* Scenariusz Alternatywny: System automatycznie wypełnia dane. Blokujemy edycję jeśli
-                            isFromList *@
                             <input asp-for="Autor" placeholder="np. Andrzej Sapkowski" readonly="@isFromList"
                                    style="@(isFromList ? "background-color: #f9f9f9; color: #777;" : "")">
                             <span asp-validation-for="Autor" class="text-danger" style="font-size: 12px;"></span>
@@ -161,8 +145,6 @@
                             <label>Gatunek</label>
                             @if (isFromList)
                             {
-                                @* Select nie obsługuje dobrze readonly, więc przy rejestracji z listy pokazujemy
-                            zablokowany input i ukryty select dla danych *@
                                 <input type="text" value="@Model.Gatunek" readonly
                                        style="background-color: #f9f9f9; color: #777; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                                 <input type="hidden" asp-for="Gatunek" />
@@ -191,7 +173,13 @@
                         </div>
                         <div class="input-group">
                             <label>Cena (PLN)</label>
-                            <input asp-for="Cena">
+                            <input type="text" 
+                                   name="Cena" 
+                                   value="@(Model.Cena.HasValue ? Model.Cena.Value.ToString("0.00").Replace(".", ",") : "")"
+                                   class="form-control" 
+                                   inputmode="decimal"
+                                   placeholder="0,00"
+                                   oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1').replace(/(\,.*?)\,/g, '$1');">
                             <span asp-validation-for="Cena" class="text-danger" style="font-size: 12px;"></span>
                         </div>
                     </div>
@@ -204,7 +192,6 @@
                         </div>
                         <div class="input-group">
                             <label>Liczba rejestrowanych sztuk</label>
-                            @* Poprawiona nazwa labela zgodnie ze specyfikacją *@
                             <input asp-for="LiczbaSztuk" type="number">
                             <span asp-validation-for="LiczbaSztuk" class="text-danger" style="font-size: 12px;"></span>
                         </div>
@@ -234,17 +221,42 @@
     }
 
     <script>
-        // Nadpisujemy domyślne komunikaty jQuery Validation
-        if ($.validator) {
-            $.extend($.validator.messages, {
-                number: "Pole może zawierać tylko cyfry",
-                digits: "Pole może zawierać tylko cyfry"
-            });
-        }
+        $(document).ready(function () {
+            // Przekazanie informacji o sukcesie z C# do JS w sposób bezpieczny dla parsera
+            var isSuccess = "@(TempData["SuccessMessage"] != null ? "true" : "false")" === "true";
 
-        // Naprawa walidacji liczb z przecinkiem (opcjonalnie, jeśli Cena wywala błąd na kropce/przecinku)
-        $.validator.methods.number = function (value, element) {
-            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:[\s\.,]\d{3})+)(?:[\.,]\d+)?$/.test(value);
-        }
+            if (isSuccess) {
+                setTimeout(function () {
+                    var toast = document.getElementById("successToast");
+                    if (toast) {
+                        toast.style.opacity = "0";
+                        toast.style.transform = "translateX(30px)";
+                        setTimeout(function () { toast.remove(); }, 500);
+                    }
+                }, 5000);
+            }
+
+            if ($.validator) {
+                // 1. Nadpisujemy domyślne komunikaty walidacji
+                $.extend($.validator.messages, {
+                    number: "Pole może zawierać tylko cyfry i separator (przecinek)",
+                    digits: "Pole może zawierać tylko cyfry",
+                    range: $.validator.format("Wprowadź wartość z zakresu od {0} do {1}.")
+                });
+
+                // 2. Naprawa walidacji liczbowej dla separatorów pl-PL
+                $.validator.methods.number = function (value, element) {
+                    return this.optional(element) || 
+                           /^-?(?:\d+|\d{1,3}(?:[\s\.]\d{3})+)(?:[\,]\d+)?$/.test(value) || 
+                           /^-?(?:\d+|\d{1,3}(?:[\s\,]\d{3})+)(?:[\.]\d+)?$/.test(value);
+                };
+
+                // 3. Naprawa walidacji zakresu (Range) dla polskich liczb
+                $.validator.methods.range = function (value, element, param) {
+                    var globalizedValue = value.replace(",", ".");
+                    return this.optional(element) || (parseFloat(globalizedValue) >= param[0] && parseFloat(globalizedValue) <= param[1]);
+                };
+            }
+        });
     </script>
 }

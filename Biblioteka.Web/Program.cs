@@ -2,8 +2,17 @@ using Biblioteka.Web.Data;
 using Biblioteka.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Globalization; // Dodane dla obsługi lokalizacji
+using Microsoft.AspNetCore.Localization; // Dodane dla middleware lokalizacji
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --- KONFIGURACJA KULTURY (Naprawa błędu z przecinkiem w cenie) ---
+// Ustawiamy polską kulturę jako domyślną dla całego wątku aplikacji
+var cultureInfo = new CultureInfo("pl-PL");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+// -----------------------------------------------------------------
 
 builder.Services.AddDbContext<BibliotekaDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -25,7 +34,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddControllersWithViews()
     .AddMvcOptions(options =>
     {
-        // Obsługa błędu formatu danych liczbowych (wprowadzenie liter zamiast cyfr)
+        // Obsługa błędu formatu danych liczbowych
         options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
             (value, name) => $"Pole {name} może zawierać tylko cyfry");
 
@@ -34,6 +43,15 @@ builder.Services.AddControllersWithViews()
     });
 
 var app = builder.Build();
+
+// --- MIDDLEWARE LOKALIZACJI ---
+// Dzięki temu formularze będą poprawnie interpretować przecinki jako separatory dziesiętne
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(cultureInfo),
+    SupportedCultures = new[] { cultureInfo },
+    SupportedUICultures = new[] { cultureInfo }
+});
 
 if (!app.Environment.IsDevelopment())
 {

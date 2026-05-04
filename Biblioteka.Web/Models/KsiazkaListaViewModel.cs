@@ -25,12 +25,12 @@ namespace Biblioteka.Web.Models
 
         [Display(Name = "rok wydania")]
         [Required(ErrorMessage = "Rok wydania jest wymagana")]
-        [Range(1000, 2026, ErrorMessage = "Rok wydania nie może być z przyszłości")]
+        [Range(1, 3000, ErrorMessage = "Wprowadź poprawny rok wydania")]
         public int? RokWydania { get; set; }
 
         [Display(Name = "cena książki")]
         [Required(ErrorMessage = "Cena książki jest wymagana")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Wartość w polu cena książki musi być większa od zera")]
+        [Range(0.01, 999999.99, ErrorMessage = "Cena musi być większa od zera")]
         public decimal? Cena { get; set; }
 
         [Display(Name = "liczba rejestrowanych sztuk")]

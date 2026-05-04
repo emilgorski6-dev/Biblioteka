@@ -22,9 +22,9 @@ namespace Biblioteka.Web.Controllers
         }
 
         // --- ZRK-01: LISTA KSIĄŻEK (Dla Bibliotekarza/Użytkownika) ---
-       [HttpGet]
-       [Authorize(Roles = "Bibliotekarz,Manager")]
-       public async Task<IActionResult> Lista(KsiazkaFiltrViewModel filtr)
+        [HttpGet]
+        [Authorize(Roles = "Bibliotekarz,Manager")]
+        public async Task<IActionResult> Lista(KsiazkaFiltrViewModel filtr)
         {
             var query = _context.Ksiazki.AsQueryable();
 
@@ -49,7 +49,8 @@ namespace Biblioteka.Web.Controllers
                 query = query.Where(k => k.Status == filtr.WybranyStatus);
 
             // Reszta kodu bez zmian...
-            filtr.Wyniki = await query.Select(k => new KsiazkaListaViewModel {
+            filtr.Wyniki = await query.Select(k => new KsiazkaListaViewModel
+            {
                 Id = k.Id,
                 Tytul = k.Tytul,
                 Autor = k.Autorzy,
@@ -160,7 +161,7 @@ namespace Biblioteka.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Zarejestruj(KsiazkaListaViewModel model)
         {
-            if (model.RokWydania > DateTime.Now.Year)
+            if (model.RokWydania.HasValue && model.RokWydania > DateTime.Now.Year)
             {
                 ModelState.AddModelError("RokWydania", "Rok wydania nie może być z przyszłości");
             }

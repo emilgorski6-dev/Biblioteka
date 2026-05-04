@@ -245,7 +245,8 @@ namespace Biblioteka.Web.Controllers
             new() { Value = "Nauka", Text = "Nauka" },
             new() { Value = "Thriller", Text = "Thriller" },
             new() { Value = "Biografia", Text = "Biografia" },
-            new() { Value = "Historyczna", Text = "Historyczna" }
+            new() { Value = "Historyczna", Text = "Historyczna" },
+            new() { Value = "Horror", Text = "Horror" }
         };
         }
     }

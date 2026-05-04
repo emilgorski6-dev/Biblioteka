@@ -103,48 +103,99 @@
                         <input type="text" asp-for="Tytul" placeholder="Szukaj tytułu..." class="form-control-sm">
                     </div>
 
-                    @* 2. Dropdown Autor *@
-                    <div class="filter-field">
+                    @* 2. Dropdown Autor *@ 
+                    <div class="filter-field dropdown-checkbox">
                         <label>Autor</label>
-                        <select asp-for="WybranyAutor" class="form-select-sm">
-                            <option value="">Wszyscy</option>
-                            @foreach (var a in Model.DostepniAutorzy) {
-                                <option value="@a">@a</option>
+
+                        <div class="dropdown-toggle" onclick="toggleDropdown(this)">
+                            @(Model.WybraniAutorzy.Any() 
+                                ? string.Join(", ", Model.WybraniAutorzy) 
+                                : "Wybierz autora")
+                        </div>
+                        <div class="dropdown-menu">
+                            @foreach (var a in Model.DostepniAutorzy)
+                            {
+                                <label class="dropdown-item">
+                                    <input type="checkbox"
+                                        name="WybraniAutorzy"
+                                        value="@a"
+                                        @(Model.WybraniAutorzy.Contains(a) ? "checked" : "") />
+                                    @a
+                                </label>
                             }
-                        </select>
+                        </div>
                     </div>
 
                     @* 3. Dropdown Gatunek *@
-                    <div class="filter-field">
+                    <div class="filter-field dropdown-checkbox">
                         <label>Gatunek</label>
-                        <select asp-for="WybranyGatunek" class="form-select-sm">
-                            <option value="">Wszystkie</option>
-                            @foreach (var g in Model.DostepneGatunki) {
-                                <option value="@g">@g</option>
+
+                        <div class="dropdown-toggle" onclick="toggleDropdown(this)">
+                            @(Model.WybraneGatunki.Any() 
+                                ? string.Join(", ", Model.WybraneGatunki) 
+                                : "Wybierz gatunek")
+                        </div>
+
+                        <div class="dropdown-menu">
+                            @foreach (var g in Model.DostepneGatunki)
+                            {
+                                <label class="dropdown-item">
+                                    <input type="checkbox"
+                                        name="WybraneGatunki"
+                                        value="@g"
+                                        @(Model.WybraneGatunki.Contains(g) ? "checked" : "") />
+                                    @g
+                                </label>
                             }
-                        </select>
+                        </div>
                     </div>
 
                     @* 4. Dropdown Wydawnictwo *@
-                    <div class="filter-field">
+                    <div class="filter-field dropdown-checkbox">
                         <label>Wydawnictwo</label>
-                        <select asp-for="WybraneWydawnictwo" class="form-select-sm">
-                            <option value="">Wszystkie</option>
-                            @foreach (var w in Model.DostepneWydawnictwa) {
-                                <option value="@w">@w</option>
+
+                        <div class="dropdown-toggle" onclick="toggleDropdown(this)">
+                            @(Model.WybraneWydawnictwa.Any() 
+                                ? string.Join(", ", Model.WybraneWydawnictwa) 
+                                : "Wybierz wydawnictwo")
+                        </div>
+
+                        <div class="dropdown-menu">
+                            @foreach (var w in Model.DostepneWydawnictwa)
+                            {
+                                <label class="dropdown-item">
+                                    <input type="checkbox"
+                                        name="WybraneWydawnictwa"
+                                        value="@w"
+                                        @(Model.WybraneWydawnictwa.Contains(w) ? "checked" : "") />
+                                    @w
+                                </label>
                             }
-                        </select>
+                        </div>
                     </div>
 
                     @* 5. Dropdown Status *@
-                    <div class="filter-field">
+                    <div class="filter-field dropdown-checkbox">
                         <label>Status</label>
-                        <select asp-for="WybranyStatus" class="form-select-sm">
-                            <option value="">Wszystkie</option>
-                            @foreach (var s in Model.DostepneStatusy) {
-                                <option value="@s">@s</option>
+
+                        <div class="dropdown-toggle" onclick="toggleDropdown(this)">
+                            @(Model.WybraneStatusy.Any() 
+                                ? string.Join(", ", Model.WybraneStatusy) 
+                                : "Wybierz status")
+                        </div>
+
+                        <div class="dropdown-menu">
+                            @foreach (var s in Model.DostepneStatusy)
+                            {
+                                <label class="dropdown-item">
+                                    <input type="checkbox"
+                                        name="WybraneStatusy"
+                                        value="@s"
+                                        @(Model.WybraneStatusy.Contains(s) ? "checked" : "") />
+                                    @s
+                                </label>
                             }
-                        </select>
+                        </div>
                     </div>
 
                     @* Przyciski akcji *@
@@ -334,4 +385,118 @@
     }
 
     .empty-state-icon { font-size: 32px; margin-bottom: 10px; }
+
+    .dropdown-checkbox {
+        position: relative;
+        min-width: 150px;
+    }
+
+    .dropdown-toggle {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: white;
+        cursor: pointer;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dropdown-toggle:hover {
+        border-color: #ccc;
+    }
+
+    /* strzałka */
+    .dropdown-toggle::after {
+        content: "▾";
+        font-size: 10px;
+        color: #999;
+    }
+
+    /* menu */
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 4px;
+        width: 100%;
+
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 6px;
+
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+        max-height: 220px;
+        overflow-y: auto;
+
+        z-index: 1000;
+    }
+
+    /* aktywne */
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    /* item */
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        font-size: 13px;
+        color: #444;
+        cursor: pointer;
+    }
+
+    /* hover jak w nowoczesnych UI */
+    .dropdown-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* checkbox */
+    .dropdown-item input[type="checkbox"] {
+        accent-color: #E67E22;
+        cursor: pointer;
+    }
 </style>
+
+<script>
+    function toggleDropdown(el) {
+        const menu = el.nextElementSibling;
+        menu.classList.toggle("show");
+    }
+
+    function updateDropdownLabel(container) {
+        const checked = container.querySelectorAll("input[type='checkbox']:checked");
+        const toggle = container.querySelector(".dropdown-toggle");
+
+        if (checked.length === 0) {
+            toggle.innerText = "Wybierz";
+        } else {
+            toggle.innerText = Array.from(checked)
+                .map(x => x.value)
+                .join(", ");
+        }
+    }
+
+    // 🔥 KLUCZOWE: reaguj na zmianę checkboxa
+    document.addEventListener("change", function (e) {
+        if (e.target.matches(".dropdown-menu input[type='checkbox']")) {
+            const container = e.target.closest(".dropdown-checkbox");
+            updateDropdownLabel(container);
+        }
+    });
+
+    // zamykanie dropdowna
+    document.addEventListener("click", function (e) {
+        document.querySelectorAll(".dropdown-menu").forEach(menu => {
+            if (!menu.parentElement.contains(e.target)) {
+                menu.classList.remove("show");
+            }
+        });
+    });
+</script>

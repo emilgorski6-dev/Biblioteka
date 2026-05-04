@@ -36,17 +36,17 @@ namespace Biblioteka.Web.Controllers
             }
 
             // Pozostałe filtry (tutaj zazwyczaj wybierasz z listy, więc są dokładne)
-            if (!string.IsNullOrEmpty(filtr.WybranyAutor))
-                query = query.Where(k => k.Autorzy == filtr.WybranyAutor);
+            if (filtr.WybraniAutorzy.Any())
+                query = query.Where(k => filtr.WybraniAutorzy.Contains(k.Autorzy));
 
-            if (!string.IsNullOrEmpty(filtr.WybranyGatunek))
-                query = query.Where(k => k.Gatunek == filtr.WybranyGatunek);
+            if (filtr.WybraneGatunki.Any())
+                query = query.Where(k => filtr.WybraneGatunki.Contains(k.Gatunek));
 
-            if (!string.IsNullOrEmpty(filtr.WybraneWydawnictwo))
-                query = query.Where(k => k.Wydawnictwo == filtr.WybraneWydawnictwo);
+            if (filtr.WybraneWydawnictwa.Any())
+                query = query.Where(k => filtr.WybraneWydawnictwa.Contains(k.Wydawnictwo));
 
-            if (!string.IsNullOrEmpty(filtr.WybranyStatus))
-                query = query.Where(k => k.Status == filtr.WybranyStatus);
+            if (filtr.WybraneStatusy.Any())
+                query = query.Where(k => filtr.WybraneStatusy.Contains(k.Status));
 
             // Reszta kodu bez zmian...
             filtr.Wyniki = await query.Select(k => new KsiazkaListaViewModel
@@ -63,6 +63,18 @@ namespace Biblioteka.Web.Controllers
             filtr.DostepniAutorzy = await _context.Ksiazki.Select(k => k.Autorzy).Distinct().OrderBy(a => a).ToListAsync();
             filtr.DostepneGatunki = await _context.Ksiazki.Select(k => k.Gatunek).Distinct().OrderBy(g => g).ToListAsync();
             filtr.DostepneWydawnictwa = await _context.Ksiazki.Select(k => k.Wydawnictwo).Distinct().OrderBy(w => w).ToListAsync();
+
+            filtr.DostepneGatunki = new List<string>
+            {
+                "Fantastyka",
+                "Kryminał",
+                "Literatura piękna",
+                "Nauka",
+                "Thriller",
+                "Biografia",
+                "Historyczna",
+                "Horror"
+            };
 
             return View(filtr);
         }
@@ -222,20 +234,6 @@ namespace Biblioteka.Web.Controllers
             };
 
             return View(model);
-        }
-
-        private void PrepareGenreList()
-        {
-            ViewBag.Gatunki = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "Fantastyka", Text = "Fantastyka" },
-                new SelectListItem { Value = "Kryminał", Text = "Kryminał" },
-                new SelectListItem { Value = "Literatura piękna", Text = "Literatura piękna" },
-                new SelectListItem { Value = "Nauka", Text = "Nauka" },
-                new SelectListItem { Value = "Thriller", Text = "Thriller" },
-                new SelectListItem { Value = "Biografia", Text = "Biografia" },
-                new SelectListItem { Value = "Historyczna", Text = "Historyczna" }
-            };
         }
     }
 }

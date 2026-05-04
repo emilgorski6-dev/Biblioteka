@@ -1,15 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Biblioteka.Web.Models
 {
     public class KsiazkaFiltrViewModel
     {
-        // Wybrane wartości (pojedyncze stringi dla dropdownów)
         public string? Tytul { get; set; }
-        public string? WybranyAutor { get; set; }
-        public string? WybranyGatunek { get; set; }
-        public string? WybraneWydawnictwo { get; set; }
-        public string? WybranyStatus { get; set; }
+        public List<string> WybraniAutorzy { get; set; } = new();
+        public List<string> WybraneGatunki { get; set; } = new();   
+        public List<string> WybraneWydawnictwa { get; set; } = new();
+        public List<string> WybraneStatusy { get; set; } = new();
 
         // Listy do załadowania dropdownów
         public List<string> DostepniAutorzy { get; set; } = new();
@@ -18,11 +18,13 @@ namespace Biblioteka.Web.Models
         public List<string> DostepneStatusy { get; set; } = new() { "Dostępna", "Wypożyczona", "W renowacji" };
 
         public List<KsiazkaListaViewModel> Wyniki { get; set; } = new();
+        
 
-        public bool IsFilterActive => !string.IsNullOrEmpty(Tytul) || 
-                                     !string.IsNullOrEmpty(WybranyAutor) || 
-                                     !string.IsNullOrEmpty(WybranyGatunek) || 
-                                     !string.IsNullOrEmpty(WybraneWydawnictwo) || 
-                                     !string.IsNullOrEmpty(WybranyStatus);
+        public bool IsFilterActive => 
+            !string.IsNullOrEmpty(Tytul) ||
+            WybraniAutorzy.Any() ||
+            WybraneGatunki.Any() ||
+            WybraneWydawnictwa.Any() ||
+            WybraneStatusy.Any();
     }
 }

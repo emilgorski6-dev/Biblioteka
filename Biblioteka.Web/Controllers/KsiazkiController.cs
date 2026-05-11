@@ -21,6 +21,14 @@ namespace Biblioteka.Web.Controllers
             _context = context;
         }
 
+        // --- MOCK BAZY WYPOŻYCZEŃ ---
+        public static List<WypozyczenieViewModel> _wypozyczenia = new List<WypozyczenieViewModel>
+        {
+            new WypozyczenieViewModel { Id = 1, Wypozyczajacy = "Jan Kowalski", Ksiazka = "Duma i uprzedzenie", DataWypozyczenia = new DateTime(2026, 4, 10), DataZwrotu = new DateTime(2026, 4, 24), Status = "Nowe", Bibliotekarz = "Anna Bibliotekarz" },
+            new WypozyczenieViewModel { Id = 2, Wypozyczajacy = "Magdalena Lewandowska", Ksiazka = "Harry Potter i Kamień Filozoficzny", DataWypozyczenia = new DateTime(2026, 3, 15), DataZwrotu = new DateTime(2026, 5, 15), Status = "Przedłużone", Bibliotekarz = "Piotr Wiśniewski" },
+            new WypozyczenieViewModel { Id = 3, Wypozyczajacy = "Piotr Wiśniewski", Ksiazka = "Władca Pierścieni: Drużyna Pierścienia", DataWypozyczenia = new DateTime(2026, 1, 10), DataZwrotu = new DateTime(2026, 1, 24), Status = "Zakończone", Bibliotekarz = "Anna Bibliotekarz" }
+        };
+
         // --- ZRK-01: LISTA KSIĄŻEK (Dla Bibliotekarza/Użytkownika) ---
         [HttpGet]
         [Authorize(Roles = "Bibliotekarz,Manager")]
@@ -31,11 +39,9 @@ namespace Biblioteka.Web.Controllers
             // FILTR TYTUŁU: Teraz ignoruje wielkość liter
             if (!string.IsNullOrEmpty(filtr.Tytul))
             {
-                // Zamieniamy i tytuł w bazie, i szukaną frazę na małe litery
                 query = query.Where(k => k.Tytul.ToLower().Contains(filtr.Tytul.ToLower()));
             }
 
-            // Pozostałe filtry (tutaj zazwyczaj wybierasz z listy, więc są dokładne)
             if (filtr.WybraniAutorzy.Any())
                 query = query.Where(k => filtr.WybraniAutorzy.Contains(k.Autorzy));
 
@@ -48,7 +54,6 @@ namespace Biblioteka.Web.Controllers
             if (filtr.WybraneStatusy.Any())
                 query = query.Where(k => filtr.WybraneStatusy.Contains(k.Status));
 
-            // Reszta kodu bez zmian...
             filtr.Wyniki = await query.Select(k => new KsiazkaListaViewModel
             {
                 Id = k.Id,
@@ -66,14 +71,8 @@ namespace Biblioteka.Web.Controllers
 
             filtr.DostepneGatunki = new List<string>
             {
-                "Fantastyka",
-                "Kryminał",
-                "Literatura piękna",
-                "Nauka",
-                "Thriller",
-                "Biografia",
-                "Historyczna",
-                "Horror"
+                "Fantastyka", "Kryminał", "Literatura piękna", "Nauka", 
+                "Thriller", "Biografia", "Historyczna", "Horror"
             };
 
             return View(filtr);
@@ -81,17 +80,11 @@ namespace Biblioteka.Web.Controllers
 
         // --- ZRK-02: LISTA REJESTRACJI (Dla Managera) ---
         [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")] // Tylko dla uprawnionych aktorów
+        [Authorize(Roles = "Administrator,Manager")] 
         public async Task<IActionResult> ListaRejestracji(
-            string[] autorzy,
-            string[] gatunki,
-            string tytul,
-            string wydawnictwo,
-            DateTime? dataOd,
-            DateTime? dataDo,
-            string[] pracownicy)
+            string[] autorzy, string[] gatunki, string tytul, string wydawnictwo, 
+            DateTime? dataOd, DateTime? dataDo, string[] pracownicy)
         {
-            // Scenariusz wyjątku: Nieprawidłowe zaznaczenie zakresu dat
             if (dataOd.HasValue && dataDo.HasValue && dataOd > dataDo)
             {
                 ModelState.AddModelError("DataRange", "Data początkowa nie może być późniejsza niż data końcowa.");
@@ -99,7 +92,6 @@ namespace Biblioteka.Web.Controllers
 
             var query = _context.Ksiazki.AsQueryable();
 
-            // --- Logika filtrowania (Scenariusz alternatywny ZRK-02) ---
             if (!string.IsNullOrEmpty(tytul))
                 query = query.Where(k => k.Tytul.Contains(tytul));
 
@@ -126,16 +118,10 @@ namespace Biblioteka.Web.Controllers
 
             var model = await query.Select(k => new KsiazkaListaViewModel
             {
-                Id = k.Id,
-                Tytul = k.Tytul,
-                Autor = k.Autorzy,
-                Gatunek = k.Gatunek,
-                Wydawnictwo = k.Wydawnictwo,
-                DataRejestracji = k.DataRejestracji,
-                OsobaRejestrujaca = k.OsobaRejestrujaca
+                Id = k.Id, Tytul = k.Tytul, Autor = k.Autorzy, Gatunek = k.Gatunek,
+                Wydawnictwo = k.Wydawnictwo, DataRejestracji = k.DataRejestracji, OsobaRejestrujaca = k.OsobaRejestrujaca
             }).ToListAsync();
 
-            // Przygotowanie list do filtrów wielokrotnego wyboru
             ViewBag.DostepniAutorzy = await _context.Ksiazki.Select(k => k.Autorzy).Distinct().ToListAsync();
             ViewBag.DostepneGatunki = await _context.Ksiazki.Select(k => k.Gatunek).Distinct().ToListAsync();
             ViewBag.Pracownicy = await _context.Ksiazki.Select(k => k.OsobaRejestrujaca).Distinct().ToListAsync();
@@ -158,17 +144,13 @@ namespace Biblioteka.Web.Controllers
 
             var nowyEgzemplarz = new KsiazkaListaViewModel
             {
-                Id = istniejaca.Id,
-                Tytul = istniejaca.Tytul,
-                Autor = istniejaca.Autorzy,
-                Gatunek = istniejaca.Gatunek
+                Id = istniejaca.Id, Tytul = istniejaca.Tytul, Autor = istniejaca.Autorzy, Gatunek = istniejaca.Gatunek
             };
 
             PrepareGenreList();
             return View("Zarejestruj", nowyEgzemplarz);
         }
 
-        // --- ZRK-01: ZAREJESTRUJ (Zaktualizowane o metadane dla ZRK-02) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Zarejestruj(KsiazkaListaViewModel model)
@@ -182,27 +164,17 @@ namespace Biblioteka.Web.Controllers
             {
                 var nowaKsiazka = new Ksiazka
                 {
-                    Tytul = model.Tytul,
-                    Autorzy = model.Autor,
-                    Gatunek = model.Gatunek,
-                    Wydawnictwo = model.Wydawnictwo,
-                    RokWydania = model.RokWydania ?? DateTime.Now.Year,
-                    LiczbaStron = model.LiczbaStron ?? 0,
-                    Cena = model.Cena ?? 0,
-                    LiczbaSztuk = model.LiczbaSztuk ?? 0,
-                    Opis = model.Opis ?? "",
-                    Status = "Dostępna",
-
-                    // --- Metadane dla ZRK-02 ---
-                    DataRejestracji = DateTime.Now,
-                    OsobaRejestrujaca = User.Identity?.Name ?? "System"
+                    Tytul = model.Tytul, Autorzy = model.Autor, Gatunek = model.Gatunek,
+                    Wydawnictwo = model.Wydawnictwo, RokWydania = model.RokWydania ?? DateTime.Now.Year,
+                    LiczbaStron = model.LiczbaStron ?? 0, Cena = model.Cena ?? 0,
+                    LiczbaSztuk = model.LiczbaSztuk ?? 0, Opis = model.Opis ?? "", Status = "Dostępna",
+                    DataRejestracji = DateTime.Now, OsobaRejestrujaca = User.Identity?.Name ?? "System"
                 };
 
                 _context.Ksiazki.Add(nowaKsiazka);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = model.Tytul;
-
                 return RedirectToAction(nameof(Lista));
             }
 
@@ -218,36 +190,123 @@ namespace Biblioteka.Web.Controllers
 
             var model = new KsiazkaListaViewModel
             {
-                Id = ksiazka.Id,
-                Tytul = ksiazka.Tytul,
-                Autor = ksiazka.Autorzy,
-                Gatunek = ksiazka.Gatunek,
-                Wydawnictwo = ksiazka.Wydawnictwo,
-                RokWydania = ksiazka.RokWydania,
-                LiczbaStron = ksiazka.LiczbaStron,
-                Cena = ksiazka.Cena,
-                LiczbaSztuk = ksiazka.LiczbaSztuk,
-                Opis = ksiazka.Opis,
-                Status = ksiazka.Status,
-                DataRejestracji = ksiazka.DataRejestracji,
-                OsobaRejestrujaca = ksiazka.OsobaRejestrujaca
+                Id = ksiazka.Id, Tytul = ksiazka.Tytul, Autor = ksiazka.Autorzy, Gatunek = ksiazka.Gatunek,
+                Wydawnictwo = ksiazka.Wydawnictwo, RokWydania = ksiazka.RokWydania, LiczbaStron = ksiazka.LiczbaStron,
+                Cena = ksiazka.Cena, LiczbaSztuk = ksiazka.LiczbaSztuk, Opis = ksiazka.Opis, Status = ksiazka.Status,
+                DataRejestracji = ksiazka.DataRejestracji, OsobaRejestrujaca = ksiazka.OsobaRejestrujaca
             };
 
             return View(model);
         }
+
         private void PrepareGenreList()
         {
-            ViewBag.Gatunki = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+            ViewBag.Gatunki = new List<SelectListItem>
+            {
+                new() { Value = "Fantastyka", Text = "Fantastyka" }, new() { Value = "Kryminał", Text = "Kryminał" },
+                new() { Value = "Literatura piękna", Text = "Literatura piękna" }, new() { Value = "Nauka", Text = "Nauka" },
+                new() { Value = "Thriller", Text = "Thriller" }, new() { Value = "Biografia", Text = "Biografia" },
+                new() { Value = "Historyczna", Text = "Historyczna" }, new() { Value = "Horror", Text = "Horror" }
+            };
+        }
+
+        // --- ZAKŁADKA: REJESTRACJA WYPOŻYCZEŃ ---
+        [Authorize(Roles = "Bibliotekarz")] 
+        [HttpGet]
+        public IActionResult RejestracjaWypozyczen()
         {
-            new() { Value = "Fantastyka", Text = "Fantastyka" },
-            new() { Value = "Kryminał", Text = "Kryminał" },
-            new() { Value = "Literatura piękna", Text = "Literatura piękna" },
-            new() { Value = "Nauka", Text = "Nauka" },
-            new() { Value = "Thriller", Text = "Thriller" },
-            new() { Value = "Biografia", Text = "Biografia" },
-            new() { Value = "Historyczna", Text = "Historyczna" },
-            new() { Value = "Horror", Text = "Horror" }
-        };
+            return View();
+        }
+
+        [Authorize(Roles = "Bibliotekarz")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RejestracjaWypozyczen(string customerId, List<string> bookIds, string duration)
+        {
+            TempData["SuccessMessage"] = "Zarejestrowano wypożyczenie książek.";
+            return RedirectToAction(nameof(RejestracjaWypozyczen));
+        }
+
+        // --- ZAKŁADKA: LISTA WYPOŻYCZEŃ ---
+        [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
+        [HttpGet]
+        public IActionResult ListaWypozyczen(string wypozyczajacy, string bibliotekarz, DateTime? dataOd, DateTime? dataDo, string status)
+        {
+            var query = _wypozyczenia.AsEnumerable();
+            bool hasAnyLoans = query.Any();
+
+            if (!string.IsNullOrEmpty(wypozyczajacy))
+                query = query.Where(w => w.Wypozyczajacy.Contains(wypozyczajacy, StringComparison.OrdinalIgnoreCase));
+            
+            if (!string.IsNullOrEmpty(bibliotekarz) && bibliotekarz != "Wszyscy bibliotekarze")
+                query = query.Where(w => w.Bibliotekarz == bibliotekarz);
+            
+            if (!string.IsNullOrEmpty(status) && status != "Wszystkie statusy")
+                query = query.Where(w => w.Status == status);
+            
+            if (dataOd.HasValue)
+                query = query.Where(w => w.DataWypozyczenia >= dataOd.Value);
+                
+            if (dataDo.HasValue)
+                query = query.Where(w => w.DataZwrotu <= dataDo.Value);
+
+            var result = query.ToList();
+
+            ViewBag.HasAnyLoans = hasAnyLoans;
+            ViewBag.HasFilterResults = result.Any();
+            ViewBag.Wypozyczajacy = wypozyczajacy;
+            ViewBag.Bibliotekarz = bibliotekarz;
+            ViewBag.DataOd = dataOd?.ToString("yyyy-MM-dd");
+            ViewBag.DataDo = dataDo?.ToString("yyyy-MM-dd");
+            ViewBag.Status = status;
+
+            return View(result);
+        }
+
+        // --- AKCJA: PRZEDŁUŻENIE WYPOŻYCZENIA ---
+        [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult PrzedluzWypozyczenie(int id)
+        {
+            var wypozyczenie = _wypozyczenia.FirstOrDefault(w => w.Id == id);
+            
+            if (wypozyczenie != null)
+            {
+                wypozyczenie.DataZwrotu = wypozyczenie.DataZwrotu.AddDays(14);
+                wypozyczenie.Status = "Przedłużone";
+                TempData["SuccessMessage"] = $"Przedłużono wypożyczenie użytkownika {wypozyczenie.Wypozyczajacy}.";
+            }
+
+            return RedirectToAction(nameof(ListaWypozyczen));
+        }
+
+        // --- AKCJA: ZWROT KSIĄŻEK (Połączona z bazą Entity Framework!) ---
+        [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ZwrotWypozyczenia(int id)
+        {
+            var wypozyczenie = _wypozyczenia.FirstOrDefault(w => w.Id == id);
+            
+            if (wypozyczenie != null)
+            {
+                // Zmieniamy status w widoku wypożyczeń
+                wypozyczenie.Status = "Zakończone";
+                wypozyczenie.DataZwrotu = DateTime.Now;
+
+                // Aktualizujemy prawdziwą bazę książek (Zwalniamy książkę)
+                var ksiazka = await _context.Ksiazki.FirstOrDefaultAsync(k => k.Tytul == wypozyczenie.Ksiazka);
+                if (ksiazka != null)
+                {
+                    ksiazka.Status = "Dostępna";
+                    await _context.SaveChangesAsync();
+                }
+                
+                TempData["SuccessMessage"] = $"Użytkownik {wypozyczenie.Wypozyczajacy} dokonał zwrotu książek.";
+            }
+
+            return RedirectToAction(nameof(ListaWypozyczen));
         }
     }
 }

@@ -3319,3 +3319,723 @@ a {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+/* --- WIDOK REJESTRACJI WYPOŻYCZEŃ --- */
+
+.loan-page-header {
+    margin-bottom: 30px;
+}
+
+.loan-main-title {
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.loan-subtitle {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Karty sekcji */
+.loan-section-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.loan-section-card .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.loan-section-card .section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.loan-section-card label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+/* Wyszukiwarki */
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    padding: 14px 15px 14px 45px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.2s ease;
+}
+
+.search-input-wrapper input:focus {
+    border-color: #E67E22;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.autocomplete-item:hover {
+    background-color: #fdf5ef;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+/* Wybrany klient - Box */
+.selected-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: #fafafa;
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+    padding: 20px;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.selected-details {
+    display: flex;
+    gap: 60px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-group.full-width {
+    width: 100%;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 4px;
+}
+
+.detail-value, #displayCustomerName {
+    font-size: 1rem;
+    color: #222;
+}
+
+.btn-change-text {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #666;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.btn-change-text:hover {
+    color: #333;
+}
+
+/* Wybrane książki - Lista */
+.selected-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.selected-book-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.book-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.book-meta .book-title {
+    font-size: 1rem;
+    color: #222;
+}
+
+.book-meta .book-author {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.btn-delete-book {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.btn-delete-book:hover {
+    transform: scale(1.1);
+}
+
+.btn-add-another {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #E67E22;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-top: 15px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-add-another:hover {
+    text-decoration: underline;
+}
+
+/* Dropdown na czas wypożyczenia */
+.form-control-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1rem;
+    color: #333;
+    appearance: auto;
+}
+
+/* Footer przyciski */
+.loan-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+    padding-bottom: 40px;
+}
+
+/* Wyszukiwarki - POPRAWIONE */
+.search-input-wrapper,
+.search-input-wrapper > div {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Zapobiega blokowaniu kliknięcia w pole pod ikoną */
+}
+
+/* Bezpieczne formatowanie inputów w sekcjach wypożyczeń */
+.loan-section-card input[type="text"] {
+    width: 100%;
+    box-sizing: border-box; /* KLUCZOWE: zatrzymuje wylewanie się poza ramy */
+    padding: 14px 15px 14px 45px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.2s ease;
+    margin: 0;
+}
+
+.loan-section-card input[type="text"]:focus {
+    border-color: #E67E22;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+}
+
+/* --- WIDOK LISTY WYPOŻYCZEŃ --- */
+
+.filter-box-white {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.filter-box-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.filter-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.date-range-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-control-date {
+    width: 100%;
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #333;
+    background-color: #fff;
+}
+
+.date-separator {
+    color: #999;
+    font-weight: bold;
+}
+
+.filter-actions-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Tabele - Kolumny */
+.col-header {
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+    padding: 15px;
+}
+
+.col-cell {
+    padding: 15px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Status Badges */
+.status-badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-new {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-extended {
+    color: #d97706;
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+}
+
+.badge-finished {
+    color: #059669;
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+/* --- WIDOK LISTY WYPOŻYCZEŃ I FILTROWANIA --- */
+
+/* Sidebar Fix (żeby ikonki i tekst leżały w równej linii) */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar-link svg {
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+/* Karta z Filtrami */
+.filter-box-white {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.filter-box-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Siatka 4 kolumn (zablokowana, by się nie rozpychała) */
+.filter-grid-4 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+/* Pola tekstowe i selecty */
+.form-control-input, 
+.form-control-select, 
+.form-control-date {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #333;
+    background-color: #fff;
+}
+
+/* Specyfika inputa z lupą */
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.search-input-wrapper .form-control-input {
+    padding-left: 35px; /* Miejsce na lupę */
+}
+
+/* Pola daty */
+.date-range-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.date-range-group .form-control-date {
+    flex: 1;
+    min-width: 0; /* WAŻNE: zatrzymuje pole przed rozpychaniem w dół i boki */
+    padding: 12px 10px;
+}
+
+.filter-actions-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* --- TABELA WYPOŻYCZEŃ (Zaktualizowana o 7 kolumnę) --- */
+.list-wyp-grid {
+    display: grid;
+    /* Dodana 7 kolumna (ostatnie 110px) na przycisk "Przedłuż" */
+    grid-template-columns: 1.5fr 2.5fr 1.5fr 1.2fr 1.2fr 1.5fr 110px; 
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eee;
+}
+
+/* Wymuszenie tekstu w jednej linii dla kolumn z datami (3 i 4 kolumna) */
+.list-wyp-grid .col-header:nth-child(3),
+.list-wyp-grid .col-header:nth-child(4),
+.list-wyp-grid .col-cell:nth-child(3),
+.list-wyp-grid .col-cell:nth-child(4) {
+    white-space: nowrap;
+}
+
+/* Przycisk Przedłuż w tabeli */
+.btn-extend-outline {
+    background-color: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-extend-outline:hover {
+    background-color: #fef3c7;
+    border-color: #fcd34d;
+}
+
+.col-header {
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.col-cell {
+    padding: 15px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    word-break: break-word; /* Jeśli tytuł książki jest długi, ułamie go zamiast niszczyć tabelę */
+}
+
+/* Status Badges */
+.status-badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-new {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-extended {
+    color: #d97706;
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+}
+
+.badge-finished {
+    color: #059669;
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+/* Siatka 4 kolumn (zablokowana, ale z większą ilością miejsca na daty) */
+.filter-grid-4 {
+    display: grid;
+    /* Trzecia kolumna dostaje 1.8fr, żeby kalendarze miały więcej miejsca */
+    grid-template-columns: 1fr 1fr 1.8fr 1fr; 
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.date-range-group .form-control-date {
+    flex: 1;
+    min-width: 125px; /* Chroni pole daty przed nadmiernym zgnieceniem */
+    padding: 12px 10px;
+}
+
+/* --- TABELA WYPOŻYCZEŃ --- */
+.list-wyp-grid {
+    display: grid;
+    /* Proporcje dostosowane tak, aby status i przycisk miały stałe miejsce */
+    grid-template-columns: 1.5fr 2fr 1.2fr 1.2fr 1.2fr 1.5fr 100px; 
+    align-items: center;
+    width: 100%;
+    gap: 10px; /* Dodaje lekki odstęp między kolumnami */
+    box-sizing: border-box;
+    border-bottom: 1px solid #eee;
+}
+
+/* Wymuszenie tekstu w jednej linii dla kluczowych kolumn (Daty, Status, Bibliotekarz) */
+.list-wyp-grid .col-header:nth-child(3),
+.list-wyp-grid .col-header:nth-child(4),
+.list-wyp-grid .col-header:nth-child(5),
+.list-wyp-grid .col-header:nth-child(6),
+.list-wyp-grid .col-cell:nth-child(3),
+.list-wyp-grid .col-cell:nth-child(4),
+.list-wyp-grid .col-cell:nth-child(5),
+.list-wyp-grid .col-cell:nth-child(6) {
+    white-space: nowrap; 
+}
+
+/* Status Badges - Naprawa pękającego tekstu */
+.status-badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap; /* <-- TO ZAPOBIEGA ŁAMANIU (np. Zako\nńczone) */
+    word-break: keep-all;
+}
+
+/* Przycisk Przedłuż - Naprawa pękającego tekstu */
+.btn-extend-outline {
+    background-color: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap; /* <-- TO ZAPOBIEGA ŁAMANIU (np. Przedłu\nż) */
+    word-break: keep-all;
+}
+
+/* --- TABELA WYPOŻYCZEŃ (Poszerzona dla dwóch przycisków) --- */
+.list-wyp-grid {
+    display: grid;
+    /* Ostatnia kolumna powiększona z 110px do 190px, aby zmieścić Przedłuż + Zwróć */
+    grid-template-columns: 1.5fr 2fr 1.2fr 1.2fr 1.2fr 1.5fr 190px; 
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eee;
+}
+
+/* Wymuszenie tekstu w jednej linii dla kluczowych kolumn */
+.list-wyp-grid .col-header:nth-child(3),
+.list-wyp-grid .col-header:nth-child(4),
+.list-wyp-grid .col-header:nth-child(5),
+.list-wyp-grid .col-header:nth-child(6),
+.list-wyp-grid .col-cell:nth-child(3),
+.list-wyp-grid .col-cell:nth-child(4),
+.list-wyp-grid .col-cell:nth-child(5),
+.list-wyp-grid .col-cell:nth-child(6) {
+    white-space: nowrap; 
+}
+
+/* Kontener na przyciski w tabeli */
+.action-buttons-container {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Przycisk Zwróć w tabeli */
+.btn-return-outline {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.btn-return-outline:hover {
+    background-color: #d1fae5;
+    border-color: #6ee7b7;
+}
+
+/* Zielony przycisk TAK w Modalu */
+.btn-submit-green {
+    background-color: #00a651; /* Zbliżony do zdjęcia */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit-green:hover {
+    background-color: #008f45;
+}

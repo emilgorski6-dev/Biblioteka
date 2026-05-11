@@ -11,7 +11,7 @@ namespace Biblioteka.Web.Data
             : base(options)
         {
         }
-
+        
         public DbSet<Uzytkownik> Uzytkownicy { get; set; }
         public DbSet<Uprawnienie> Uprawnienia { get; set; }
         public DbSet<HistoriaHasla> HistoriaHasel { get; set; }

@@ -27,17 +27,16 @@
                 Zarejestruj książkę
             </a>
             
-            @* ZAKŁADKA WIDOCZNA TYLKO DLA BIBLIOTEKARZA *@
             @if (isLibrarian)
             {
                 <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link active">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                     Rejestracja wypożyczeń
                 </a>
-                       <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ListaWypozyczen" ? "active" : "")">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Lista wypożyczeń
-    </a>
+                <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ListaWypozyczen" ? "active" : "")">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Lista wypożyczeń
+                </a>
             }
         </nav>
     </aside>
@@ -68,7 +67,7 @@
             </header>
 
             <form id="loanForm" method="post" asp-action="RejestracjaWypozyczen">
-                <input type="hidden" id="hiddenCustomerId" name="customerId" required>
+                <input type="hidden" id="hiddenCustomerId" name="idKlienta" required>
                 <div id="hiddenBooksContainer"></div>
 
                 @* SEKCJA 1: KLIENT *@
@@ -103,7 +102,8 @@
                                 <span class="detail-label">Adres zamieszkania</span>
                                 <span id="displayCustomerAddress" class="detail-value"></span>
                             </div>
-                            <button type="button" class="btn-change-text" onclick="clearCustomer()">Zmień</button>
+                            @* ZMIANA: wyczyscKlienta() zamiast clearCustomer() *@
+                            <button type="button" class="btn-change-text" onclick="wyczyscKlienta()">Zmień</button>
                         </div>
                     </div>
                 </section>
@@ -146,7 +146,7 @@
                     <div class="section-content">
                         <div class="input-group" style="max-width: 300px;">
                             <label>Czas wypożyczenia</label>
-                            <select name="duration" class="form-control-select">
+                            <select name="czasTrwania" class="form-control-select">
                                 <option value="2w">2 tygodnie (standardowo)</option>
                                 <option value="1m">1 miesiąc</option>
                                 <option value="2m">2 miesiące</option>
@@ -165,7 +165,6 @@
 </div>
 
 <script>
-    // System powiadomień Toast
     document.addEventListener('DOMContentLoaded', function() {
         const toast = document.getElementById('successToast');
         if (toast) {
@@ -177,134 +176,156 @@
         }
     });
 
-    // Baza symulacyjna (Kroki 4 i 8 analizy)
-    const mockCustomers = [
-        { id: 1, name: 'Jan Kowalski', phone: '123-456-789', address: 'ul. Kwiatowa 1, Warszawa' },
-        { id: 2, name: 'Anna Nowak', phone: '987-654-321', address: 'ul. Długa 15, Kraków' }
-    ];
-
-    const mockBooks = [
-        { id: 101, title: 'Zbrodnia i kara', author: 'Fiodor Dostojewski' },
-        { id: 102, title: 'Władca Pierścieni', author: 'J.R.R. Tolkien' },
-        { id: 103, title: 'Wiedźmin', author: 'Andrzej Sapkowski' }
-    ];
-
+    let wybraneKsiazkiData = [];
     const custSearchInp = document.getElementById('customerSearchInput');
     const custSuggBox = document.getElementById('customerSuggestions');
-    
-    // Krok 3-6: Wyszukiwanie i wybór klienta
-    custSearchInp.addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        custSuggBox.innerHTML = '';
-        if (!val) { custSuggBox.style.display = 'none'; return; }
+    const bookSearchInp = document.getElementById('bookSearchInput');
+    const bookSuggBox = document.getElementById('bookSuggestions');
+    const selectedBooksList = document.getElementById('selectedBooksList');
 
-        const matches = mockCustomers.filter(c => c.name.toLowerCase().includes(val) || c.phone.includes(val));
-        if (matches.length > 0) {
-            matches.forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'autocomplete-item';
-                div.innerHTML = `<strong>${c.name}</strong> <span style="color:#777; font-size:0.85rem;">(${c.phone})</span>`;
-                div.onclick = () => selectCustomer(c);
-                custSuggBox.appendChild(div);
-            });
-            custSuggBox.style.display = 'block';
-        } else {
-            custSuggBox.style.display = 'none';
+    // ZMIANA: Backticki (`) w URL fetch
+    custSearchInp.addEventListener('input', async function() {
+        const fraza = this.value.trim();
+        custSuggBox.innerHTML = '';
+        
+        if (fraza.length < 2) { 
+            custSuggBox.style.display = 'none'; 
+            return; 
+        }
+
+        try {
+            const odpowiedz = await fetch(`/Ksiazki/PobierzKlientow?fraza=${encodeURIComponent(fraza)}`);
+            const klienci = await odpowiedz.json();
+
+            if (klienci && klienci.length > 0) {
+                klienci.forEach(k => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.innerHTML = `<strong>${k.nazwa}</strong> <span style="color:#777; font-size:0.85rem;">(${k.telefon})</span>`;
+                    div.onclick = () => wybierzKlienta(k);
+                    custSuggBox.appendChild(div);
+                });
+                custSuggBox.style.display = 'block';
+            } else {
+                custSuggBox.innerHTML = '<div class="autocomplete-item no-results">Brak klientów biblioteki spełniających kryteria wyszukiwania</div>';
+                custSuggBox.style.display = 'block';
+            }
+        } catch (err) {
+            console.error("Błąd AJAX (Klienci):", err);
         }
     });
 
-    function selectCustomer(c) {
-        document.getElementById('hiddenCustomerId').value = c.id;
-        document.getElementById('displayCustomerName').innerText = c.name;
-        document.getElementById('displayCustomerPhone').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px; vertical-align:middle;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>` + c.phone;
-        document.getElementById('displayCustomerAddress').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px; vertical-align:middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>` + c.address;
+    function wybierzKlienta(k) {
+        document.getElementById('hiddenCustomerId').value = k.id;
+        document.getElementById('displayCustomerName').innerText = k.nazwa;
+        document.getElementById('displayCustomerPhone').innerHTML = `📞 ${k.telefon || 'Brak numeru'}`;
+        document.getElementById('displayCustomerAddress').innerHTML = `📍 ${k.adres || 'Brak adresu'}`;
         
         document.getElementById('customerSearchView').style.display = 'none';
         document.getElementById('customerSelectedView').style.display = 'flex';
         custSuggBox.style.display = 'none';
         custSearchInp.value = '';
-        validateForm();
+        walidujFormularz();
     }
 
-    function clearCustomer() {
+    function wyczyscKlienta() {
         document.getElementById('hiddenCustomerId').value = '';
         document.getElementById('customerSearchView').style.display = 'block';
         document.getElementById('customerSelectedView').style.display = 'none';
-        validateForm();
+        custSearchInp.focus();
+        walidujFormularz();
     }
 
-    // Krok 7-11: Wyszukiwanie, wybór i listowanie książek
-    let selectedBooksData = [];
-    const bookSearchInp = document.getElementById('bookSearchInput');
-    const bookSuggBox = document.getElementById('bookSuggestions');
-    const selectedBooksList = document.getElementById('selectedBooksList');
+    // ZMIANA: Backticki (`) w URL fetch
+        bookSearchInp.addEventListener('input', async function() {
+            const fraza = this.value.trim();
+            bookSuggBox.innerHTML = '';
+            
+            if (fraza.length < 2) { 
+                bookSuggBox.style.display = 'none'; 
+                return; 
+            }
 
-    bookSearchInp.addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        bookSuggBox.innerHTML = '';
-        if (!val) { bookSuggBox.style.display = 'none'; return; }
+            try {
+                const odpowiedz = await fetch(`/Ksiazki/PobierzKsiazki?fraza=${encodeURIComponent(fraza)}`);
+                const wynik = await odpowiedz.json();
 
-        const availableBooks = mockBooks.filter(b => !selectedBooksData.some(sb => sb.id === b.id));
-        const matches = availableBooks.filter(b => b.title.toLowerCase().includes(val) || b.author.toLowerCase().includes(val));
-        
-        if (matches.length > 0) {
-            matches.forEach(b => {
-                const div = document.createElement('div');
-                div.className = 'autocomplete-item';
-                div.innerHTML = `<strong>${b.title}</strong> <span style="color:#777; font-size:0.85rem;">- ${b.author}</span>`;
-                div.onclick = () => addBook(b);
-                bookSuggBox.appendChild(div);
-            });
-            bookSuggBox.style.display = 'block';
-        } else {
-            bookSuggBox.style.display = 'none';
-        }
-    });
+                // SCENARIUSZ A: W bazie nie ma ani jednej dostępnej książki
+                if (wynik.brakDostepnych) {
+                    bookSuggBox.innerHTML = `
+                        <div class="autocomplete-item no-results" style="color: #e74c3c; font-weight: bold;">
+                            Brak książek ze statusem „Dostępna”
+                        </div>`;
+                    bookSuggBox.style.display = 'block';
+                    return;
+                }
 
-    function addBook(b) {
-        selectedBooksData.push(b);
+                // SCENARIUSZ B: Są książki, ale filtrujemy te już wybrane do wypożyczenia
+                const dostepne = wynik.filter(ks => !wybraneKsiazkiData.some(w => w.id === ks.id));
+
+                if (dostepne.length > 0) {
+                    dostepne.forEach(ks => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.innerHTML = `<strong>${ks.tytul}</strong> <span style="color:#777; font-size:0.85rem;">- ${ks.autor}</span>`;
+                        div.onclick = () => dodajKsiazke(ks);
+                        bookSuggBox.appendChild(div);
+                    });
+                    bookSuggBox.style.display = 'block';
+                } else {
+                    // SCENARIUSZ C: Nic nie pasuje do wpisanej frazy
+                    bookSuggBox.innerHTML = '<div class="autocomplete-item no-results">Brak książek spełniających kryteria wyszukiwania</div>';
+                    bookSuggBox.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Błąd AJAX (Książki):", err);
+            }
+        });
+
+    function dodajKsiazke(ks) {
+        wybraneKsiazkiData.push(ks);
         bookSearchInp.value = '';
         bookSuggBox.style.display = 'none';
-        renderBooks();
+        renderujListeKsiazek();
     }
 
-    function removeBook(id) {
-        selectedBooksData = selectedBooksData.filter(b => b.id !== id);
-        renderBooks();
+    function usunKsiazke(id) {
+        wybraneKsiazkiData = wybraneKsiazkiData.filter(ks => ks.id !== id);
+        renderujListeKsiazek();
     }
 
-    function renderBooks() {
+    function renderujListeKsiazek() {
         selectedBooksList.innerHTML = '';
-        const hiddenContainer = document.getElementById('hiddenBooksContainer');
-        hiddenContainer.innerHTML = '';
+        const kontenerHidden = document.getElementById('hiddenBooksContainer');
+        kontenerHidden.innerHTML = '';
 
-        if (selectedBooksData.length > 0) {
+        if (wybraneKsiazkiData.length > 0) {
             document.getElementById('selectedBooksArea').style.display = 'block';
             
-            selectedBooksData.forEach(b => {
+            wybraneKsiazkiData.forEach(ks => {
                 const li = document.createElement('li');
                 li.className = 'selected-book-item';
                 li.innerHTML = `
                     <div class="book-meta">
-                        <strong class="book-title">${b.title}</strong>
-                        <span class="book-author">${b.author}</span>
+                        <strong class="book-title">${ks.tytul}</strong>
+                        <span class="book-author">${ks.autor}</span>
                     </div>
-                    <button type="button" class="btn-delete-book" onclick="removeBook(${b.id})">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <button type="button" class="btn-delete-book" onclick="usunKsiazke(${ks.id})">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 `;
                 selectedBooksList.appendChild(li);
 
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
-                hiddenInput.name = 'bookIds';
-                hiddenInput.value = b.id;
-                hiddenContainer.appendChild(hiddenInput);
+                hiddenInput.name = 'idKsiazek'; 
+                hiddenInput.value = ks.id;
+                kontenerHidden.appendChild(hiddenInput);
             });
         } else {
             document.getElementById('selectedBooksArea').style.display = 'none';
         }
-        validateForm();
+        walidujFormularz();
     }
 
     document.addEventListener('click', function(e) {
@@ -312,19 +333,13 @@
         if(e.target !== bookSearchInp) bookSuggBox.style.display = 'none';
     });
 
-    // Wymagania: Wypożycz możliwe tylko, gdy jest klient i min. 1 książka
-    function validateForm() {
-        const hasCustomer = document.getElementById('hiddenCustomerId').value !== '';
-        const hasBooks = selectedBooksData.length > 0;
-        const btn = document.getElementById('btnSubmitLoan');
+    function walidujFormularz() {
+        const maKlienta = document.getElementById('hiddenCustomerId').value !== '';
+        const maKsiazki = wybraneKsiazkiData.length > 0;
+        const przycisk = document.getElementById('btnSubmitLoan');
         
-        btn.disabled = !(hasCustomer && hasBooks);
-        if(btn.disabled) {
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-        } else {
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-        }
+        przycisk.disabled = !(maKlienta && maKsiazki);
+        przycisk.style.opacity = przycisk.disabled ? '0.5' : '1';
+        przycisk.style.cursor = przycisk.disabled ? 'not-allowed' : 'pointer';
     }
 </script>

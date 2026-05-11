@@ -209,6 +209,82 @@ namespace Biblioteka.Web.Controllers
                 new() { Value = "Historyczna", Text = "Historyczna" }, new() { Value = "Horror", Text = "Horror" }
             };
         }
+        [HttpGet]
+        public async Task<JsonResult> PobierzKlientow(string fraza)
+        {
+            if (string.IsNullOrWhiteSpace(fraza)) return Json(new List<object>());
+
+            var slowa = fraza.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            var query = _context.Uzytkownicy.AsQueryable();
+
+            foreach (var slowo in slowa)
+            {
+                // Używamy EF.Functions.Like, który w SQLite lepiej radzi sobie z ignorowaniem wielkości liter
+                // Dodajemy ?? "", żeby NULL w bazie nie zepsuł wyszukiwania
+                string s = $"%{slowo}%";
+                query = query.Where(u => 
+                    EF.Functions.Like(u.Imie ?? "", s) || 
+                    EF.Functions.Like(u.Nazwisko ?? "", s) || 
+                    EF.Functions.Like(u.Miejscowosc ?? "", s) || 
+                    EF.Functions.Like(u.Ulica ?? "", s) || 
+                    EF.Functions.Like(u.Telefon ?? "", s) ||
+                    EF.Functions.Like(u.NumerPosesji ?? "", s)
+                );
+            }
+
+            var klienci = await query
+                .Select(u => new { 
+                    id = u.Id, 
+                    nazwa = u.Imie + " " + u.Nazwisko, 
+                    telefon = u.Telefon, 
+                    adres = (u.Miejscowosc ?? "") + ", ul. " + (u.Ulica ?? "") + " " + (u.NumerPosesji ?? "")
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return Json(klienci);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> PobierzKsiazki(string fraza)
+        {
+            // 1. Sprawdzamy, czy w całej bibliotece jest jakakolwiek książka "Dostępna"
+            // To obsługuje Twój case: "Brak książek ze statusem Dostępna"
+            bool czySaJakiekolwiekDostepne = await _context.Ksiazki.AnyAsync(k => k.Status == "Dostępna");
+
+            if (!czySaJakiekolwiekDostepne)
+            {
+                return Json(new { brakDostepnych = true });
+            }
+
+            if (string.IsNullOrWhiteSpace(fraza)) return Json(new List<object>());
+
+            // 2. Rozbijamy frazę na słowa (kolejność nie ma znaczenia)
+            var slowa = fraza.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var query = _context.Ksiazki.Where(k => k.Status == "Dostępna").AsQueryable();
+
+            foreach (var slowo in slowa)
+            {
+                string s = $"%{slowo}%";
+                query = query.Where(k => 
+                    EF.Functions.Like(k.Tytul ?? "", s) || 
+                    EF.Functions.Like(k.Autorzy ?? "", s)
+                );
+            }
+
+            // 3. Pobieramy wyniki
+            var ksiazki = await query
+                .Select(k => new { 
+                    id = k.Id, 
+                    tytul = k.Tytul, 
+                    autor = k.Autorzy 
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return Json(ksiazki);
+        }
 
         // --- ZAKŁADKA: REJESTRACJA WYPOŻYCZEŃ ---
         [Authorize(Roles = "Bibliotekarz")] 
@@ -218,11 +294,51 @@ namespace Biblioteka.Web.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Bibliotekarz")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RejestracjaWypozyczen(string customerId, List<string> bookIds, string duration)
+        [Authorize(Roles = "Bibliotekarz")]
+        public async Task<IActionResult> RejestracjaWypozyczen(int idKlienta, List<int> idKsiazek, string czasTrwania)
         {
+            if (idKlienta <= 0 || idKsiazek == null || !idKsiazek.Any())
+            {
+                TempData["ErrorMessage"] = "Błąd: Wybierz klienta i przynajmniej jedną książkę.";
+                return RedirectToAction(nameof(RejestracjaWypozyczen));
+            }
+
+            // Obliczanie terminu zwrotu (Krok 12 i 14 scenariusza)
+            DateTime termin = DateTime.Now.AddDays(14); // Standardowe 2 tygodnie
+            if (czasTrwania == "1m") termin = DateTime.Now.AddMonths(1);
+            else if (czasTrwania == "2m") termin = DateTime.Now.AddMonths(2);
+
+            // 1. Tworzymy główny rekord (Nagłówek)
+            var wypozyczenie = new Wypozyczenie
+            {
+                KlientId = idKlienta,
+                BibliotekarzId = User.Identity?.Name ?? "Nieznany",
+                DataWypozyczenia = DateTime.Now,
+                TerminZwrotu = termin,
+                Status = "Nowe"
+            };
+
+            // 2. Dodajemy każdą książkę jako pozycję
+            foreach (var idKsiazki in idKsiazek)
+            {
+                var ksiazka = await _context.Ksiazki.FindAsync(idKsiazki);
+                if (ksiazka != null && ksiazka.Status == "Dostępna")
+                {
+                    ksiazka.Status = "Wypożyczona"; // Krok 14: Zmiana statusu książki
+
+                    wypozyczenie.Pozycje.Add(new WypozyczeniePozycja
+                    {
+                        KsiazkaId = idKsiazki
+                        // DataFaktycznegoZwrotu zostaje null (bo jeszcze nie oddana)
+                    });
+                }
+            }
+
+            _context.Wypozyczenia.Add(wypozyczenie);
+            await _context.SaveChangesAsync();
+
             TempData["SuccessMessage"] = "Zarejestrowano wypożyczenie książek.";
             return RedirectToAction(nameof(RejestracjaWypozyczen));
         }

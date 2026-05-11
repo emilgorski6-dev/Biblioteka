@@ -55,7 +55,7 @@ namespace Biblioteka.Tests.Controllers
             context.Uzytkownicy.Add(new Uzytkownik
             {
                 Login = TestData.Login,
-                HasloHash = TestData.Password,
+                HasloHash = TestData.Password, // W teście traktujemy to jako zaszyfrowane hasło
                 Imie = "Test",
                 Nazwisko = "User",
                 Email = "test@biblioteka.pl",
@@ -76,9 +76,15 @@ namespace Biblioteka.Tests.Controllers
             using var context = GetContext();
             SeedUser(context);
 
-            // Tworzymy mocka serwisu e-mail, bo kontroler go teraz wymaga
             var emailServiceMock = new Mock<IEmailService>();
-            var controller = new AccountController(context, emailServiceMock.Object);
+            var passwordServiceMock = new Mock<PasswordService>();
+
+            // Konfigurujemy mocka, aby symulował poprawne sprawdzenie hasła
+            passwordServiceMock.Setup(ps => ps.VerifyPassword(It.IsAny<string>(), It.IsAny<string>()))
+                               .Returns(true);
+
+            // Przekazujemy wymagany parametr passwordServiceMock.Object
+            var controller = new AccountController(context, emailServiceMock.Object, passwordServiceMock.Object);
 
             MockAuthentication(controller);
 
@@ -101,9 +107,11 @@ namespace Biblioteka.Tests.Controllers
             // 1. ARRANGE
             using var context = GetContext();
 
-            // Tworzymy mocka serwisu e-mail również tutaj
             var emailServiceMock = new Mock<IEmailService>();
-            var controller = new AccountController(context, emailServiceMock.Object);
+            var passwordServiceMock = new Mock<PasswordService>();
+
+            // Przekazujemy wymagany parametr passwordServiceMock.Object
+            var controller = new AccountController(context, emailServiceMock.Object, passwordServiceMock.Object);
 
             var model = new LoginViewModel
             {

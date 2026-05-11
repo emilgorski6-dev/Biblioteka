@@ -16,11 +16,14 @@ namespace Biblioteka.Web.Data
         public DbSet<Uprawnienie> Uprawnienia { get; set; }
         public DbSet<HistoriaHasla> HistoriaHasel { get; set; }
         public DbSet<Ksiazka> Ksiazki { get; set; }
+
+        public DbSet<Wypozyczenie> Wypozyczenia { get; set; }
+        public DbSet<WypozyczeniePozycja> WypozyczeniaPozycje { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Konfiguracja relacji Wiele-do-Wielu (bez zmian, jest OK)
             modelBuilder.Entity<Uzytkownik>()
                 .HasMany(u => u.Uprawnienia)
                 .WithMany(p => p.Uzytkownicy)
@@ -28,6 +31,21 @@ namespace Biblioteka.Web.Data
                     "Uzytkownik_Uprawnienia",
                     j => j.HasOne<Uprawnienie>().WithMany().HasForeignKey("uprawnienie_id"),
                     j => j.HasOne<Uzytkownik>().WithMany().HasForeignKey("uzytkownik_id"));
+
+
+            modelBuilder.Entity<WypozyczeniePozycja>()
+                .ToTable("Wypozyczenia_Pozycje");
+
+            modelBuilder.Entity<WypozyczeniePozycja>()
+                .HasOne(p => p.Wypozyczenie)
+                .WithMany(w => w.Pozycje)
+                .HasForeignKey(p => p.WypozyczenieId);
+            modelBuilder.Entity<WypozyczeniePozycja>()
+                .HasOne(p => p.Ksiazka)
+                .WithMany()
+                .HasForeignKey(p => p.KsiazkaId);
+
+            // --- SEED DATA ---
 
             // Seed Data - Role
             modelBuilder.Entity<Uprawnienie>().HasData(
@@ -47,14 +65,14 @@ namespace Biblioteka.Web.Data
                     Email = "admin@biblioteka.pl",
                     Pesel = "90010112345",
                     DataUrodzenia = new DateTime(1990, 1, 1),
-                    Plec = TypPlci.Mezczyzna, // GWARANCJA: Używamy Enuma, nie stringa
+                    Plec = TypPlci.Mezczyzna,
                     Telefon = "123456789",
                     Miejscowosc = "Łódź",
                     KodPocztowy = "90-001",
                     Ulica = "Piotrkowska",
                     NumerPosesji = "1",
-                    NumerLokalu = null, // Zamiast pustego stringa dajemy null (lepsze dla bazy)
-                    HasloHash = "admin123", // W prawdziwym systemie byłby tu hash, ale na projekt wystarczy
+                    NumerLokalu = null,
+                    HasloHash = "admin123",
                     CzyZablokowany = false,
                     CzyZapomniany = false
                 }

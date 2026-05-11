@@ -4039,3 +4039,56 @@ a {
 .btn-submit-green:hover {
     background-color: #008f45;
 }
+
+/* --- ZAKTUALIZOWANA TABELA WYPOŻYCZEŃ --- */
+.list-wyp-grid {
+    display: grid;
+    /* MAGICZNA REGUŁA:
+       - 1.5fr dla Wypożyczającego, 2.5fr dla Książki, 1.2fr dla Bibliotekarza (elastyczne)
+       - max-content dla Dat, Statusu i Przycisków (biorą tylko tyle, ile muszą, bez łamania)
+    */
+    grid-template-columns: 1.5fr 2.5fr max-content max-content max-content 1.2fr max-content; 
+    align-items: center;
+    width: 100%;
+    gap: 15px; /* Dodajemy stały odstęp między kolumnami */
+    box-sizing: border-box;
+    border-bottom: 1px solid #eee;
+}
+
+.col-header {
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+    padding: 15px 5px; /* Zmniejszamy padding, bo gap robi robotę */
+    box-sizing: border-box;
+}
+
+.col-cell {
+    padding: 15px 5px; /* Zmniejszamy padding */
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    /* ZABRANIAMY brzydkiego łamania wyrazów (jak Kowals-ki): */
+    word-break: normal; 
+    overflow-wrap: break-word;
+}
+
+/* Żelazna zasada braku łamania dla dat i statusu */
+.list-wyp-grid .col-header:nth-child(3),
+.list-wyp-grid .col-header:nth-child(4),
+.list-wyp-grid .col-header:nth-child(5),
+.list-wyp-grid .col-cell:nth-child(3),
+.list-wyp-grid .col-cell:nth-child(4),
+.list-wyp-grid .col-cell:nth-child(5) {
+    white-space: nowrap; 
+}
+
+/* Kontener na przyciski w tabeli - zakaz wpadania pod siebie */
+.action-buttons-container {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: nowrap; 
+    white-space: nowrap;
+}

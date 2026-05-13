@@ -21,14 +21,6 @@ namespace Biblioteka.Web.Controllers
             _context = context;
         }
 
-        // --- MOCK BAZY WYPOŻYCZEŃ ---
-        public static List<WypozyczenieViewModel> _wypozyczenia = new List<WypozyczenieViewModel>
-        {
-            new WypozyczenieViewModel { Id = 1, Wypozyczajacy = "Jan Kowalski", Ksiazka = "Duma i uprzedzenie", DataWypozyczenia = new DateTime(2026, 4, 10), DataZwrotu = new DateTime(2026, 4, 24), Status = "Nowe", Bibliotekarz = "Anna Bibliotekarz" },
-            new WypozyczenieViewModel { Id = 2, Wypozyczajacy = "Magdalena Lewandowska", Ksiazka = "Harry Potter i Kamień Filozoficzny", DataWypozyczenia = new DateTime(2026, 3, 15), DataZwrotu = new DateTime(2026, 5, 15), Status = "Przedłużone", Bibliotekarz = "Piotr Wiśniewski" },
-            new WypozyczenieViewModel { Id = 3, Wypozyczajacy = "Piotr Wiśniewski", Ksiazka = "Władca Pierścieni: Drużyna Pierścienia", DataWypozyczenia = new DateTime(2026, 1, 10), DataZwrotu = new DateTime(2026, 1, 24), Status = "Zakończone", Bibliotekarz = "Anna Bibliotekarz" }
-        };
-
         // --- ZRK-01: LISTA KSIĄŻEK (Dla Bibliotekarza/Użytkownika) ---
         [HttpGet]
         [Authorize(Roles = "Bibliotekarz,Manager")]
@@ -344,29 +336,71 @@ namespace Biblioteka.Web.Controllers
         }
 
         // --- ZAKŁADKA: LISTA WYPOŻYCZEŃ ---
-        [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
+        [Authorize(Roles = "Bibliotekarz,Manager")]
         [HttpGet]
-        public IActionResult ListaWypozyczen(string wypozyczajacy, string bibliotekarz, DateTime? dataOd, DateTime? dataDo, string status)
+        public async Task<IActionResult> ListaWypozyczen(string wypozyczajacy, string bibliotekarz, DateTime? dataOd, DateTime? dataDo, string status)
         {
-            var query = _wypozyczenia.AsEnumerable();
-            bool hasAnyLoans = query.Any();
+            var query = _context.Wypozyczenia
+                .Include(w => w.Pozycje)
+                    .ThenInclude(p => p.Ksiazka)
+                .AsQueryable();
+
+            bool hasAnyLoans = await query.AnyAsync();
 
             if (!string.IsNullOrEmpty(wypozyczajacy))
-                query = query.Where(w => w.Wypozyczajacy.Contains(wypozyczajacy, StringComparison.OrdinalIgnoreCase));
-            
+            {
+                query = query.Where(w =>
+                    _context.Uzytkownicy
+                        .Where(u => u.Id == w.KlientId)
+                        .Any(u => (u.Imie + " " + u.Nazwisko).Contains(wypozyczajacy)));
+            }
+
             if (!string.IsNullOrEmpty(bibliotekarz) && bibliotekarz != "Wszyscy bibliotekarze")
-                query = query.Where(w => w.Bibliotekarz == bibliotekarz);
-            
+            {
+                query = query.Where(w => w.BibliotekarzId == bibliotekarz);
+            }
+
             if (!string.IsNullOrEmpty(status) && status != "Wszystkie statusy")
+            {
                 query = query.Where(w => w.Status == status);
-            
+            }
+
             if (dataOd.HasValue)
                 query = query.Where(w => w.DataWypozyczenia >= dataOd.Value);
-                
-            if (dataDo.HasValue)
-                query = query.Where(w => w.DataZwrotu <= dataDo.Value);
 
-            var result = query.ToList();
+            if (dataDo.HasValue)
+                query = query.Where(w => w.TerminZwrotu <= dataDo.Value);
+
+            var wypozyczenia = await query.ToListAsync();
+
+            var klientIds = wypozyczenia.Select(w => w.KlientId).Distinct().ToList();
+            var bibliotekarzeIds = wypozyczenia.Select(w => w.BibliotekarzId).Distinct().ToList();
+
+            var klienci = await _context.Uzytkownicy
+                .Where(u => klientIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => $"{u.Imie} {u.Nazwisko}");
+
+            var bibliotekarze = await _context.Uzytkownicy
+                .Where(u => bibliotekarzeIds.Contains(u.Login)) 
+                .ToDictionaryAsync(u => u.Login, u => $"{u.Imie} {u.Nazwisko}");
+
+            var result = wypozyczenia.Select(w => new WypozyczenieViewModel
+            {
+                Id = w.Id,
+                Wypozyczajacy = klienci.TryGetValue(w.KlientId, out var klientNazwa) ? klientNazwa : $"ID {w.KlientId}",
+                Ksiazka = string.Join(", ", w.Pozycje.Select(p => p.Ksiazka.Tytul)),
+                DataWypozyczenia = w.DataWypozyczenia,
+                DataZwrotu = w.TerminZwrotu,
+                Status = w.Status,
+                Bibliotekarz = bibliotekarze.TryGetValue(w.BibliotekarzId, out var biblNazwa) ? biblNazwa : w.BibliotekarzId
+            }).ToList();
+
+            var wszyscyBibliotekarze = await _context.Uprawnienia
+                .Where(p => p.Nazwa == "Bibliotekarz")
+                .SelectMany(p => p.Uzytkownicy)
+                .Distinct()
+                .Select(u => new { u.Login, NazwaWyswietlana = u.Imie + " " + u.Nazwisko })
+                .ToListAsync();
 
             ViewBag.HasAnyLoans = hasAnyLoans;
             ViewBag.HasFilterResults = result.Any();
@@ -375,6 +409,8 @@ namespace Biblioteka.Web.Controllers
             ViewBag.DataOd = dataOd?.ToString("yyyy-MM-dd");
             ViewBag.DataDo = dataDo?.ToString("yyyy-MM-dd");
             ViewBag.Status = status;
+            ViewBag.ListaBibliotekarzy = new SelectList(wszyscyBibliotekarze, "Login", "NazwaWyswietlana", bibliotekarz);
+            ViewBag.ListaStatusow = new SelectList(new[] { "Nowe", "Przedłużone", "Zakończone" }, status);
 
             return View(result);
         }
@@ -383,44 +419,74 @@ namespace Biblioteka.Web.Controllers
         [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult PrzedluzWypozyczenie(int id)
+        public async Task<IActionResult> PrzedluzWypozyczenie(int id)
         {
-            var wypozyczenie = _wypozyczenia.FirstOrDefault(w => w.Id == id);
+            var wypozyczenie = await _context.Wypozyczenia.FindAsync(id);
             
-            if (wypozyczenie != null)
+            if (wypozyczenie == null)
             {
-                wypozyczenie.DataZwrotu = wypozyczenie.DataZwrotu.AddDays(14);
-                wypozyczenie.Status = "Przedłużone";
-                TempData["SuccessMessage"] = $"Przedłużono wypożyczenie użytkownika {wypozyczenie.Wypozyczajacy}.";
+                return NotFound();
             }
+
+            if (wypozyczenie.Status == "Zakończone")
+            {
+                TempData["ErrorMessage"] = "Nie można przedłużyć zakończonego wypożyczenia.";
+                return RedirectToAction(nameof(ListaWypozyczen));
+            }
+
+                wypozyczenie.TerminZwrotu  = wypozyczenie.TerminZwrotu.AddDays(14);
+                wypozyczenie.Status = "Przedłużone";
+
+                await _context.SaveChangesAsync();
+
+                var klient = await _context.Uzytkownicy.FindAsync(wypozyczenie.KlientId);
+                var nazwaKlienta = klient != null ? $"{klient.Imie} {klient.Nazwisko}" : $"ID {wypozyczenie.KlientId}";
+
+                TempData["SuccessMessage"] = $"Przedłużono wypożyczenie użytkownika {nazwaKlienta}.";
 
             return RedirectToAction(nameof(ListaWypozyczen));
         }
 
         // --- AKCJA: ZWROT KSIĄŻEK (Połączona z bazą Entity Framework!) ---
-        [Authorize(Roles = "Bibliotekarz,Manager")] // Udostępnione dla Managera
+        [Authorize(Roles = "Bibliotekarz,Manager")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ZwrotWypozyczenia(int id)
         {
-            var wypozyczenie = _wypozyczenia.FirstOrDefault(w => w.Id == id);
-            
-            if (wypozyczenie != null)
-            {
-                // Zmieniamy status w widoku wypożyczeń
-                wypozyczenie.Status = "Zakończone";
-                wypozyczenie.DataZwrotu = DateTime.Now;
+            var wypozyczenie = await _context.Wypozyczenia
+                .Include(w => w.Pozycje)
+                    .ThenInclude(p => p.Ksiazka)
+                .FirstOrDefaultAsync(w => w.Id == id);
 
-                // Aktualizujemy prawdziwą bazę książek (Zwalniamy książkę)
-                var ksiazka = await _context.Ksiazki.FirstOrDefaultAsync(k => k.Tytul == wypozyczenie.Ksiazka);
-                if (ksiazka != null)
-                {
-                    ksiazka.Status = "Dostępna";
-                    await _context.SaveChangesAsync();
-                }
-                
-                TempData["SuccessMessage"] = $"Użytkownik {wypozyczenie.Wypozyczajacy} dokonał zwrotu książek.";
+            if (wypozyczenie == null)
+            {
+                return NotFound();
             }
+
+            if (wypozyczenie.Status == "Zakończone")
+            {
+                TempData["ErrorMessage"] = "To wypożyczenie zostało już zakończone.";
+                return RedirectToAction(nameof(ListaWypozyczen));
+            }
+
+            wypozyczenie.Status = "Zakończone";
+
+            foreach (var pozycja in wypozyczenie.Pozycje)
+            {
+                pozycja.DataFaktycznegoZwrotu = DateTime.Now;
+
+                if (pozycja.Ksiazka != null)
+                {
+                    pozycja.Ksiazka.Status = "Dostępna";
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            var klient = await _context.Uzytkownicy.FindAsync(wypozyczenie.KlientId);
+            var nazwaKlienta = klient != null ? $"{klient.Imie} {klient.Nazwisko}" : $"ID {wypozyczenie.KlientId}";
+
+            TempData["SuccessMessage"] = $"Użytkownik {nazwaKlienta} dokonał zwrotu książek.";
 
             return RedirectToAction(nameof(ListaWypozyczen));
         }

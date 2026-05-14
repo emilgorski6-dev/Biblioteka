@@ -10,7 +10,16 @@
             umożliwia łatwe zarządzanie wypożyczeniami i wyszukiwanie czytelników.
         </p>
         <div class="actions">
-            <a href="/Account/Login" class="link-panel">Zaloguj się do panelu →</a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                @* Jeśli zalogowany, kierujemy do Dashboardu *@
+                <a href="/Uzytkownicy/Dashboard" class="link-panel">Przejdź do panelu →</a>
+            }
+            else
+            {
+                @* Jeśli niezalogowany, kierujemy do Logowania *@
+                <a href="/Account/Login" class="link-panel">Zaloguj się do panelu →</a>
+            }
         </div>
     </div>
 </div>

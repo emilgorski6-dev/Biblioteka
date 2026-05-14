@@ -3,7 +3,7 @@
     bool isAdmin = User.IsInRole("Administrator");
     bool isLibrarian = User.IsInRole("Bibliotekarz");
     bool isManager = User.IsInRole("Manager");
-    string sidebarTitle = isAdmin ? "Panel administratora" : isLibrarian ? "Panel Bibliotekarza" : "Panel Managera";
+    string sidebarTitle = isAdmin ? "Panel Administratora" : isLibrarian ? "Panel Bibliotekarza" : "Panel Managera";
     ViewData["Title"] = "Lista wypożyczeń";
 
     bool hasAnyLoans = ViewBag.HasAnyLoans ?? true;
@@ -13,55 +13,59 @@
 }
 
 <div class="management-panel-layout">
-    @* --- SIDEBAR --- *@
+    @* --- SIDEBAR (Zgodny z image_767c40.png oraz image_767cb8.png) --- *@
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
             </div>
             <div class="sidebar-titles">
                 <h3 class="sidebar-title">@sidebarTitle</h3>
-                <p class="sidebar-subtitle">Zarządzanie księgozbiorem Biblioteka Nova</p>
+                <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
             </div>
         </div>
         <nav class="sidebar-nav">
+            @* Link: Lista książek *@
             <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link @(currentAction == "Lista" ? "active" : "")">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
                 Lista książek
             </a>
-            
-            <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    Zarejestruj książkę
-                </a>
-    </a>
-            
-            
+
+            @* Link: Lista rejestracji książek (Zamiast "Zarejestruj książkę" - image_767cb8.png) *@
+            <a asp-controller="Manager" asp-action="Rejestracje" class="sidebar-link @(currentAction == "Rejestracje" ? "active" : "")">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                Lista rejestracji książek
+            </a>
+
             @if (isLibrarian)
             {
                 <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link @(currentAction == "RejestracjaWypozyczen" ? "active" : "")">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
                     Rejestracja wypożyczeń
                 </a>
-
-                <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    Lista wypożyczeń
-                </a>
             }
 
-            @if (isManager)
-            {
-                <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    Lista wypożyczeń
-                </a>
-            }
+            <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                Lista wypożyczeń
+            </a>
         </nav>
     </aside>
 
@@ -199,7 +203,6 @@
                                     </div>
                                     <div class="col-cell" style="color: #777;">@item.Bibliotekarz</div>
                                     
-                                    @* PRZYCISKI AKCJI *@
                                     <div class="col-cell action-buttons-container" style="justify-content: flex-end; display: flex; gap: 8px;">
                                         @if (item.Status == "Nowe" || item.Status == "Przedłużone")
                                         {
@@ -217,15 +220,13 @@
     </main>
 </div>
 
-@* --- MODAL: PRZEDŁUŻENIE WYPOŻYCZENIA --- *@
+@* --- MODALE (BEZ ZMIAN) --- *@
 <div id="extendModal" class="perm-modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 100000; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);">
     <div class="perm-modal-content" style="background: white; border-radius: 12px; padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: #333;">Przedłużenie wypożyczenia</h3>
-        
         <p style="color: #555; margin-bottom: 30px; line-height: 1.5;">
             Czy na pewno chcesz przedłużyć wypożyczenie użytkownika <strong id="extendUserName" style="color: #111;"></strong>?
         </p>
-        
         <div style="display: flex; justify-content: flex-end; gap: 12px;">
             <button type="button" onclick="closeExtendModal()" class="btn-cancel" style="border: 1px solid #ccc; padding: 10px 20px; border-radius: 8px; background: white; cursor: pointer;">Anuluj</button>
             <form asp-action="PrzedluzWypozyczenie" method="post" style="margin: 0;">
@@ -236,15 +237,12 @@
     </div>
 </div>
 
-@* --- MODAL: ZWROT KSIĄŻEK --- *@
 <div id="returnModal" class="perm-modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 100000; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);">
     <div class="perm-modal-content" style="background: white; border-radius: 12px; padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: #333;">Zwrot książek</h3>
-        
         <p style="color: #555; margin-bottom: 30px; line-height: 1.5;">
             Czy na pewno chcesz dokonać zwrotu książek użytkownika <strong id="returnUserName" style="color: #111;"></strong>?
         </p>
-        
         <div style="display: flex; justify-content: flex-end; gap: 12px;">
             <button type="button" onclick="closeReturnModal()" class="btn-cancel" style="border: 1px solid #ccc; padding: 10px 20px; border-radius: 8px; background: white; cursor: pointer;">Anuluj</button>
             <form asp-action="ZwrotWypozyczenia" method="post" style="margin: 0;">
@@ -256,7 +254,6 @@
 </div>
 
 <script>
-    // --- Autouzupełnianie dla pola "Wypożyczający" ---
     const mockUsers = ['Jan Kowalski', 'Anna Nowak', 'Magdalena Lewandowska', 'Piotr Wiśniewski', 'Krzysztof Krawczyk'];
     const input = document.getElementById('wypozyczajacyInput');
     const suggBox = document.getElementById('wypozyczajacySuggestions');
@@ -266,7 +263,6 @@
             const val = this.value.toLowerCase();
             suggBox.innerHTML = '';
             if (!val) { suggBox.style.display = 'none'; return; }
-
             const matches = mockUsers.filter(u => u.toLowerCase().includes(val));
             if (matches.length > 0) {
                 matches.forEach(match => {
@@ -282,29 +278,19 @@
         document.addEventListener('click', function(e) { if(e.target !== input) suggBox.style.display = 'none'; });
     }
 
-    // --- Modal Przedłużenia ---
     function openExtendModal(id, userName) {
         document.getElementById('extendLoanId').value = id;
         document.getElementById('extendUserName').innerText = userName;
         document.getElementById('extendModal').style.display = 'flex';
     }
-
-    function closeExtendModal() {
-        document.getElementById('extendModal').style.display = 'none';
-    }
-
-    // --- Modal Zwrotu ---
+    function closeExtendModal() { document.getElementById('extendModal').style.display = 'none'; }
     function openReturnModal(id, userName) {
         document.getElementById('returnLoanId').value = id;
         document.getElementById('returnUserName').innerText = userName;
         document.getElementById('returnModal').style.display = 'flex';
     }
+    function closeReturnModal() { document.getElementById('returnModal').style.display = 'none'; }
 
-    function closeReturnModal() {
-        document.getElementById('returnModal').style.display = 'none';
-    }
-
-    // Znikający Toast
     document.addEventListener('DOMContentLoaded', function() {
         const toast = document.getElementById('successToast');
         if (toast) {
@@ -318,74 +304,16 @@
 </script>
 
 <style>
-    .management-content {
-        padding: 10px; /* Zmniejszony padding główny, by dać więcej miejsca tabeli */
-    }
-
-    .books-card-table {
-        width: 100%;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden; /* Brak paska przewijania */
-    }
-
+    .management-content { padding: 10px; }
+    .books-card-table { width: 100%; background: white; border-radius: 8px; overflow: hidden; }
     .list-wyp-grid {
         display: grid;
-        /* Proporcjonalny podział: 100% szerokości podzielone na funkcjonalne udziały */
-        grid-template-columns: 
-            minmax(110px, 1fr)   /* Wypożyczający */
-            minmax(150px, 1.8fr) /* Książka (najwięcej miejsca) */
-            90px                 /* Data wyp. (kompaktowo) */
-            90px                 /* Data zwr. (kompaktowo) */
-            115px                /* Status (stała szerokość) */
-            minmax(100px, 1fr)   /* Bibliotekarz */
-            130px;               /* Przyciski (zwężone) */
-        gap: 8px;
-        padding: 12px 10px;
-        align-items: center;
-        border-bottom: 1px solid #f0f0f0;
+        grid-template-columns: minmax(110px, 1fr) minmax(150px, 1.8fr) 90px 90px 115px minmax(100px, 1fr) 130px;
+        gap: 8px; padding: 12px 10px; align-items: center; border-bottom: 1px solid #f0f0f0;
     }
-
-    .col-header {
-        font-size: 0.7rem; /* Mniejszy font dla nagłówków */
-        font-weight: 800;
-        color: #999;
-        text-transform: uppercase;
-    }
-
-    .col-cell {
-        font-size: 0.85rem; /* Nieco mniejszy font dla danych */
-        line-height: 1.3;
-        white-space: normal; /* Zawijanie tekstu */
-        word-break: break-word;
-        color: #444;
-    }
-
-    /* Wyłączamy ikony SVG w datach na małych ekranach, jeśli nadal będzie ciasno */
-    .col-cell-date {
-        font-size: 0.8rem;
-        display: block; /* Data pod datą, jeśli trzeba */
-        text-align: center;
-    }
-
-    /* Zwężenie przycisków, aby nie zajmowały pół ekranu */
-    .btn-extend-outline, .btn-return-outline {
-        padding: 5px 10px;
-        font-size: 0.75rem;
-        width: 100%; /* Przyciski jeden pod drugim w kontenerze */
-    }
-
-    .action-buttons-container {
-        display: flex;
-        flex-direction: column; /* Przyciski pionowo oszczędzają szerokość */
-        gap: 4px;
-    }
-
-    /* Statusy - mniejszy padding */
-    .status-badge-custom {
-        padding: 4px 8px;
-        font-size: 0.7rem;
-        display: inline-flex;
-        width: fit-content;
-    }
+    .col-header { font-size: 0.7rem; font-weight: 800; color: #999; text-transform: uppercase; }
+    .col-cell { font-size: 0.85rem; line-height: 1.3; white-space: normal; word-break: break-word; color: #444; }
+    .btn-extend-outline, .btn-return-outline { padding: 5px 10px; font-size: 0.75rem; width: 100%; }
+    .action-buttons-container { display: flex; flex-direction: column; gap: 4px; }
+    .status-badge-custom { padding: 4px 8px; font-size: 0.7rem; display: inline-flex; width: fit-content; }
 </style>

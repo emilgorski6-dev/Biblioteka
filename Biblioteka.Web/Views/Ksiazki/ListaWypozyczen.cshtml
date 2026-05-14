@@ -15,29 +15,70 @@
 <div class="management-panel-layout">
     @* --- SIDEBAR (Zgodny z image_767c40.png oraz image_767cb8.png) --- *@
     <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                </svg>
-            </div>
-            <div class="sidebar-titles">
-                <h3 class="sidebar-title">@sidebarTitle</h3>
-                <p class="sidebar-subtitle">Zarządzanie systemem Biblioteka Nova</p>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            @* Link: Lista książek *@
-            <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link @(currentAction == "Lista" ? "active" : "")">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+    <div class="sidebar-header">
+        <div class="sidebar-icon-box">
+            @* Dynamiczna ikonka zależna od roli (Zgodnie z Plikiem 1) *@
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                @if (isLibrarian) 
+                { 
+                    @* Ikonka książki dla Bibliotekarza *@
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path> 
+                }
+                else if (isManager || isAdmin) 
+                { 
+                    @* Ikonka teczki dla Managera/Admina *@
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path> 
+                }
+                else 
+                { 
+                    <circle cx="12" cy="8" r="5"></circle>
+                    <path d="M20 21a8 8 0 1 0-16 0"></path> 
+                }
+            </svg>
+        </div>
+        <div class="sidebar-titles">
+            <h3 class="sidebar-title">@sidebarTitle</h3>
+            <p class="sidebar-subtitle">Zarządzanie księgozbiorem Biblioteka Nova</p>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        @* 1. Lista książek - widoczna dla każdego *@
+        <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link @(currentAction == "Lista" ? "active" : "")">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Lista książek
+        </a>
+
+        @if (isLibrarian)
+        {
+            @* 2. Zarejestruj książkę - tylko Bibliotekarz (Zgodnie z image_76045c.png) *@
+            <a asp-controller="Ksiazki" asp-action="Zarejestruj" class="sidebar-link @(currentAction == "Zarejestruj" ? "active" : "")">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                Lista książek
+                Zarejestruj książkę
             </a>
 
-            @* Link: Lista rejestracji książek (Zamiast "Zarejestruj książkę" - image_767cb8.png) *@
+            @* 3. Rejestracja wypożyczeń - tylko Bibliotekarz *@
+            <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link @(currentAction == "RejestracjaWypozyczen" ? "active" : "")">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+                Rejestracja wypożyczeń
+            </a>
+        }
+
+        @if (isManager || isAdmin)
+        {
+            @* Link widoczny tylko dla Managera/Admina *@
             <a asp-controller="Manager" asp-action="Rejestracje" class="sidebar-link @(currentAction == "Rejestracje" ? "active" : "")">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -46,28 +87,20 @@
                 </svg>
                 Lista rejestracji książek
             </a>
+        }
 
-            @if (isLibrarian)
-            {
-                <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link @(currentAction == "RejestracjaWypozyczen" ? "active" : "")">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                    </svg>
-                    Rejestracja wypożyczeń
-                </a>
-            }
-
-            <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
-                Lista wypożyczeń
-            </a>
-        </nav>
-    </aside>
+        @* 4. Lista wypożyczeń - aktywna w tym widoku *@
+        <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            Lista wypożyczeń
+        </a>
+    </nav>
+</aside>
 
     @* --- MAIN CONTENT --- *@
     <main class="management-content">

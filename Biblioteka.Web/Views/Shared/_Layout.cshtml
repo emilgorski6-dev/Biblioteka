@@ -58,7 +58,13 @@
             </header>
 
             <main role="main">
-                @* STARY ZIELONY PASEK ZOSTAŁ USUNIĘTY *@
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert-success-global">
+                        <i class="fa-solid fa-circle-check"></i>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
                 @RenderBody()
             </main>
 

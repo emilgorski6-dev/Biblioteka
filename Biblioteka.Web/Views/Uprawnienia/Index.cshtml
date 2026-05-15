@@ -52,7 +52,7 @@
     @* --- GŁÓWNA TREŚĆ --- *@
     <main class="admin-content">
         <div class="permissions-container">
-            
+
             <div class="page-header" style="margin-bottom: 2rem;">
                 <h1 class="page-title">Uprawnienia</h1>
                 <p class="page-description">Przeglądaj role i użytkowników, którzy je posiadają.</p>
@@ -66,7 +66,7 @@
                         <div class="permission-badge-container">
                             <span class="permission-badge @item.BadgeClass">@item.Nazwa</span>
                         </div>
-                        
+
                         <div class="permission-info">
                             <span class="permission-title">@item.Opis</span>
                             <span class="permission-count">@item.LiczbaUzytkownikow użytkowników</span>
@@ -91,98 +91,99 @@
                  style="background: #fdfdfd; padding: 2rem; border-radius: 12px; border: 1px solid #eee;">
                 <h2 class="search-title">Wyszukiwanie użytkowników według uprawnień</h2>
                 <p class="search-subtitle">Zaznacz uprawnienia, aby znaleźć użytkowników, którzy posiadają
-                    <strong>wszystkie</strong> wybrane role.</p>
+                    <strong>wszystkie</strong> wybrane role.
+                </p>
 
-                    <form action="/Uprawnienia/Index" method="get" class="filter-form">
-                        <div class="chips-container"
-                             style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                            @foreach (var item in Model)
-                            {
-                                <label class="filter-chip">
-                                    @* Sprawdzamy czy rola była zaznaczona *@
-                                    <input type="checkbox" name="selectedRoles" value="@item.Nazwa"
-                                    @(selectedRoles.Contains(item.Nazwa) ? "checked" : "")>
-                                    <span class="chip-label">@item.Nazwa</span>
-                                </label>
-                            }
-                        
-                            @* Przycisk wyszukiwania *@
-                            <button type="submit" class="btn-search-orange" style="margin-left: 10px; padding: 10px 25px;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                                Wyszukaj
-                            </button>
-                        </div>
-                    </form>
-
-                    @* --- WYNIKI WYSZUKIWANIA --- *@
-                    @if (selectedRoles.Any())
-                    {
-                        <div class="search-results-table" style="margin-top: 2.5rem;">
-                            <h3
-                                style="font-size: 1.1rem; margin-bottom: 1rem; color: #333; border-bottom: 2px solid #E67E22; display: inline-block; padding-bottom: 5px;">
-                                Wyniki wyszukiwania (@(filteredUsers?.Count ?? 0))
-                            </h3>
-
-                            @if (filteredUsers != null && filteredUsers.Any())
-                            {
-                                <div style="overflow-x: auto;">
-                                    <table class="custom-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                                        <thead>
-                                            <tr style="background: #f8f9fa; border-bottom: 2px solid #eee;">
-                                                <th style="padding: 12px; text-align: left;">Użytkownik</th>
-                                                <th style="padding: 12px; text-align: left;">Login</th>
-                                                <th style="padding: 12px; text-align: left;">Wszystkie przypisane role</th>
-                                                <th style="padding: 12px; text-align: center;">Akcja</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var user in filteredUsers)
-                                            {
-                                                <tr style="border-bottom: 1px solid #eee;">
-                                                    <td style="padding: 12px;"><strong>@user.Imie @user.Nazwisko</strong></td>
-                                                    <td style="padding: 12px;"><code
-                                                        style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">@user.Login</code>
-                                                    </td>
-                                                    <td style="padding: 12px;">
-                                                        @foreach (var r in user.Uprawnienia)
-                                                        {
-                                                            <span
-                                                                style="font-size: 0.75rem; background: #E67E2222; color: #E67E22; padding: 2px 8px; border-radius: 10px; margin-right: 4px; border: 1px solid #E67E2244;">
-                                                                @r.Nazwa
-                                                            </span>
-                                                        }
-                                                    </td>
-                                                    <td style="padding: 12px; text-align: center;">
-                                                        <a href="/Uzytkownicy/Szczegoly?login=@user.Login"
-                                                               style="color: #E67E22; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Profil
-                                                            &rarr;</a>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                }
-                        else
-                                {
-                                    <div
-                                        style="padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; color: #666;">
-                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="1" style="margin-bottom: 10px; opacity: 0.5;">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="8" y1="12" x2="16" y2="12"></line>
-                                        </svg>
-                                        <p>Brak użytkowników posiadających jednocześnie wszystkie wybrane uprawnienia.</p>
-                                    </div>
-                                }
-                            </div>
+                <form action="/Uprawnienia/Index" method="get" class="filter-form">
+                    <div class="chips-container"
+                         style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                        @foreach (var item in Model)
+                        {
+                            <label class="filter-chip">
+                                @* Sprawdzamy czy rola była zaznaczona *@
+                                <input type="checkbox" name="selectedRoles" value="@item.Nazwa"
+                                @(selectedRoles.Contains(item.Nazwa) ? "checked" : "")>
+                                <span class="chip-label">@item.Nazwa</span>
+                            </label>
                         }
+
+                        @* Przycisk wyszukiwania *@
+                        <button type="submit" class="btn-search-orange" style="margin-left: 10px; padding: 10px 25px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            Wyszukaj
+                        </button>
                     </div>
-            
+                </form>
+
+                @* --- WYNIKI WYSZUKIWANIA --- *@
+                @if (selectedRoles.Any())
+                {
+                    <div class="search-results-table" style="margin-top: 2.5rem;">
+                        <h3
+                            style="font-size: 1.1rem; margin-bottom: 1rem; color: #333; border-bottom: 2px solid #E67E22; display: inline-block; padding-bottom: 5px;">
+                            Wyniki wyszukiwania (@(filteredUsers?.Count ?? 0))
+                        </h3>
+
+                        @if (filteredUsers != null && filteredUsers.Any())
+                        {
+                            <div style="overflow-x: auto;">
+                                <table class="custom-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa; border-bottom: 2px solid #eee;">
+                                            <th style="padding: 12px; text-align: left;">Użytkownik</th>
+                                            <th style="padding: 12px; text-align: left;">Login</th>
+                                            <th style="padding: 12px; text-align: left;">Wszystkie przypisane role</th>
+                                            <th style="padding: 12px; text-align: center;">Akcja</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var user in filteredUsers)
+                                        {
+                                            <tr style="border-bottom: 1px solid #eee;">
+                                                <td style="padding: 12px;"><strong>@user.Imie @user.Nazwisko</strong></td>
+                                                <td style="padding: 12px;"><code
+                                                    style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">@user.Login</code>
+                                                </td>
+                                                <td style="padding: 12px;">
+                                                    @foreach (var r in user.Uprawnienia)
+                                                    {
+                                                        <span
+                                                            style="font-size: 0.75rem; background: #E67E2222; color: #E67E22; padding: 2px 8px; border-radius: 10px; margin-right: 4px; border: 1px solid #E67E2244;">
+                                                            @r.Nazwa
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td style="padding: 12px; text-align: center;">
+                                                    <a href="/Uzytkownicy/Szczegoly?login=@user.Login"
+                                                       style="color: #E67E22; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Profil
+                                                        &rarr;</a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        else
+                            {
+                                <div
+                                    style="padding: 2rem; text-align: center; background: #f9f9f9; border-radius: 8px; color: #666;">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="1" style="margin-bottom: 10px; opacity: 0.5;">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                    <p>Brak użytkowników o wybranym uprawnieniu</p>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
-            </main>
-        </div>
+
+            </div>
+        </main>
+    </div>

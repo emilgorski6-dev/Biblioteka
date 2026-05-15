@@ -10,7 +10,7 @@
             umożliwia łatwe zarządzanie wypożyczeniami i wyszukiwanie czytelników.
         </p>
         <div class="actions">
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity?.IsAuthenticated ?? false)
             {
                 @* Jeśli zalogowany, kierujemy do Dashboardu *@
                 <a href="/Uzytkownicy/Dashboard" class="link-panel">Przejdź do panelu →</a>
@@ -23,3 +23,94 @@
         </div>
     </div>
 </div>
+
+@* --- MECHANIZM POWIADOMIEŃ (TOAST) --- *@
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toastContainer = document.getElementById("toastContainer");
+
+        function showToast(type, message) {
+            const toast = document.createElement("div");
+            toast.className = `toast toast-${type}`;
+
+            // Ikona sukcesu (ptaszek) lub błędu (wykrzyknik)
+            let iconHtml = type === 'error' ?
+                `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12" stroke="#fff" stroke-width="2"></line><line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff" stroke-width="2"></line></svg>` :
+                `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="9 12 11 14 15 10" stroke="#fff" stroke-width="2" fill="none"></polyline></svg>`;
+
+            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+            toastContainer.appendChild(toast);
+
+            // Płynne usuwanie powiadomienia
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
+        }
+
+        // Jeśli TempData zawiera wiadomość (np. "Zmieniono hasło do konta"), wyświetl ją
+        @if (TempData["SuccessMessage"] != null)
+            {
+                <text>showToast("success", "@TempData["SuccessMessage"]");</text>
+        }
+    });
+</script>
+
+<style>
+    /* Style dla kontenera i powiadomień */
+    .toast-container {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        z-index: 10000;
+    }
+
+    .toast {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        transition: all 0.5s ease;
+        border-left: 6px solid #2ecc71;
+        min-width: 300px;
+    }
+
+    .toast-success {
+        color: #27ae60;
+    }
+
+    .toast-error {
+        border-left-color: #e74c3c;
+        color: #c0392b;
+    }
+
+    .toast span {
+        font-weight: 600;
+        font-size: 0.95rem;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    /* Animacja wejścia */
+    .toast {
+        animation: toastSlideIn 0.4s ease-out;
+    }
+
+    @@keyframes toastSlideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>

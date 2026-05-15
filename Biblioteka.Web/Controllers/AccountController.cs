@@ -38,26 +38,31 @@ namespace Biblioteka.Web.Controllers
                 .Include(u => u.Uprawnienia)
                 .FirstOrDefaultAsync(u => u.Login == model.Login);
 
+            // 1. Sprawdzenie czy użytkownik w ogóle istnieje
             if (uzytkownik == null)
             {
                 ModelState.AddModelError("", "Niepoprawny login lub hasło.");
                 return View(model);
             }
 
+            // 2. Obsługa RODO (użytkownik zapomniany)
             if (uzytkownik.CzyZapomniany)
             {
                 ModelState.AddModelError("", "Brak możliwości logowania - użytkownik zapomniany.");
                 return View(model);
             }
 
-            if (uzytkownik.CzyZablokowany && uzytkownik.BlokadaDo > DateTime.Now)
+            // 3. Sprawdzenie aktywnej blokady czasowej (Wymaganie ze zdjęcia)
+            if (uzytkownik.CzyZablokowany && uzytkownik.BlokadaDo.HasValue && uzytkownik.BlokadaDo > DateTime.Now)
             {
-                ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane.");
+                ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane. Ponowne logowanie będzie możliwe o godzinie {uzytkownik.BlokadaDo.Value:HH:mm}");
                 return View(model);
             }
 
-            if (uzytkownik.HasloHash == model.Password)
+            // 4. Weryfikacja hasła przy użyciu serwisu
+            if (_passwordService.VerifyPassword(model.Password, uzytkownik.HasloHash ?? ""))
             {
+                // Sukces - resetujemy liczniki błędów
                 uzytkownik.LiczbaBlednychLogowan = 0;
                 uzytkownik.CzyZablokowany = false;
                 uzytkownik.BlokadaDo = null;
@@ -69,10 +74,10 @@ namespace Biblioteka.Web.Controllers
                 }
 
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, uzytkownik.Login),
-                    new Claim("FullName", $"{uzytkownik.Imie} {uzytkownik.Nazwisko}")
-                };
+        {
+            new Claim(ClaimTypes.Name, uzytkownik.Login),
+            new Claim("FullName", $"{uzytkownik.Imie} {uzytkownik.Nazwisko}")
+        };
 
                 if (uzytkownik.Uprawnienia != null)
                 {
@@ -83,19 +88,30 @@ namespace Biblioteka.Web.Controllers
                 }
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity),
                     new AuthenticationProperties { IsPersistent = model.RememberMe });
 
-                // --- POWRÓT DO TWOJEGO ORYGINALNEGO PRZEKIEROWANIA ---
-                // Każda rola (w tym Manager) trafia tutaj:
                 return RedirectToAction("Dashboard", "Uzytkownicy");
             }
             else
             {
+                // Błędne hasło - zwiększamy licznik
                 uzytkownik.LiczbaBlednychLogowan++;
+
+                // SPRAWDZENIE LIMITU PRÓB (Wymaganie ze zdjęcia)
+                if (uzytkownik.LiczbaBlednychLogowan >= 3)
+                {
+                    uzytkownik.CzyZablokowany = true;
+                    // Blokujemy na 15 minut od teraz
+                    uzytkownik.BlokadaDo = DateTime.Now.AddMinutes(20);
+                    await _context.SaveChangesAsync();
+
+                    ModelState.AddModelError("", $"Przekroczono liczbę prób logowania. Konto zostało zablokowane. Ponowne logowanie będzie możliwe o godzinie {uzytkownik.BlokadaDo.Value:HH:mm}");
+                    return View(model);
+                }
+
                 await _context.SaveChangesAsync();
                 ModelState.AddModelError("", "Niepoprawny login lub hasło.");
                 return View(model);
@@ -115,11 +131,30 @@ namespace Biblioteka.Web.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
         {
             if (!ModelState.IsValid) return Json(new { success = false });
-            var user = await _context.Uzytkownicy.FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
+
+            var user = await _context.Uzytkownicy
+                .Include(u => u.HistoriaHasel) // Ważne: dołączamy historię
+                .FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
+
             if (user == null) return Json(new { success = false });
+
+            // --- KLUCZOWA ZMIANA: Archiwizujemy stare, prawdziwe hasło zanim je skasujemy ---
+            if (!string.IsNullOrEmpty(user.HasloHash))
+            {
+                _context.HistoriaHasel.Add(new HistoriaHasla
+                {
+                    UzytkownikId = user.Id,
+                    Uzytkownik = user,
+                    HasloHash = user.HasloHash,
+                    DataNadania = DateTime.Now,
+                    CzyTymczasowe = false // To było prawdziwe hasło użytkownika
+                });
+            }
+
             string newPassword = _passwordService.GenerujHasloAutomatyczne();
             user.HasloHash = newPassword;
             user.CzyHasloTymczasowe = true;
+
             await _context.SaveChangesAsync();
             await _emailService.SendEmailAsync(user.Email, "Hasło", $"Hasło: {newPassword}");
             return Json(new { success = true });
@@ -133,13 +168,55 @@ namespace Biblioteka.Web.Controllers
         public async Task<IActionResult> ForcePasswordChange(WymuszenieZmianyHaslaViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            var user = await _context.Uzytkownicy.FirstOrDefaultAsync(u => u.Login == model.Login);
+
+            var user = await _context.Uzytkownicy
+                .Include(u => u.Uprawnienia)
+                .Include(u => u.HistoriaHasel)
+                .FirstOrDefaultAsync(u => u.Login == model.Login);
+
             if (user == null) return NotFound();
+
+            // Walidator teraz znajdzie stare hasło w tabeli historii!
+            var validationResult = PasswordValidator.Waliduj(model.NoweHaslo!, user, _context);
+
+            if (!validationResult.IsValid)
+            {
+                ModelState.AddModelError("", validationResult.Message);
+                return View(model);
+            }
+
+            // Archiwizujemy hasło tymczasowe, żeby go nigdy więcej nie użył
+            if (!string.IsNullOrEmpty(user.HasloHash))
+            {
+                _context.HistoriaHasel.Add(new HistoriaHasla
+                {
+                    UzytkownikId = user.Id,
+                    Uzytkownik = user,
+                    HasloHash = user.HasloHash,
+                    DataNadania = DateTime.Now,
+                    CzyTymczasowe = true // Oznaczamy jako tymczasowe (wymóg: blokada powrotu do tymczasowych)
+                });
+            }
+
             user.HasloHash = model.NoweHaslo!;
             user.CzyHasloTymczasowe = false;
             await _context.SaveChangesAsync();
-            return RedirectToAction("Login");
+
+            // Logowanie (bez zmian...)
+            var claims = new List<Claim> {
+        new Claim(ClaimTypes.Name, user.Login),
+        new Claim("FullName", $"{user.Imie} {user.Nazwisko}")
+    };
+            if (user.Uprawnienia != null)
+            {
+                foreach (var rola in user.Uprawnienia) claims.Add(new Claim(ClaimTypes.Role, rola.Nazwa));
+            }
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+            TempData["SuccessMessage"] = "Zmieniono hasło do konta";
+            return RedirectToAction("Index", "Home");
         }
     }
-    
+
 }

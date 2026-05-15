@@ -34,3 +34,5 @@ lib/
 ## --- SYSTEMOWE ---
 .DS_Store
 Thumbs.db
+
+*.lcache

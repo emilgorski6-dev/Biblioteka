@@ -35,4 +35,4 @@ lib/
 .DS_Store
 Thumbs.db
 
-*.lcache
+*.lscache

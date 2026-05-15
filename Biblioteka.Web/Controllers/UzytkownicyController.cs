@@ -230,7 +230,8 @@ namespace Biblioteka.Web.Controllers
                 userToUpdate.KodPocztowy == model.KodPocztowy &&
                 userToUpdate.NumerPosesji == model.NumerPosesji &&
                 userToUpdate.Ulica == model.Ulica &&
-                userToUpdate.NumerLokalu == model.NumerLokalu;
+                userToUpdate.NumerLokalu == model.NumerLokalu &&
+                userToUpdate.DataUrodzenia.Date == model.DataUrodzenia!.Value.Date;
 
             if (bezZmian)
             {

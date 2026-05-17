@@ -63,7 +63,7 @@ namespace Biblioteka.Web.Controllers
 
             filtr.DostepneGatunki = new List<string>
             {
-                "Fantastyka", "Kryminał", "Literatura piękna", "Nauka", 
+                "Fantastyka", "Kryminał", "Literatura piękna", "Nauka",
                 "Thriller", "Biografia", "Historyczna", "Horror"
             };
 
@@ -72,9 +72,9 @@ namespace Biblioteka.Web.Controllers
 
         // --- ZRK-02: LISTA REJESTRACJI (Dla Managera) ---
         [HttpGet]
-        [Authorize(Roles = "Administrator,Manager")] 
+        [Authorize(Roles = "Administrator,Manager")]
         public async Task<IActionResult> ListaRejestracji(
-            string[] autorzy, string[] gatunki, string tytul, string wydawnictwo, 
+            string[] autorzy, string[] gatunki, string tytul, string wydawnictwo,
             DateTime? dataOd, DateTime? dataDo, string[] pracownicy)
         {
             if (dataOd.HasValue && dataDo.HasValue && dataOd > dataDo)
@@ -110,8 +110,13 @@ namespace Biblioteka.Web.Controllers
 
             var model = await query.Select(k => new KsiazkaListaViewModel
             {
-                Id = k.Id, Tytul = k.Tytul, Autor = k.Autorzy, Gatunek = k.Gatunek,
-                Wydawnictwo = k.Wydawnictwo, DataRejestracji = k.DataRejestracji, OsobaRejestrujaca = k.OsobaRejestrujaca
+                Id = k.Id,
+                Tytul = k.Tytul,
+                Autor = k.Autorzy,
+                Gatunek = k.Gatunek,
+                Wydawnictwo = k.Wydawnictwo,
+                DataRejestracji = k.DataRejestracji,
+                OsobaRejestrujaca = k.OsobaRejestrujaca
             }).ToListAsync();
 
             ViewBag.DostepniAutorzy = await _context.Ksiazki.Select(k => k.Autorzy).Distinct().ToListAsync();
@@ -136,7 +141,10 @@ namespace Biblioteka.Web.Controllers
 
             var nowyEgzemplarz = new KsiazkaListaViewModel
             {
-                Id = istniejaca.Id, Tytul = istniejaca.Tytul, Autor = istniejaca.Autorzy, Gatunek = istniejaca.Gatunek
+                Id = istniejaca.Id,
+                Tytul = istniejaca.Tytul,
+                Autor = istniejaca.Autorzy,
+                Gatunek = istniejaca.Gatunek
             };
 
             PrepareGenreList();
@@ -149,24 +157,31 @@ namespace Biblioteka.Web.Controllers
         {
             if (model.RokWydania.HasValue && model.RokWydania > DateTime.Now.Year)
             {
-                ModelState.AddModelError("RokWydania", "Rok wydania nie może być z przyszłości");
+                ModelState.AddModelError("RokWydania", "Wprowadź poprawny rok wydania");
             }
 
             if (ModelState.IsValid)
             {
                 var nowaKsiazka = new Ksiazka
                 {
-                    Tytul = model.Tytul, Autorzy = model.Autor, Gatunek = model.Gatunek,
-                    Wydawnictwo = model.Wydawnictwo, RokWydania = model.RokWydania ?? DateTime.Now.Year,
-                    LiczbaStron = model.LiczbaStron ?? 0, Cena = model.Cena ?? 0,
-                    LiczbaSztuk = model.LiczbaSztuk ?? 0, Opis = model.Opis ?? "", Status = "Dostępna",
-                    DataRejestracji = DateTime.Now, OsobaRejestrujaca = User.Identity?.Name ?? "System"
+                    Tytul = model.Tytul,
+                    Autorzy = model.Autor,
+                    Gatunek = model.Gatunek,
+                    Wydawnictwo = model.Wydawnictwo,
+                    RokWydania = model.RokWydania ?? DateTime.Now.Year,
+                    LiczbaStron = model.LiczbaStron ?? 0,
+                    Cena = model.Cena ?? 0,
+                    LiczbaSztuk = model.LiczbaSztuk ?? 0,
+                    Opis = model.Opis ?? "",
+                    Status = "Dostępna",
+                    DataRejestracji = DateTime.Now,
+                    OsobaRejestrujaca = User.Identity?.Name ?? "System"
                 };
 
                 _context.Ksiazki.Add(nowaKsiazka);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = model.Tytul;
+                TempData["SuccessMessage"] = $"Dodano książkę \"{model.Tytul}.\"";
                 return RedirectToAction(nameof(Lista));
             }
 
@@ -182,10 +197,19 @@ namespace Biblioteka.Web.Controllers
 
             var model = new KsiazkaListaViewModel
             {
-                Id = ksiazka.Id, Tytul = ksiazka.Tytul, Autor = ksiazka.Autorzy, Gatunek = ksiazka.Gatunek,
-                Wydawnictwo = ksiazka.Wydawnictwo, RokWydania = ksiazka.RokWydania, LiczbaStron = ksiazka.LiczbaStron,
-                Cena = ksiazka.Cena, LiczbaSztuk = ksiazka.LiczbaSztuk, Opis = ksiazka.Opis, Status = ksiazka.Status,
-                DataRejestracji = ksiazka.DataRejestracji, OsobaRejestrujaca = ksiazka.OsobaRejestrujaca
+                Id = ksiazka.Id,
+                Tytul = ksiazka.Tytul,
+                Autor = ksiazka.Autorzy,
+                Gatunek = ksiazka.Gatunek,
+                Wydawnictwo = ksiazka.Wydawnictwo,
+                RokWydania = ksiazka.RokWydania,
+                LiczbaStron = ksiazka.LiczbaStron,
+                Cena = ksiazka.Cena,
+                LiczbaSztuk = ksiazka.LiczbaSztuk,
+                Opis = ksiazka.Opis,
+                Status = ksiazka.Status,
+                DataRejestracji = ksiazka.DataRejestracji,
+                OsobaRejestrujaca = ksiazka.OsobaRejestrujaca
             };
 
             return View(model);
@@ -215,21 +239,22 @@ namespace Biblioteka.Web.Controllers
                 // Używamy EF.Functions.Like, który w SQLite lepiej radzi sobie z ignorowaniem wielkości liter
                 // Dodajemy ?? "", żeby NULL w bazie nie zepsuł wyszukiwania
                 string s = $"%{slowo}%";
-                query = query.Where(u => 
-                    EF.Functions.Like(u.Imie ?? "", s) || 
-                    EF.Functions.Like(u.Nazwisko ?? "", s) || 
-                    EF.Functions.Like(u.Miejscowosc ?? "", s) || 
-                    EF.Functions.Like(u.Ulica ?? "", s) || 
+                query = query.Where(u =>
+                    EF.Functions.Like(u.Imie ?? "", s) ||
+                    EF.Functions.Like(u.Nazwisko ?? "", s) ||
+                    EF.Functions.Like(u.Miejscowosc ?? "", s) ||
+                    EF.Functions.Like(u.Ulica ?? "", s) ||
                     EF.Functions.Like(u.Telefon ?? "", s) ||
                     EF.Functions.Like(u.NumerPosesji ?? "", s)
                 );
             }
 
             var klienci = await query
-                .Select(u => new { 
-                    id = u.Id, 
-                    nazwa = u.Imie + " " + u.Nazwisko, 
-                    telefon = u.Telefon, 
+                .Select(u => new
+                {
+                    id = u.Id,
+                    nazwa = u.Imie + " " + u.Nazwisko,
+                    telefon = u.Telefon,
                     adres = (u.Miejscowosc ?? "") + ", ul. " + (u.Ulica ?? "") + " " + (u.NumerPosesji ?? "")
                 })
                 .Take(10)
@@ -259,18 +284,19 @@ namespace Biblioteka.Web.Controllers
             foreach (var slowo in slowa)
             {
                 string s = $"%{slowo}%";
-                query = query.Where(k => 
-                    EF.Functions.Like(k.Tytul ?? "", s) || 
+                query = query.Where(k =>
+                    EF.Functions.Like(k.Tytul ?? "", s) ||
                     EF.Functions.Like(k.Autorzy ?? "", s)
                 );
             }
 
             // 3. Pobieramy wyniki
             var ksiazki = await query
-                .Select(k => new { 
-                    id = k.Id, 
-                    tytul = k.Tytul, 
-                    autor = k.Autorzy 
+                .Select(k => new
+                {
+                    id = k.Id,
+                    tytul = k.Tytul,
+                    autor = k.Autorzy
                 })
                 .Take(10)
                 .ToListAsync();
@@ -279,7 +305,7 @@ namespace Biblioteka.Web.Controllers
         }
 
         // --- ZAKŁADKA: REJESTRACJA WYPOŻYCZEŃ ---
-        [Authorize(Roles = "Bibliotekarz")] 
+        [Authorize(Roles = "Bibliotekarz")]
         [HttpGet]
         public IActionResult RejestracjaWypozyczen()
         {
@@ -381,7 +407,7 @@ namespace Biblioteka.Web.Controllers
                 .ToDictionaryAsync(u => u.Id, u => $"{u.Imie} {u.Nazwisko}");
 
             var bibliotekarze = await _context.Uzytkownicy
-                .Where(u => bibliotekarzeIds.Contains(u.Login)) 
+                .Where(u => bibliotekarzeIds.Contains(u.Login))
                 .ToDictionaryAsync(u => u.Login, u => $"{u.Imie} {u.Nazwisko}");
 
             var result = wypozyczenia.Select(w => new WypozyczenieViewModel
@@ -422,7 +448,7 @@ namespace Biblioteka.Web.Controllers
         public async Task<IActionResult> PrzedluzWypozyczenie(int id)
         {
             var wypozyczenie = await _context.Wypozyczenia.FindAsync(id);
-            
+
             if (wypozyczenie == null)
             {
                 return NotFound();
@@ -434,15 +460,15 @@ namespace Biblioteka.Web.Controllers
                 return RedirectToAction(nameof(ListaWypozyczen));
             }
 
-                wypozyczenie.TerminZwrotu  = wypozyczenie.TerminZwrotu.AddDays(14);
-                wypozyczenie.Status = "Przedłużone";
+            wypozyczenie.TerminZwrotu = wypozyczenie.TerminZwrotu.AddDays(14);
+            wypozyczenie.Status = "Przedłużone";
 
-                await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
-                var klient = await _context.Uzytkownicy.FindAsync(wypozyczenie.KlientId);
-                var nazwaKlienta = klient != null ? $"{klient.Imie} {klient.Nazwisko}" : $"ID {wypozyczenie.KlientId}";
+            var klient = await _context.Uzytkownicy.FindAsync(wypozyczenie.KlientId);
+            var nazwaKlienta = klient != null ? $"{klient.Imie} {klient.Nazwisko}" : $"ID {wypozyczenie.KlientId}";
 
-                TempData["SuccessMessage"] = $"Przedłużono wypożyczenie użytkownika {nazwaKlienta}.";
+            TempData["SuccessMessage"] = $"Przedłużono wypożyczenie użytkownika {nazwaKlienta}.";
 
             return RedirectToAction(nameof(ListaWypozyczen));
         }

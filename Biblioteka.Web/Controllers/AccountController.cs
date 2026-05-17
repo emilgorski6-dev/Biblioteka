@@ -136,7 +136,10 @@ namespace Biblioteka.Web.Controllers
                 .Include(u => u.HistoriaHasel) // Ważne: dołączamy historię
                 .FirstOrDefaultAsync(u => u.Login == model.Login && u.Email == model.Email);
 
-            if (user == null) return Json(new { success = false });
+            if (user == null)
+            {
+                return Json(new { success = false, message = "nie znaleziono użytkownika o podanych danych." });
+            }
 
             // --- KLUCZOWA ZMIANA: Archiwizujemy stare, prawdziwe hasło zanim je skasujemy ---
             if (!string.IsNullOrEmpty(user.HasloHash))

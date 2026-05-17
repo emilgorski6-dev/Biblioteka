@@ -12,16 +12,19 @@
 
             <div class="form-group" style="margin-bottom: 20px;">
                 <label>Wpisz nowe hasło:</label>
-                <input asp-for="NoweHaslo" class="form-control" type="text" style="width: 100%; padding: 8px;" />
-                <span asp-validation-for="NoweHaslo" class="text-danger" style="color: #e74c3c; font-size: 13px;"></span>
+                <input asp-for="NoweHaslo" class="form-control" type="password" style="width: 100%; padding: 8px;" />
+                <span asp-validation-for="NoweHaslo" class="text-danger"
+                      style="color: #e74c3c; font-size: 13px;"></span>
             </div>
 
             <div class="form-actions" style="display: flex; gap: 10px;">
-                <button type="submit" class="btn-submit" style="background: #E67E22; color: white; border: none; padding: 10px 20px; cursor: pointer;">
+                <button type="submit" class="btn-submit"
+                        style="background: #E67E22; color: white; border: none; padding: 10px 20px; cursor: pointer;">
                     Zapisz hasło
                 </button>
                 @* Scenariusz alternatywny: Anuluj *@
-                <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="btn-cancel" style="background: #bdc3c7; color: black; text-decoration: none; padding: 10px 20px; border-radius: 7px; display: inline-block;">
+                <a href="/Uzytkownicy/Szczegoly?login=@Model.Login" class="btn-cancel"
+                   style="background: #bdc3c7; color: black; text-decoration: none; padding: 10px 20px; border-radius: 7px; display: inline-block;">
                     Anuluj
                 </a>
             </div>

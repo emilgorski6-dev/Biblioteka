@@ -3,7 +3,7 @@
     ViewData["Title"] = "Lista rejestracji książek";
     bool isAdmin = User.IsInRole("Administrator");
     string sidebarTitle = isAdmin ? "Panel Administratora" : "Panel Managera";
-    
+
     bool hasAnyBooks = Model != null && Model.Any();
     bool isFilterActive = ViewBag.IsFilterActive ?? false;
 }
@@ -29,7 +29,8 @@
         </div>
         <nav class="sidebar-nav">
             <a asp-controller="Ksiazki" asp-action="Lista" class="sidebar-link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
@@ -37,7 +38,8 @@
             </a>
 
             <a href="/Manager/Rejestracje" class="sidebar-link active">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="3" y1="9" x2="21" y2="9"></line>
                     <line x1="9" y1="21" x2="9" y2="9"></line>
@@ -45,8 +47,15 @@
                 Lista rejestracji książek
             </a>
 
-            <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <a asp-controller="Ksiazki" asp-action="ListaWypozyczen"
+               class="sidebar-link @(currentAction == "ListaWypozyczen" ? "active" : "")">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
                 Lista wypożyczeń
             </a>
         </nav>
@@ -60,30 +69,57 @@
                 <p class="catalog-subtitle">Przegląd wszystkich rejestracji książek dokonanych przez bibliotekarzy.</p>
             </header>
 
-            @* --- NOWY POZIOMY SYSTEM FILTROWANIA --- *@
+            @* --- POPRAWKA: WYŚWIETLANIE BŁĘDU NIEPRAWIDŁOWEGO ZAKRESU DAT --- *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger"
+                     style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #991b1b; display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         style="flex-shrink: 0;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <div>
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* --- POZIOMY SYSTEM FILTROWANIA --- *@
             <div class="filter-bar-clean" style="margin-bottom: 25px;">
                 <form method="get" asp-action="Rejestracje" class="filter-form-horizontal">
-                    
+
                     <div class="filter-field">
                         <label>Tytuł</label>
-                        <input type="text" name="tytul" value="@Context.Request.Query["tytul"]" placeholder="Szukaj tytułu..." class="form-control-sm">
+                        <input type="text" name="tytul" value="@Context.Request.Query["tytul"]"
+                               placeholder="Szukaj tytułu..." class="form-control-sm">
                     </div>
 
                     <div class="filter-field">
                         <label>Wydawnictwo</label>
-                        <input type="text" name="wydawnictwo" value="@Context.Request.Query["wydawnictwo"]" placeholder="Szukaj wydawnictwa..." class="form-control-sm">
+                        <input type="text" name="wydawnictwo" value="@Context.Request.Query["wydawnictwo"]"
+                               placeholder="Szukaj wydawnictwa..." class="form-control-sm">
                     </div>
 
                     <div class="filter-field dropdown-checkbox">
                         <label>Autor</label>
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
-                            @{ var aQ = Context.Request.Query["autorzy"].ToString(); @(string.IsNullOrEmpty(aQ) ? "Wybierz autora" : aQ) }
+                            @{
+                                var aQ = Context.Request.Query["autorzy"].ToString();
+                                @(string.IsNullOrEmpty(aQ) ?
+              "Wybierz autora" : aQ)
+                            }
                         </div>
                         <div class="dropdown-menu">
                             @foreach (var a in ViewBag.DostepniAutorzy as List<string> ?? new List<string>())
                             {
                                 <label class="dropdown-item">
-                                    <input type="checkbox" name="autorzy" value="@a" @(Context.Request.Query["autorzy"].Contains(a) ? "checked" : "")> @a
+                                    <input type="checkbox" name="autorzy" value="@a"
+                                    @(Context.Request.Query["autorzy"].Contains(a) ? "checked" : "")> @a
                                 </label>
                             }
                         </div>
@@ -92,13 +128,18 @@
                     <div class="filter-field dropdown-checkbox">
                         <label>Gatunek</label>
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
-                            @{ var gQ = Context.Request.Query["gatunki"].ToString(); @(string.IsNullOrEmpty(gQ) ? "Wybierz gatunek" : gQ) }
+                            @{
+                                var gQ = Context.Request.Query["gatunki"].ToString();
+                                @(string.IsNullOrEmpty(gQ) ?
+                        "Wybierz gatunek" : gQ)
+                            }
                         </div>
                         <div class="dropdown-menu">
                             @foreach (var g in ViewBag.DostepneGatunki as List<string> ?? new List<string>())
                             {
                                 <label class="dropdown-item">
-                                    <input type="checkbox" name="gatunki" value="@g" @(Context.Request.Query["gatunki"].Contains(g) ? "checked" : "")> @g
+                                    <input type="checkbox" name="gatunki" value="@g"
+                                    @(Context.Request.Query["gatunki"].Contains(g) ? "checked" : "")> @g
                                 </label>
                             }
                         </div>
@@ -107,13 +148,18 @@
                     <div class="filter-field dropdown-checkbox">
                         <label>Osoba rejestrująca</label>
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
-                            @{ var pQ = Context.Request.Query["pracownicy"].ToString(); @(string.IsNullOrEmpty(pQ) ? "Wybierz osobę" : pQ) }
+                            @{
+                                var pQ = Context.Request.Query["pracownicy"].ToString();
+                                @(string.IsNullOrEmpty(pQ) ?
+            "Wybierz osobę" : pQ)
+                            }
                         </div>
                         <div class="dropdown-menu">
                             @foreach (var p in ViewBag.Pracownicy as List<string> ?? new List<string>())
                             {
                                 <label class="dropdown-item">
-                                    <input type="checkbox" name="pracownicy" value="@p" @(Context.Request.Query["pracownicy"].Contains(p) ? "checked" : "")> @p
+                                    <input type="checkbox" name="pracownicy" value="@p"
+                                    @(Context.Request.Query["pracownicy"].Contains(p) ? "checked" : "")> @p
                                 </label>
                             }
                         </div>
@@ -121,17 +167,20 @@
 
                     <div class="filter-field">
                         <label>Data od</label>
-                        <input type="date" name="dataOd" value="@Context.Request.Query["dataOd"]" class="form-control-sm">
+                        <input type="date" name="dataOd" value="@Context.Request.Query["dataOd"]"
+                               class="form-control-sm">
                     </div>
 
                     <div class="filter-field">
                         <label>Data do</label>
-                        <input type="date" name="dataDo" value="@Context.Request.Query["dataDo"]" class="form-control-sm">
+                        <input type="date" name="dataDo" value="@Context.Request.Query["dataDo"]"
+                               class="form-control-sm">
                     </div>
 
                     <div class="filter-buttons">
                         <button type="submit" class="btn-search">Filtruj</button>
-                        @if (isFilterActive) {
+                        @if (isFilterActive)
+                        {
                             <a asp-action="Rejestracje" class="btn-reset-link" title="Wyczyść filtry">X</a>
                         }
                     </div>
@@ -142,7 +191,8 @@
             <div class="results-wrapper">
                 @if (!hasAnyBooks)
                 {
-                    <div class="empty-state-card" style="text-align: center; padding: 50px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
+                    <div class="empty-state-card"
+                         style="text-align: center; padding: 50px; background: #fff; border: 1px dashed #ccc; border-radius: 8px;">
                         <div class="empty-state-icon" style="font-size: 40px; margin-bottom: 15px;">
                             @(isFilterActive ? "🔍" : "📁")
                         </div>
@@ -151,203 +201,223 @@
                         </p>
                         @if (isFilterActive)
                         {
-                            <a asp-action="Rejestracje" style="color: #E67E22; text-decoration: underline; margin-top: 10px; display: inline-block;">Wyczyść filtry i spróbuj ponownie</a>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="registration-table-wrapper" style="background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden;">
-                        <div class="reg-table-header" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; background: #f8f9fa; padding: 15px; font-weight: 600; border-bottom: 2px solid #eee;">
-                            <div>Tytuł i Autor</div>
-                            <div>Gatunek</div>
-                            <div>Wydawnictwo</div>
-                            <div>Data rejestracji</div>
-                            <div>Zarejestrował(a)</div>
-                        </div>
-
-                        <div class="reg-table-body">
-                            @foreach (var item in Model)
-                            {
-                                <div class="reg-item-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 15px; border-bottom: 1px solid #eee; align-items: center;">
-                                    <div style="display: flex; gap: 12px; align-items: center;">
-                                        <div class="reg-book-icon">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2">
-                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div style="display: flex; flex-direction: column;">
-                                            <span style="font-weight: 600; color: #2c3e50;">@item.Tytul</span>
-                                            <span style="font-size: 13px; color: #7f8c8d;">@item.Autor</span>
-                                        </div>
-                                    </div>
-                                    <div>@item.Gatunek</div>
-                                    <div>@item.Wydawnictwo</div>
-                                    <div style="font-size: 14px;">@item.DataRejestracji.ToString("yyyy-MM-dd HH:mm")</div>
-                                    <div>
-                                        <span class="user-badge" style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">
-                                            @item.OsobaRejestrujaca
-                                        </span>
-                                    </div>
-                                </div>
+                            <a asp-action="Rejestracje"
+                               style="color: #E67E22; text-decoration: underline; margin-top: 10px; display: inline-block;">Wyczyść
+                                filtry i spróbuj ponownie</a>
                             }
                         </div>
-                    </div>
-                }
+                    }
+                else
+                    {
+                        <div class="modern-table-scroll-wrapper"
+                             style="background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden;">
+                            <div class="reg-table-header"
+                                 style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; background: #f8f9fa; padding: 15px; font-weight: 600; border-bottom: 2px solid #eee;">
+                                <div>Tytuł i Autor</div>
+                                <div>Gatunek</div>
+                                <div>Wydawnictwo</div>
+                                <div>Data rejestracji</div>
+                                <div>Zarejestrował(a)</div>
+                            </div>
+
+                            <div class="reg-table-body">
+                                @foreach (var item in Model)
+                                {
+                                    <div class="reg-item-row"
+                                         style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 15px; border-bottom: 1px solid #eee; align-items: center;">
+                                        <div style="display: flex; gap: 12px; align-items: center;">
+                                            <div class="reg-book-icon">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db"
+                                                     stroke-width="2">
+                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <span style="font-weight: 600; color: #2c3e50;">@item.Tytul</span>
+                                                <span style="font-size: 13px; color: #7f8c8d;">@item.Autor</span>
+                                            </div>
+                                        </div>
+                                        <div>@item.Gatunek</div>
+                                        <div>@item.Wydawnictwo</div>
+                                        <div style="font-size: 14px;">@item.DataRejestracji.ToString("yyyy-MM-dd HH:mm")</div>
+                                        <div>
+                                            <span class="user-badge"
+                                                  style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">
+                                                @item.OsobaRejestrujaca
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
-    </main>
-</div>
+        </main>
+    </div>
 
-<style>
-    /* Style Panelu Filtrowania (Clean Style) */
-    .filter-bar-clean {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #eee;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-    }
-
-    .filter-form-horizontal {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        align-items: flex-end;
-    }
-
-    .filter-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .filter-field label {
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #888;
-        letter-spacing: 0.5px;
-    }
-
-    .form-control-sm {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 13px;
-        min-width: 140px;
-        background-color: white;
-    }
-
-    .btn-search {
-        background: #E67E22;
-        color: white;
-        border: none;
-        padding: 9px 20px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background 0.2s;
-    }
-    .btn-search:hover { background: #d35400; }
-
-    .btn-reset-link {
-        color: #999;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: bold;
-        padding: 5px 10px;
-    }
-
-    /* Dropdown Checkbox Style */
-    .dropdown-checkbox {
-        position: relative;
-        min-width: 160px;
-    }
-
-    .dropdown-toggle {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 13px;
-        background: white;
-        cursor: pointer;
-        color: #555;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 200px;
-    }
-
-    .dropdown-toggle::after { content: "▾"; font-size: 10px; color: #999; margin-left: 8px; }
-
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: white;
-        border: 1px solid #eee;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        z-index: 1000;
-        max-height: 200px;
-        overflow-y: auto;
-        margin-top: 4px;
-    }
-
-    .dropdown-menu.show { display: block; }
-
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        font-size: 13px;
-        color: #444;
-        cursor: pointer;
-    }
-    .dropdown-item:hover { background: #f9f9f9; }
-    .dropdown-item input[type="checkbox"] { accent-color: #E67E22; }
-</style>
-
-@section Scripts {
-    <script>
-        function toggleDropdown(el) {
-            const menu = el.nextElementSibling;
-            document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) m.classList.remove('show');
-            });
-            menu.classList.toggle("show");
+    <style>
+        /* Zachowane style z Twojej wersji */
+        .filter-bar-clean {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         }
 
-        // Aktualizacja etykiety po kliknięciu checkboxa
-        document.addEventListener("change", function (e) {
-            if (e.target.matches(".dropdown-menu input[type='checkbox']")) {
-                const container = e.target.closest(".dropdown-checkbox");
-                const checked = container.querySelectorAll("input[type='checkbox']:checked");
-                const toggle = container.querySelector(".dropdown-toggle");
+        .filter-form-horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
 
-                if (checked.length === 0) {
-                    toggle.innerText = "Wybierz";
-                } else {
-                    toggle.innerText = Array.from(checked)
-                        .map(x => x.parentElement.innerText.trim())
-                        .join(", ");
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control-sm {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 140px;
+            background-color: white;
+        }
+
+        .btn-search {
+            background: #E67E22;
+            color: white;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-search:hover {
+            background: #d35400;
+        }
+
+        .btn-reset-link {
+            color: #999;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+        }
+
+        .dropdown-checkbox {
+            position: relative;
+            min-width: 160px;
+        }
+
+        .dropdown-toggle {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .dropdown-toggle::after {
+            content: "▾";
+            font-size: 10px;
+            color: #999;
+            margin-left: 8px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #f9f9f9;
+        }
+
+        .dropdown-item input[type="checkbox"] {
+            accent-color: #E67E22;
+        }
+    </style>
+
+    @section Scripts {
+        <script>
+            function toggleDropdown(el) {
+                const menu = el.nextElementSibling;
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    if (m !== menu) m.classList.remove('show');
+                });
+                menu.classList.toggle("show");
+            }
+
+            document.addEventListener("change", function (e) {
+                if (e.target.matches(".dropdown-menu input[type='checkbox']")) {
+                    const container = e.target.closest(".dropdown-checkbox");
+                    const checked = container.querySelectorAll("input[type='checkbox']:checked");
+                    const toggle = container.querySelector(".dropdown-toggle");
+
+                    if (checked.length === 0) {
+                        toggle.innerText = "Wybierz";
+                    } else {
+                        toggle.innerText = Array.from(checked)
+                            .map(x => x.parentElement.innerText.trim())
+                            .join(", ");
+                    }
                 }
-            }
-        });
+            });
 
-        // Zamykanie przy kliknięciu poza filtr
-        document.addEventListener("click", function (e) {
-            if (!e.target.closest('.dropdown-checkbox')) {
-                document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
-            }
-        });
-    </script>
-}
+            document.addEventListener("click", function (e) {
+                if (!e.target.closest('.dropdown-checkbox')) {
+                    document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+                }
+            });
+        </script>
+    }

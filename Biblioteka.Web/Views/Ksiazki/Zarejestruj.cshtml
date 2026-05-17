@@ -90,23 +90,32 @@
                 </a>
             }
             @if (isLibrarian)
-{
-    <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-        Rejestracja wypożyczeń
-    </a>
-        <a asp-controller="Ksiazki" asp-action="ListaWypozyczen" class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ListaWypozyczen" ? "active" : "")">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Lista wypożyczeń
-    </a>
-}
+            {
+                <a asp-controller="Ksiazki" asp-action="RejestracjaWypozyczen" class="sidebar-link">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                    Rejestracja wypożyczeń
+                </a>
+                <a asp-controller="Ksiazki" asp-action="ListaWypozyczen"
+                   class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ListaWypozyczen" ? "active" : "")">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Lista wypożyczeń
+                </a>
+            }
         </nav>
     </aside>
 
     <main class="management-content">
         <div class="form-container">
             <a asp-controller="Ksiazki" asp-action="Lista" class="back-link"
-                   style="margin-bottom: 20px; display: inline-flex; align-items: center; text-decoration: none; color: #666;">
+               style="margin-bottom: 20px; display: inline-flex; align-items: center; text-decoration: none; color: #666;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      style="margin-right: 5px;">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -126,14 +135,15 @@
                         </svg>
                     </div>
                     <div class="form-title-group">
-                        <h1 class="form-main-title">@(isFromList ? "Rejestracja z listy" : "Zarejestruj nową książkę")</h1>
+                        <h1 class="form-main-title">@(isFromList ? "Rejestracja z listy" : "Zarejestruj nową książkę")
+                        </h1>
                         <p class="form-subtitle">@(isFromList ? "Wypełniasz dane dla kolejnych egzemplarzy istniejącej pozycji." : "Wypełnij formularz, aby dodać książkę do katalogu biblioteki.")</p>
                     </div>
                 </header>
 
                 <form class="book-registration-form" method="post" asp-action="Zarejestruj">
                     <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 15px;"></div>
-                    
+
                     <input type="hidden" asp-for="Id" />
 
                     <div class="form-row grid-2">
@@ -184,13 +194,12 @@
                         </div>
                         <div class="input-group">
                             <label>Cena (PLN)</label>
-                            <input type="text" 
-                                   name="Cena" 
+                            @* ZMIANA: Usunięto oninput i inputmode, dodano atrybut data-val-number z dokładną treścią
+                            testu *@
+                            <input type="text" asp-for="Cena" name="Cena"
                                    value="@(Model.Cena.HasValue ? Model.Cena.Value.ToString("0.00").Replace(".", ",") : "")"
-                                   class="form-control" 
-                                   inputmode="decimal"
-                                   placeholder="0,00"
-                                   oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(/(\..*?)\..*/g, '$1').replace(/(\,.*?)\,/g, '$1');">
+                                   class="form-control" placeholder="0,00"
+                                   data-val-number="Pole Cena książki może zawierać tylko cyfry">
                             <span asp-validation-for="Cena" class="text-danger" style="font-size: 12px;"></span>
                         </div>
                     </div>
@@ -257,9 +266,9 @@
 
                 // 2. Naprawa walidacji liczbowej dla separatorów pl-PL
                 $.validator.methods.number = function (value, element) {
-                    return this.optional(element) || 
-                           /^-?(?:\d+|\d{1,3}(?:[\s\.]\d{3})+)(?:[\,]\d+)?$/.test(value) || 
-                           /^-?(?:\d+|\d{1,3}(?:[\s\,]\d{3})+)(?:[\.]\d+)?$/.test(value);
+                    return this.optional(element) ||
+                        /^-?(?:\d+|\d{1,3}(?:[\s\.]\d{3})+)(?:[\,]\d+)?$/.test(value) ||
+                        /^-?(?:\d+|\d{1,3}(?:[\s\,]\d{3})+)(?:[\.]\d+)?$/.test(value);
                 };
 
                 // 3. Naprawa walidacji zakresu (Range) dla polskich liczb

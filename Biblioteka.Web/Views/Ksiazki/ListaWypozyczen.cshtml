@@ -6,8 +6,8 @@
     string sidebarTitle = isAdmin ? "Panel Administratora" : isLibrarian ? "Panel Bibliotekarza" : "Panel Managera";
     ViewData["Title"] = "Lista wypożyczeń";
 
-    bool hasAnyLoans = ViewBag.HasAnyLoans ?? true;
-    bool hasFilterResults = ViewBag.HasFilterResults ?? true;
+    bool hasAnyLoans = ViewBag.IstniejaWypozyczenia ?? true;
+    bool hasFilterResults = ViewBag.SaWynikiFiltrowania ?? true;
     
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }

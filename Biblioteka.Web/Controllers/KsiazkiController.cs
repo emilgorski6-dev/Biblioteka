@@ -323,12 +323,10 @@ namespace Biblioteka.Web.Controllers
                 return RedirectToAction(nameof(RejestracjaWypozyczen));
             }
 
-            // Obliczanie terminu zwrotu (Krok 12 i 14 scenariusza)
-            DateTime termin = DateTime.Now.AddDays(14); // Standardowe 2 tygodnie
+            DateTime termin = DateTime.Now.AddDays(14);
             if (czasTrwania == "1m") termin = DateTime.Now.AddMonths(1);
             else if (czasTrwania == "2m") termin = DateTime.Now.AddMonths(2);
 
-            // 1. Tworzymy główny rekord (Nagłówek)
             var wypozyczenie = new Wypozyczenie
             {
                 KlientId = idKlienta,
@@ -338,18 +336,24 @@ namespace Biblioteka.Web.Controllers
                 Status = "Nowe"
             };
 
-            // 2. Dodajemy każdą książkę jako pozycję
             foreach (var idKsiazki in idKsiazek)
             {
                 var ksiazka = await _context.Ksiazki.FindAsync(idKsiazki);
-                if (ksiazka != null && ksiazka.Status == "Dostępna")
+                // Sprawdzamy czy książka ma fizycznie chociaż 1 sztukę na stanie
+                if (ksiazka != null && ksiazka.Status == "Dostępna" && ksiazka.LiczbaSztuk > 0)
                 {
-                    ksiazka.Status = "Wypożyczona"; // Krok 14: Zmiana statusu książki
+                    // POPRAWKA: Wypożyczamy dokładnie JEDNĄ sztukę z magazynu, a nie całą pozycję
+                    ksiazka.LiczbaSztuk--;
+
+                    // Dopiero gdy fizycznie zabraknie egzemplarzy, ustawiamy status na "Wypożyczona"
+                    if (ksiazka.LiczbaSztuk == 0)
+                    {
+                        ksiazka.Status = "Wypożyczona";
+                    }
 
                     wypozyczenie.Pozycje.Add(new WypozyczeniePozycja
                     {
                         KsiazkaId = idKsiazki
-                        // DataFaktycznegoZwrotu zostaje null (bo jeszcze nie oddana)
                     });
                 }
             }
@@ -405,13 +409,13 @@ namespace Biblioteka.Web.Controllers
 
             var widokWypozyczen = wypozyczenia.Select(w => new WypozyczenieViewModel
             {
-                Id                = w.Id,
-                Wypozyczajacy     = klienci.GetValueOrDefault(w.KlientId) ?? $"ID {w.KlientId}",
-                Ksiazka           = string.Join(", ", w.Pozycje.Select(p => p.Ksiazka.Tytul)),
-                DataWypozyczenia  = w.DataWypozyczenia,
-                DataZwrotu        = w.TerminZwrotu,
-                Status            = w.Status,
-                Bibliotekarz      = bibliotekarze.GetValueOrDefault(w.BibliotekarzId) ?? w.BibliotekarzId
+                Id = w.Id,
+                Wypozyczajacy = klienci.GetValueOrDefault(w.KlientId) ?? $"ID {w.KlientId}",
+                Ksiazka = string.Join(", ", w.Pozycje.Select(p => p.Ksiazka.Tytul)),
+                DataWypozyczenia = w.DataWypozyczenia,
+                DataZwrotu = w.TerminZwrotu,
+                Status = w.Status,
+                Bibliotekarz = bibliotekarze.GetValueOrDefault(w.BibliotekarzId) ?? w.BibliotekarzId
             }).ToList();
 
             var listaBibliotekarzy = await _context.Uprawnienia
@@ -421,15 +425,15 @@ namespace Biblioteka.Web.Controllers
                 .Select(u => new { u.Login, NazwaWyswietlana = u.Imie + " " + u.Nazwisko })
                 .ToListAsync();
 
-            ViewBag.IstniejaWypozyczenia  = istniejaJakiekolwiekWypozyczenia;
-            ViewBag.SaWynikiFiltrowania   = widokWypozyczen.Any();
-            ViewBag.Wypozyczajacy         = wypozyczajacy;
-            ViewBag.Bibliotekarz          = bibliotekarz;
-            ViewBag.DataOd                = dataOd?.ToString("yyyy-MM-dd");
-            ViewBag.DataDo                = dataDo?.ToString("yyyy-MM-dd");
-            ViewBag.Status                = status;
-            ViewBag.ListaBibliotekarzy    = new SelectList(listaBibliotekarzy, "Login", "NazwaWyswietlana", bibliotekarz);
-            ViewBag.ListaStatusow         = new SelectList(new[] { "Nowe", "Przedłużone", "Zakończone" }, status);
+            ViewBag.IstniejaWypozyczenia = istniejaJakiekolwiekWypozyczenia;
+            ViewBag.SaWynikiFiltrowania = widokWypozyczen.Any();
+            ViewBag.Wypozyczajacy = wypozyczajacy;
+            ViewBag.Bibliotekarz = bibliotekarz;
+            ViewBag.DataOd = dataOd?.ToString("yyyy-MM-dd");
+            ViewBag.DataDo = dataDo?.ToString("yyyy-MM-dd");
+            ViewBag.Status = status;
+            ViewBag.ListaBibliotekarzy = new SelectList(listaBibliotekarzy, "Login", "NazwaWyswietlana", bibliotekarz);
+            ViewBag.ListaStatusow = new SelectList(new[] { "Nowe", "Przedłużone", "Zakończone" }, status);
 
             return View(widokWypozyczen);
         }
@@ -490,7 +494,15 @@ namespace Biblioteka.Web.Controllers
             foreach (var pozycja in wypozyczenie.Pozycje)
             {
                 pozycja.DataFaktycznegoZwrotu = DateTime.Now;
-                pozycja.Ksiazka?.Status = "Dostępna"; // Uwaga: patrz niżej
+
+                if (pozycja.Ksiazka != null)
+                {
+                    // POPRAWKA: Zwracamy JEDNĄ sztukę z powrotem na stan magazynowy
+                    pozycja.Ksiazka.LiczbaSztuk++;
+
+                    // Skoro zwrócono książkę, to bez względu na wcześniejszy stan, staje się ona znów "Dostępna"
+                    pozycja.Ksiazka.Status = "Dostępna";
+                }
             }
 
             await _context.SaveChangesAsync();

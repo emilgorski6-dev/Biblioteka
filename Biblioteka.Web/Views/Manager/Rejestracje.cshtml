@@ -6,8 +6,6 @@
 
     bool hasAnyBooks = Model != null && Model.Any();
     bool isFilterActive = ViewBag.IsFilterActive ?? false;
-}
-@{
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 
@@ -69,8 +67,12 @@
                 <p class="catalog-subtitle">Przegląd wszystkich rejestracji książek dokonanych przez bibliotekarzy.</p>
             </header>
 
-            @* --- POPRAWKA: WYŚWIETLANIE BŁĘDU NIEPRAWIDŁOWEGO ZAKRESU DAT --- *@
-            @if (!ViewData.ModelState.IsValid)
+            @* --- POPRAWKA: IGNOROWANIE BŁĘDÓW WYMAGANYCH PÓL, POKAZUJEMY TYLKO BŁĄD DAT --- *@
+            @{
+                bool hasDataRangeError = ViewData.ModelState.TryGetValue("DataRange", out var dataRangeState) && dataRangeState.Errors.Any();
+            }
+
+            @if (hasDataRangeError)
             {
                 <div class="alert alert-danger"
                      style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #991b1b; display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px;">
@@ -81,7 +83,7 @@
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
                     <div>
-                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        @foreach (var error in ViewData.ModelState["DataRange"].Errors)
                         {
                             <div>@error.ErrorMessage</div>
                         }
@@ -110,8 +112,7 @@
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
                             @{
                                 var aQ = Context.Request.Query["autorzy"].ToString();
-                                @(string.IsNullOrEmpty(aQ) ?
-              "Wybierz autora" : aQ)
+                                @(string.IsNullOrEmpty(aQ) ? "Wybierz autora" : aQ)
                             }
                         </div>
                         <div class="dropdown-menu">
@@ -130,8 +131,7 @@
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
                             @{
                                 var gQ = Context.Request.Query["gatunki"].ToString();
-                                @(string.IsNullOrEmpty(gQ) ?
-                        "Wybierz gatunek" : gQ)
+                                @(string.IsNullOrEmpty(gQ) ? "Wybierz gatunek" : gQ)
                             }
                         </div>
                         <div class="dropdown-menu">
@@ -150,8 +150,7 @@
                         <div class="dropdown-toggle" onclick="toggleDropdown(this)">
                             @{
                                 var pQ = Context.Request.Query["pracownicy"].ToString();
-                                @(string.IsNullOrEmpty(pQ) ?
-            "Wybierz osobę" : pQ)
+                                @(string.IsNullOrEmpty(pQ) ? "Wybierz osobę" : pQ)
                             }
                         </div>
                         <div class="dropdown-menu">
@@ -202,222 +201,220 @@
                         @if (isFilterActive)
                         {
                             <a asp-action="Rejestracje"
-                               style="color: #E67E22; text-decoration: underline; margin-top: 10px; display: inline-block;">Wyczyść
-                                filtry i spróbuj ponownie</a>
-                            }
-                        </div>
-                    }
+                               style="color: #E67E22; text-decoration: underline; margin-top: 10px; display: inline-block;">Wyczyść filtry i spróbuj ponownie</a>
+                        }
+                    </div>
+                }
                 else
-                    {
-                        <div class="modern-table-scroll-wrapper"
-                             style="background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden;">
-                            <div class="reg-table-header"
-                                 style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; background: #f8f9fa; padding: 15px; font-weight: 600; border-bottom: 2px solid #eee;">
-                                <div>Tytuł i Autor</div>
-                                <div>Gatunek</div>
-                                <div>Wydawnictwo</div>
-                                <div>Data rejestracji</div>
-                                <div>Zarejestrował(a)</div>
-                            </div>
+                {
+                    <div class="modern-table-scroll-wrapper"
+                         style="background: #fff; border-radius: 8px; border: 1px solid #ddd; overflow: hidden;">
+                        <div class="reg-table-header"
+                             style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; background: #f8f9fa; padding: 15px; font-weight: 600; border-bottom: 2px solid #eee;">
+                            <div>Tytuł i Autor</div>
+                            <div>Gatunek</div>
+                            <div>Wydawnictwo</div>
+                            <div>Data rejestracji</div>
+                            <div>Zarejestrował(a)</div>
+                        </div>
 
-                            <div class="reg-table-body">
-                                @foreach (var item in Model)
-                                {
-                                    <div class="reg-item-row"
-                                         style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 15px; border-bottom: 1px solid #eee; align-items: center;">
-                                        <div style="display: flex; gap: 12px; align-items: center;">
-                                            <div class="reg-book-icon">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db"
-                                                     stroke-width="2">
-                                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                                                </svg>
-                                            </div>
-                                            <div style="display: flex; flex-direction: column;">
-                                                <span style="font-weight: 600; color: #2c3e50;">@item.Tytul</span>
-                                                <span style="font-size: 13px; color: #7f8c8d;">@item.Autor</span>
-                                            </div>
+                        <div class="reg-table-body">
+                            @foreach (var item in Model)
+                            {
+                                <div class="reg-item-row"
+                                     style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 15px; border-bottom: 1px solid #eee; align-items: center;">
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <div class="reg-book-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db"
+                                                 stroke-width="2">
+                                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                            </svg>
                                         </div>
-                                        <div>@item.Gatunek</div>
-                                        <div>@item.Wydawnictwo</div>
-                                        <div style="font-size: 14px;">@item.DataRejestracji.ToString("yyyy-MM-dd HH:mm")</div>
-                                        <div>
-                                            <span class="user-badge"
-                                                  style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">
-                                                @item.OsobaRejestrujaca
-                                            </span>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span style="font-weight: 600; color: #2c3e50;">@item.Tytul</span>
+                                            <span style="font-size: 13px; color: #7f8c8d;">@item.Autor</span>
                                         </div>
                                     </div>
-                                }
-                            </div>
+                                    <div>@item.Gatunek</div>
+                                    <div>@item.Wydawnictwo</div>
+                                    <div style="font-size: 14px;">@item.DataRejestracji.ToString("yyyy-MM-dd HH:mm")</div>
+                                    <div>
+                                        <span class="user-badge"
+                                              style="background: #ebf5fb; color: #2980b9; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;">
+                                            @item.OsobaRejestrujaca
+                                        </span>
+                                    </div>
+                                </div>
+                            }
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
 
-    <style>
-        /* Zachowane style z Twojej wersji */
-        .filter-bar-clean {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        }
-
-        .filter-form-horizontal {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .filter-field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .filter-field label {
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #888;
-            letter-spacing: 0.5px;
-        }
-
-        .form-control-sm {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-            min-width: 140px;
-            background-color: white;
-        }
-
-        .btn-search {
-            background: #E67E22;
-            color: white;
-            border: none;
-            padding: 9px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .btn-search:hover {
-            background: #d35400;
-        }
-
-        .btn-reset-link {
-            color: #999;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: bold;
-            padding: 5px 10px;
-        }
-
-        .dropdown-checkbox {
-            position: relative;
-            min-width: 160px;
-        }
-
-        .dropdown-toggle {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-            background: white;
-            cursor: pointer;
-            color: #555;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-
-        .dropdown-toggle::after {
-            content: "▾";
-            font-size: 10px;
-            color: #999;
-            margin-left: 8px;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            z-index: 1000;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 4px;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            font-size: 13px;
-            color: #444;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background: #f9f9f9;
-        }
-
-        .dropdown-item input[type="checkbox"] {
-            accent-color: #E67E22;
-        }
-    </style>
-
-    @section Scripts {
-        <script>
-            function toggleDropdown(el) {
-                const menu = el.nextElementSibling;
-                document.querySelectorAll('.dropdown-menu').forEach(m => {
-                    if (m !== menu) m.classList.remove('show');
-                });
-                menu.classList.toggle("show");
-            }
-
-            document.addEventListener("change", function (e) {
-                if (e.target.matches(".dropdown-menu input[type='checkbox']")) {
-                    const container = e.target.closest(".dropdown-checkbox");
-                    const checked = container.querySelectorAll("input[type='checkbox']:checked");
-                    const toggle = container.querySelector(".dropdown-toggle");
-
-                    if (checked.length === 0) {
-                        toggle.innerText = "Wybierz";
-                    } else {
-                        toggle.innerText = Array.from(checked)
-                            .map(x => x.parentElement.innerText.trim())
-                            .join(", ");
-                    }
-                }
-            });
-
-            document.addEventListener("click", function (e) {
-                if (!e.target.closest('.dropdown-checkbox')) {
-                    document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
-                }
-            });
-        </script>
+<style>
+    .filter-bar-clean {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
     }
+
+    .filter-form-horizontal {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+
+    .filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .filter-field label {
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #888;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control-sm {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        min-width: 140px;
+        background-color: white;
+    }
+
+    .btn-search {
+        background: #E67E22;
+        color: white;
+        border: none;
+        padding: 9px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+
+    .btn-search:hover {
+        background: #d35400;
+    }
+
+    .btn-reset-link {
+        color: #999;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 5px 10px;
+    }
+
+    .dropdown-checkbox {
+        position: relative;
+        min-width: 160px;
+    }
+
+    .dropdown-toggle {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        background: white;
+        cursor: pointer;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .dropdown-toggle::after {
+        content: "▾";
+        font-size: 10px;
+        color: #999;
+        margin-left: 8px;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        margin-top: 4px;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+        color: #444;
+        cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+        background: #f9f9f9;
+    }
+
+    .dropdown-item input[type="checkbox"] {
+        accent-color: #E67E22;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function toggleDropdown(el) {
+            const menu = el.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('show');
+            });
+            menu.classList.toggle("show");
+        }
+
+        document.addEventListener("change", function (e) {
+            if (e.target.matches(".dropdown-menu input[type='checkbox']")) {
+                const container = e.target.closest(".dropdown-checkbox");
+                const checked = container.querySelectorAll("input[type='checkbox']:checked");
+                const toggle = container.querySelector(".dropdown-toggle");
+
+                if (checked.length === 0) {
+                    toggle.innerText = "Wybierz";
+                } else {
+                    toggle.innerText = Array.from(checked)
+                        .map(x => x.parentElement.innerText.trim())
+                        .join(", ");
+                }
+            }
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest('.dropdown-checkbox')) {
+                document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+            }
+        });
+    </script>
+}

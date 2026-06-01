@@ -1,5 +1,7 @@
-using System.Net;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
 
 namespace Biblioteka.Web.Services
 {
@@ -22,22 +24,24 @@ namespace Biblioteka.Web.Services
             var senderEmail = _config["EmailSettings:SenderEmail"];
             var appPassword = _config["EmailSettings:Password"];
 
-            using (var client = new SmtpClient("smtp.gmail.com", 587))
+            var email = new MimeMessage();
+            email.From.Add(new MailboxAddress("Biblioteka System", senderEmail));
+            email.To.Add(MailboxAddress.Parse(toEmail));
+            email.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder { HtmlBody = message };
+            email.Body = bodyBuilder.ToMessageBody();
+
+            using (var client = new SmtpClient())
             {
-                client.EnableSsl = true;
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(senderEmail, appPassword);
-
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress(senderEmail!, "Biblioteka System"),
-                    Subject = subject,
-                    Body = message,
-                    IsBodyHtml = true
-                };
-
-                mailMessage.To.Add(toEmail);
-                await client.SendMailAsync(mailMessage);
+                // Używamy portu 587 i StartTls
+                await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                
+                // Logowanie za pomocą Hasła Aplikacji
+                await client.AuthenticateAsync(senderEmail, appPassword);
+                
+                await client.SendAsync(email);
+                await client.DisconnectAsync(true);
             }
         }
     }

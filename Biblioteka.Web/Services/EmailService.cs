@@ -1,7 +1,8 @@
-using MailKit.Net.Smtp;
-using MimeKit;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace Biblioteka.Web.Services
 {
@@ -21,27 +22,41 @@ namespace Biblioteka.Web.Services
 
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
-            var senderEmail = _config["EmailSettings:SenderEmail"];
-            var appPassword = _config["EmailSettings:Password"];
-
-            var email = new MimeMessage();
-            email.From.Add(new MailboxAddress("Biblioteka System", senderEmail));
-            email.To.Add(MailboxAddress.Parse(toEmail));
-            email.Subject = subject;
-
-            var bodyBuilder = new BodyBuilder { HtmlBody = message };
-            email.Body = bodyBuilder.ToMessageBody();
-
-            using (var client = new SmtpClient())
+            try
             {
-                // Używamy portu 587 i StartTls
-                await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                
-                // Logowanie za pomocą Hasła Aplikacji
-                await client.AuthenticateAsync(senderEmail, appPassword);
-                
-                await client.SendAsync(email);
-                await client.DisconnectAsync(true);
+                // Kod sam wyciągnie nowe dane Brevo, które wpiszesz w plikach JSON
+                var host = _config["EmailSettings:Host"];
+                var port = int.Parse(_config["EmailSettings:Port"] ?? "587");
+                var username = _config["EmailSettings:Username"];
+                var appPassword = _config["EmailSettings:Password"];
+                var senderEmail = _config["EmailSettings:SenderEmail"];
+
+  
+
+                using (var client = new SmtpClient(host, port))
+                {
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(username, appPassword);
+                    client.EnableSsl = true;
+                    client.Timeout = 10000;
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(senderEmail!, "Biblioteka System"),
+                        Subject = subject,
+                        Body = message,
+                        IsBodyHtml = true
+                    };
+
+                    mailMessage.To.Add(toEmail);
+
+                    await client.SendMailAsync(mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[BŁĄD SMTP] {ex.Message}");
+                throw;
             }
         }
     }
